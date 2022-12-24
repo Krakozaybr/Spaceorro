@@ -19,3 +19,10 @@ class GameScene(Scene):
 
     def catch_event(self, e):
         ...
+
+    # TODO serialization
+    # def serialize(self):
+    #     pass
+    #
+    # def deserialize(self, data):
+    #     pass

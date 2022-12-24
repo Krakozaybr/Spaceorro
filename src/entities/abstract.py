@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from src.utils.vector import Vector
 import pygame
 import pymunk
+from src.abstract import RenderUpdateObject, Serializable
 
 
 class Engine:
@@ -21,7 +22,7 @@ class EntityView(pygame.sprite.Sprite, metaclass=ABCMeta):
         pass
 
 
-class Entity(metaclass=ABCMeta):
+class Entity(Serializable, RenderUpdateObject, metaclass=ABCMeta):
     pos: Vector
     body: pymunk.Body
     shape: pymunk.Shape
@@ -30,23 +31,6 @@ class Entity(metaclass=ABCMeta):
     health: float
     max_health: float
 
-    @abstractmethod
-    def render(self, screen, camera):
-        pass
-
-    @abstractmethod
-    def update(self, dt):
-        pass
-
-    # TODO serialization
-    # @abstractmethod
-    # def serialize(self):
-    #     pass
-    #
-    # @abstractmethod
-    # def deserialize(self, data: str):
-    #     pass
-
 
 class EntityFactory(metaclass=ABCMeta):
     @abstractmethod
@@ -54,13 +38,5 @@ class EntityFactory(metaclass=ABCMeta):
         pass
 
 
-class Pilot:
+class Pilot(RenderUpdateObject):
     entity: Entity
-
-    @abstractmethod
-    def render(self, screen, camera):
-        pass
-
-    @abstractmethod
-    def update(self, dt):
-        pass

@@ -1,14 +1,8 @@
 from abc import abstractmethod, ABCMeta
+from src.abstract import RenderUpdateObject
 
 
-class Scene(metaclass=ABCMeta):
-    @abstractmethod
-    def render(self, screen):
-        pass
-
-    @abstractmethod
-    def update(self, dt):
-        pass
+class Scene(RenderUpdateObject, metaclass=ABCMeta):
 
     @abstractmethod
     def catch_event(self, e):

@@ -24,3 +24,10 @@ class PlayerEntity(Entity):
 
     def update(self, dt):
         pass
+
+    def serialize(self) -> str:
+        pass
+
+    @staticmethod
+    def deserialize(data: str):
+        pass

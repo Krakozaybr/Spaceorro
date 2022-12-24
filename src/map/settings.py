@@ -1,1 +1,1 @@
-cluster_size = 1000, 1000
+CLUSTER_SIZE = 1000, 1000
