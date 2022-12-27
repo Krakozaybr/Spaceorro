@@ -8,6 +8,3 @@ class MainMenuScene(Scene):
 
     def update(self, dt):
         ...
-
-    def catch_event(self, e):
-        ...

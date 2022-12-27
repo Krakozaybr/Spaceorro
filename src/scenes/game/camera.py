@@ -1,6 +1,7 @@
 from typing import Union
 from pymunk.vec2d import Vec2d
 from src.entities.abstract import Entity
+from src.settings import W, H
 
 
 # TODO maybe there is more convenient implementation
@@ -10,7 +11,8 @@ class Camera:
 
     def look_at(self, entity_or_x: Union[Entity, int], y: int = None):
         if isinstance(entity_or_x, Entity):
-            self.dv = entity_or_x.pos
+            x, y = entity_or_x.position
+            self.dv = Vec2d(W // 2 - x, H // 2 - y)
         elif isinstance(entity_or_x, Vec2d):
             self.dv = entity_or_x
         else:

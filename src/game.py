@@ -1,6 +1,7 @@
 from src.scenes.game.game_scene import GameScene
 import pygame
 from settings import FPS, SIZE
+from src.controls import Controls
 
 
 class Game:
@@ -13,12 +14,16 @@ class Game:
         self.scene.render(self.screen)
 
     def update(self):
-        self.scene.update(self.clock.get_time())
+        self.scene.update(self.clock.get_time() / 1000)
 
     def catch_event(self, e):
+        controls = Controls.get_instance()
         if e.type == pygame.QUIT:
             self.run = False
-        self.scene.catch_event(e)
+        if e.type == pygame.KEYDOWN:
+            controls.set_key_pressed(e.key, True)
+        if e.type == pygame.KEYUP:
+            controls.set_key_pressed(e.key, False)
 
     def start(self):
         self.clock = pygame.time.Clock()

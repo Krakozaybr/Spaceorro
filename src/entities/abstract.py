@@ -10,6 +10,7 @@ class Engine:
     rotation_speed: float
     direct_force: float
     max_speed: float
+    max_rotation_speed: float
     stop_coef: float
     stop_rotation_coef: float
     body: pymunk.Body
@@ -38,22 +39,27 @@ class EntityView(pygame.sprite.Sprite, ABC):
         pass
 
 
-class Entity(Serializable, RenderUpdateObject, ABC):
+class Entity(Serializable, pymunk.Body, RenderUpdateObject, ABC):
 
-    pos: Vec2d
-    engine: Engine
     view: EntityView
     health: float
     max_health: float
     is_active: bool
-
-
-class PhysicEntity(Entity, pymunk.Body, ABC):
-
     shape: pymunk.Shape
+    control_body: pymunk.Body
+    pivot: pymunk.PivotJoint
+    engine: Engine
 
     def __init__(self, mass: float, moment: float, body_type: int):
         pymunk.Body.__init__(self, mass, moment, body_type)
+
+    @abstractmethod
+    def add_to_space(self, space: pymunk.Space):
+        pass
+
+    @abstractmethod
+    def remove_from_space(self, space: pymunk.Space):
+        pass
 
 
 class EntityFactory(ABC):
@@ -62,5 +68,5 @@ class EntityFactory(ABC):
         pass
 
 
-class Pilot(RenderUpdateObject):
+class Pilot(RenderUpdateObject, ABC):
     entity: Entity

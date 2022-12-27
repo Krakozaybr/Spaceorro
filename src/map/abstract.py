@@ -1,12 +1,18 @@
+from _ast import Tuple
 from abc import abstractmethod, ABC
-from typing import List
+from typing import List, Tuple
 from src.entities.abstract import Entity
 from src.abstract import RenderUpdateObject, Serializable
+from pymunk.vec2d import Vec2d
 
 
 # TODO implement these
+from src.scenes.game.camera import Camera
+
+
 class AbstractCluster(Serializable, RenderUpdateObject, ABC):
     entities: List[Entity]
+    pos: Tuple[int]
 
 
 class AbstractClustersStore(Serializable, ABC):
@@ -29,7 +35,9 @@ class AbstractClustersStore(Serializable, ABC):
 
 class AbstractMapGenerator(ABC):
     @abstractmethod
-    def generate_clusters(self, x, y, clusters) -> List[AbstractCluster]:
+    def generate_clusters(
+        self, x, y, clusters: AbstractClustersStore
+    ) -> List[AbstractCluster]:
         ...
 
 
@@ -38,9 +46,9 @@ class AbstractMap(Serializable, ABC):
     map_generator: AbstractMapGenerator
 
     @abstractmethod
-    def render_at(self, x, y):
+    def render_at(self, screen, camera: Camera, pos: Vec2d):
         pass
 
     @abstractmethod
-    def update_at(self, x, y):
+    def update_at(self, pos: Vec2d, dt: float):
         pass
