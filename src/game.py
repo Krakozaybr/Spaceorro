@@ -2,6 +2,7 @@ from src.scenes.game.game_scene import GameScene
 import pygame
 from settings import FPS, SIZE
 from src.controls import Controls
+from pymunk import Vec2d
 
 
 class Game:
@@ -24,6 +25,13 @@ class Game:
             controls.set_key_pressed(e.key, True)
         if e.type == pygame.KEYUP:
             controls.set_key_pressed(e.key, False)
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            controls.set_mouse_pressed(e.button, True)
+        if e.type == pygame.MOUSEBUTTONUP:
+            controls.set_mouse_pressed(e.button, False)
+        if e.type == pygame.MOUSEMOTION:
+            x, y = e.pos
+            controls.set_mouse_pos(Vec2d(x, y))
 
     def start(self):
         self.clock = pygame.time.Clock()

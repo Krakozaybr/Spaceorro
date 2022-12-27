@@ -1,17 +1,20 @@
-from src.entities.abstract import Entity
+from src.entities.abstract import GuidedEntity
 from src.entities.engines.default_engine import DefaultEngine
 from pymunk.vec2d import Vec2d
 from .view import PlayerView
+from .pilot import PlayerPilot
 import pymunk
 from src.entities.player.config import *
+from ..config import STANDARD_START_HEALTH
 
 
-class PlayerEntity(Entity):
+class PlayerEntity(GuidedEntity):
     def __init__(self, pos: Vec2d, health, max_health):
         moment = pymunk.moment_for_poly(MASS, VERTICES)
         super().__init__(MASS, moment, body_type=pymunk.Body.DYNAMIC)
         self.pos = pos
         self.shape = pymunk.Poly(self, VERTICES)
+        self.pilot = PlayerPilot(self)
 
         self.control_body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
         self.control_body.position = pos
@@ -36,7 +39,7 @@ class PlayerEntity(Entity):
         self.view.draw(screen, camera.dv + self.pos)
 
     def update(self, dt):
-        pass
+        self.pilot.update(dt)
 
     def add_to_space(self, space: pymunk.Space):
         space.add(self, self.shape)
@@ -54,3 +57,7 @@ class PlayerEntity(Entity):
     @staticmethod
     def deserialize(data: str):
         pass
+
+    @staticmethod
+    def create_default(pos=Vec2d.zero()):
+        return PlayerEntity(pos, STANDARD_START_HEALTH, STANDARD_START_HEALTH)

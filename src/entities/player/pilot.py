@@ -1,17 +1,12 @@
-from src.entities.abstract import Pilot
-from .entity import PlayerEntity
-from src.entities.config import STANDARD_START_HEALTH
+from src.entities.abstract import Pilot, GuidedEntity
 from src.controls import Controls
 from src.entities.player.controls_config import *
 from pymunk.vec2d import Vec2d
 
 
 class PlayerPilot(Pilot):
-    def __init__(self, pos):
-        self.entity = PlayerEntity(pos, STANDARD_START_HEALTH, STANDARD_START_HEALTH)
-
-    def render(self, screen, camera):
-        self.entity.render(screen, camera)
+    def __init__(self, entity: GuidedEntity):
+        self.entity = entity
 
     def update(self, dt):
         controls = Controls.get_instance()
@@ -36,9 +31,9 @@ class PlayerPilot(Pilot):
             # print(self.entity.position)
             self.entity.engine.apply_force(Vec2d(1, 0), dt)
         if rotate_clockwise:
-            self.entity.engine.rotate_clockwise(dt)
+            self.entity.engine.rotate_clockwise(dt, 0.1)
         if rotate_counterclockwise:
-            self.entity.engine.rotate_counterclockwise(dt)
+            self.entity.engine.rotate_counterclockwise(dt, 0.1)
         # print(int(not (up or down)), int(not (left or right)), int(not (rotate_counterclockwise or rotate_clockwise)))
         self.entity.engine.stop(
             dt,

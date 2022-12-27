@@ -29,12 +29,12 @@ class DefaultEngine(Engine):
         self.stop_coef = stop_coef
         self.stop_rotation_coef = stop_rotation_coef
 
-    def rotate_clockwise(self, dt: float):
-        self.body.angular_velocity += dt * self.rotation_speed
+    def rotate_clockwise(self, dt: float, power=1.0):
+        self.body.angular_velocity += dt * self.rotation_speed * power
         self.check_rotation()
 
-    def rotate_counterclockwise(self, dt: float):
-        self.body.angular_velocity -= dt * self.rotation_speed
+    def rotate_counterclockwise(self, dt: float, power=1.0):
+        self.body.angular_velocity -= dt * self.rotation_speed * power
         self.check_rotation()
 
     def check_rotation(self):

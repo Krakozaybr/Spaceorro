@@ -3,7 +3,7 @@ import pygame
 import pymunk
 from pymunk import Vec2d
 
-from src.abstract import RenderUpdateObject, Serializable
+from src.abstract import RenderUpdateObject, Serializable, Updateable
 
 
 class Engine:
@@ -68,5 +68,9 @@ class EntityFactory(ABC):
         pass
 
 
-class Pilot(RenderUpdateObject, ABC):
+class Pilot(Updateable, ABC):
     entity: Entity
+
+
+class GuidedEntity(Entity, ABC):
+    pilot: Pilot
