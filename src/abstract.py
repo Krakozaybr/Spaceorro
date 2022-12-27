@@ -1,7 +1,7 @@
-from abc import abstractmethod, ABCMeta
+from abc import abstractmethod, ABC
 
 
-class Serializable(metaclass=ABCMeta):
+class Serializable(ABC):
     @abstractmethod
     def serialize(self) -> str:
         pass
@@ -12,17 +12,17 @@ class Serializable(metaclass=ABCMeta):
         pass
 
 
-class Updateable(metaclass=ABCMeta):
+class Updateable(ABC):
     @abstractmethod
     def update(self, dt):
         pass
 
 
-class Renderable(metaclass=ABCMeta):
+class Renderable(ABC):
     @abstractmethod
     def render(self, screen, camera):
         pass
 
 
-class RenderUpdateObject(Renderable, Updateable, metaclass=ABCMeta):
+class RenderUpdateObject(Renderable, Updateable, ABC):
     pass

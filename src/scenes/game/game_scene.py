@@ -1,15 +1,14 @@
 from src.scenes.abstract import Scene
 from .camera import Camera
 from src.entities.player.pilot import PlayerPilot
-from src.utils.vector import Vector
+from pymunk.vec2d import Vec2d
 
 
 # TODO
 class GameScene(Scene):
-
     def __init__(self):
         self.camera = Camera()
-        self.player = PlayerPilot(Vector(0, 0))
+        self.player = PlayerPilot(Vec2d(0, 0))
 
     def render(self, screen):
         ...

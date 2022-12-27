@@ -1,13 +1,17 @@
 from typing import List, Dict
 
-from src.map.abstract import AbstractCluster, AbstractMap, AbstractMapGenerator, AbstractClustersStore
+from src.map.abstract import (
+    AbstractCluster,
+    AbstractMap,
+    AbstractMapGenerator,
+    AbstractClustersStore,
+)
 import json
 from src.entities.abstract import Entity
 from src.map.settings import CLUSTER_SIZE
 
 
 class Cluster(AbstractCluster):
-
     def __init__(self):
         self.entities = []
 
@@ -73,23 +77,23 @@ class ClustersStore(AbstractClustersStore):
         return [cluster for line in self.lines.values() for cluster in line.values()]
 
     def serialize(self) -> str:
-        return json.dumps({
-            'class_name': self.__class__.__name__,
-            'lines': {
-                y: {
-                    x: cluster.serialize() for x, cluster in line.items()
-                } for y, line in self.lines.items()
+        return json.dumps(
+            {
+                "class_name": self.__class__.__name__,
+                "lines": {
+                    y: {x: cluster.serialize() for x, cluster in line.items()}
+                    for y, line in self.lines.items()
+                },
             }
-        })
+        )
 
     @staticmethod
     def deserialize(data: str):
         deserialized = json.loads(data)
         store = ClustersStore()
         store.lines = {
-            y: {
-                x: Cluster.deserialize(ser_cluster) for x, ser_cluster in line.items()
-            } for y, line in deserialized['lines']
+            y: {x: Cluster.deserialize(ser_cluster) for x, ser_cluster in line.items()}
+            for y, line in deserialized["lines"]
         }
         return store
 
@@ -119,14 +123,16 @@ class BasicMap(AbstractMap):
         pass
 
     def serialize(self) -> str:
-        return json.dumps({
-            'class_name': self.__class__.__name__,
-            'clusters': self.clusters.serialize()
-        })
+        return json.dumps(
+            {
+                "class_name": self.__class__.__name__,
+                "clusters": self.clusters.serialize(),
+            }
+        )
 
     @staticmethod
     def deserialize(data: str):
         deserialized = json.loads(data)
         basic_map = BasicMap()
-        basic_map.clusters = ClustersStore.deserialize(deserialized['clusters'])
+        basic_map.clusters = ClustersStore.deserialize(deserialized["clusters"])
         return basic_map

@@ -5,7 +5,6 @@ from src.entities.config import STANDARD_START_HEALTH
 
 
 class PlayerPilot(Pilot):
-
     def __init__(self, pos):
         self.entity = PlayerEntity(pos, STANDARD_START_HEALTH, STANDARD_START_HEALTH)
 
@@ -17,4 +16,3 @@ class PlayerPilot(Pilot):
 
     def update(self, dt):
         pass
-

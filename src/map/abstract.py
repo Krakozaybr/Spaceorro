@@ -1,15 +1,15 @@
-from abc import abstractmethod, ABCMeta
+from abc import abstractmethod, ABC
 from typing import List
 from src.entities.abstract import Entity
 from src.abstract import RenderUpdateObject, Serializable
 
 
 # TODO implement these
-class AbstractCluster(Serializable, RenderUpdateObject, metaclass=ABCMeta):
+class AbstractCluster(Serializable, RenderUpdateObject, ABC):
     entities: List[Entity]
 
 
-class AbstractClustersStore(Serializable, metaclass=ABCMeta):
+class AbstractClustersStore(Serializable, ABC):
     @abstractmethod
     def __getitem__(self, item):
         pass
@@ -27,13 +27,13 @@ class AbstractClustersStore(Serializable, metaclass=ABCMeta):
         pass
 
 
-class AbstractMapGenerator(metaclass=ABCMeta):
+class AbstractMapGenerator(ABC):
     @abstractmethod
     def generate_clusters(self, x, y, clusters) -> List[AbstractCluster]:
         ...
 
 
-class AbstractMap(Serializable, metaclass=ABCMeta):
+class AbstractMap(Serializable, ABC):
     clusters: AbstractClustersStore
     map_generator: AbstractMapGenerator
 
