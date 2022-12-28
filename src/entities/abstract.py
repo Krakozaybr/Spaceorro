@@ -21,15 +21,23 @@ class Engine:
         pass
 
     @abstractmethod
-    def rotate_clockwise(self, dt: float):
+    def rotate_clockwise(self, dt: float, power):
         pass
 
     @abstractmethod
-    def rotate_counterclockwise(self, dt: float):
+    def rotate_counterclockwise(self, dt: float, power):
+        pass
+
+    @abstractmethod
+    def rotate_to(self, dt: float, alpha: float):
         pass
 
     @abstractmethod
     def apply_force(self, force: Vec2d, dt: float):
+        pass
+
+    @abstractmethod
+    def bring_rotate_speed_to(self, dt: float, speed: float):
         pass
 
 

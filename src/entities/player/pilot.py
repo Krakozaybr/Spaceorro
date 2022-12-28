@@ -1,7 +1,10 @@
+import math
+
 from src.entities.abstract import Pilot, GuidedEntity
 from src.controls import Controls
 from src.entities.player.controls_config import *
 from pymunk.vec2d import Vec2d
+from src.settings import W, H
 
 
 class PlayerPilot(Pilot):
@@ -35,6 +38,9 @@ class PlayerPilot(Pilot):
         if rotate_counterclockwise:
             self.entity.engine.rotate_counterclockwise(dt, 0.1)
         # print(int(not (up or down)), int(not (left or right)), int(not (rotate_counterclockwise or rotate_clockwise)))
+        if controls.is_mouse_pressed():
+            angle = (controls.get_mouse_pos() - Vec2d(W / 2, H / 2)).angle
+            self.entity.engine.rotate_to(dt, (angle + math.pi / 2) % (math.pi * 2))
         self.entity.engine.stop(
             dt,
             not (up or down),

@@ -18,7 +18,7 @@ class DefaultEngine(Engine):
         stop_coef=1.0,
         stop_rotation_coef=0.1,
         direct_force=100,
-        rotation_speed=100,
+        rotation_speed=40,
     ):
         self.rotation_speed = rotation_speed
         self.direct_force = direct_force
@@ -30,11 +30,34 @@ class DefaultEngine(Engine):
         self.stop_rotation_coef = stop_rotation_coef
 
     def rotate_clockwise(self, dt: float, power=1.0):
-        self.body.angular_velocity += dt * self.rotation_speed * power
-        self.check_rotation()
+        self._rotate(dt * power)
 
     def rotate_counterclockwise(self, dt: float, power=1.0):
-        self.body.angular_velocity -= dt * self.rotation_speed * power
+        self._rotate(-dt * power)
+
+    def _rotate(self, k):
+        self.body.angular_velocity += k * self.rotation_speed
+        print(k * self.rotation_speed)
+        self.check_rotation()
+
+    def rotate_to(self, dt, alpha):
+        pi2 = math.pi * 2
+        current_angle = self.body.angle % pi2
+        k = -1
+        if (current_angle - alpha) % pi2 > (alpha - current_angle) % pi2:
+            k = 1
+        dx = abs(current_angle - alpha)
+        self.bring_rotate_speed_to(dt, self.rotation_speed * k * dx / math.pi)
+
+    def bring_rotate_speed_to(self, dt: float, speed: float):
+        current_speed = self.body.angular_velocity
+        force = self.rotation_speed * dt
+        if abs(current_speed - speed) <= force:
+            self.body.angular_velocity = speed
+        elif current_speed - speed > 0:
+            self.body.angular_velocity -= force
+        else:
+            self.body.angular_velocity += force
         self.check_rotation()
 
     def check_rotation(self):
