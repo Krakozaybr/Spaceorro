@@ -1,5 +1,0 @@
-MASS = 1000
-MAX_SPEED = 500
-MAX_ROTATION_SPEED = 10
-# TODO
-VERTICES = [(-20, 20), (20, 20), (20, 0), (0, -20), (-20, 0)]

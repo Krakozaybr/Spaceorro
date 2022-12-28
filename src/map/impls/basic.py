@@ -21,7 +21,14 @@ import random
 
 class Cluster(AbstractCluster):
 
-    balls = [(random.randint(0, CLUSTER_SIZE[0]), random.randint(0, CLUSTER_SIZE[1]), random.randint(2, 6)) for _ in range(100)]
+    balls = [
+        (
+            random.randint(0, CLUSTER_SIZE[0]),
+            random.randint(0, CLUSTER_SIZE[1]),
+            random.randint(2, 6),
+        )
+        for _ in range(100)
+    ]
 
     def __init__(self, x, y):
         self.entities = []
@@ -32,14 +39,14 @@ class Cluster(AbstractCluster):
             entity.update(dt)
 
     def render(self, screen, camera):
-        W, H = CLUSTER_SIZE
-        dx, dy = camera.dv + Vec2d(self.x * W, self.y * H)
+        w, h = CLUSTER_SIZE
+        dx, dy = camera.dv + Vec2d(self.x * w, self.y * h)
         for x, y, r in self.balls:
-            pygame.draw.circle(screen, 'white', (dx + x, dy + y), r)
-        pygame.draw.line(screen, 'green', (dx, dy), (dx + W, dy))
-        pygame.draw.line(screen, 'green', (dx + W, dy), (dx + W, dy + H))
-        pygame.draw.line(screen, 'green', (dx + W, dy + H), (dx, dy + H))
-        pygame.draw.line(screen, 'green', (dx, dy + H), (dx, dy))
+            pygame.draw.circle(screen, "white", (dx + x, dy + y), r)
+        pygame.draw.line(screen, "green", (dx, dy), (dx + w, dy))
+        pygame.draw.line(screen, "green", (dx + w, dy), (dx + w, dy + h))
+        pygame.draw.line(screen, "green", (dx + w, dy + h), (dx, dy + h))
+        pygame.draw.line(screen, "green", (dx, dy + h), (dx, dy))
         for entity in self.entities:
             entity.render(screen, camera)
 
@@ -147,7 +154,7 @@ class ClustersStore(AbstractClustersStore):
 class BasicMapGenerator(AbstractMapGenerator):
     # TODO make generation more complex
     def generate_clusters(self, x, y, clusters: ClustersStore) -> List[AbstractCluster]:
-        print(f'generated at {x}, {y}')
+        print(f"generated at {x}, {y}")
         return [Cluster(x, y)]
 
 
@@ -187,7 +194,6 @@ class BasicMap(AbstractMap):
             result.add(cluster)
         return result
 
-    # TODO
     def render_at(self, screen, camera: Camera, pos: Vec2d):
         self.update_active_clusters(
             self.get_clusters_near(*self.determine_cluster(pos))
@@ -195,7 +201,6 @@ class BasicMap(AbstractMap):
         for cluster in self.active_clusters:
             cluster.render(screen, camera)
 
-    # TODO
     def update_at(self, pos: Vec2d, dt: float):
         self.update_active_clusters(
             self.get_clusters_near(*self.determine_cluster(pos))

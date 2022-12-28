@@ -37,10 +37,9 @@ class DefaultEngine(Engine):
 
     def _rotate(self, k):
         self.body.angular_velocity += k * self.rotation_speed
-        print(k * self.rotation_speed)
         self.check_rotation()
 
-    def rotate_to(self, dt, alpha):
+    def rotate_to(self, dt: float, alpha: float):
         pi2 = math.pi * 2
         current_angle = self.body.angle % pi2
         k = -1
@@ -48,6 +47,12 @@ class DefaultEngine(Engine):
             k = 1
         dx = abs(current_angle - alpha)
         self.bring_rotate_speed_to(dt, self.rotation_speed * k * dx / math.pi)
+
+    def move_to(self, pos: Vec2d):
+        ...
+
+    def bring_speed_to(self, dt: float, speed: float):
+        ...
 
     def bring_rotate_speed_to(self, dt: float, speed: float):
         current_speed = self.body.angular_velocity

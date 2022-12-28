@@ -11,8 +11,7 @@ class Camera:
 
     def look_at(self, entity_or_x: Union[Entity, int], y: int = None):
         if isinstance(entity_or_x, Entity):
-            x, y = entity_or_x.position
-            self.dv = Vec2d(W // 2 - x, H // 2 - y)
+            self.dv = Vec2d(W // 2, H // 2) - entity_or_x.position
         elif isinstance(entity_or_x, Vec2d):
             self.dv = entity_or_x
         else:

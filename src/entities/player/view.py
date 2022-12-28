@@ -14,8 +14,8 @@ class PlayerView(EntityView):
         verts = []
         shape = self.entity.shape
         for v in shape.get_vertices():
-            x = v.rotated(shape.body.angle)[0] + shape.body.position[0]
-            y = v.rotated(shape.body.angle)[1] + shape.body.position[1]
+            x = v.rotated(shape.body.angle)[0]
+            y = v.rotated(shape.body.angle)[1]
             verts.append((x + pos.x, y + pos.y))
         pygame.draw.polygon(screen, "red", [(dx, dy) for dx, dy in verts])
         # x, y = self.entity.position + pos

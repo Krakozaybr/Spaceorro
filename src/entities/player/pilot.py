@@ -20,30 +20,26 @@ class PlayerPilot(Pilot):
         right = controls.is_key_pressed(GO_RIGHT)
         rotate_clockwise = controls.is_key_pressed(ROTATE_CLOCKWISE)
         rotate_counterclockwise = controls.is_key_pressed(ROTATE_COUNTERCLOCKWISE)
+        rotate_to = controls.is_mouse_pressed(controls.LEFT_MOUSE_BTN)
 
         if up:
-            # print(self.entity.position)
             self.entity.engine.apply_force(Vec2d(0, -1), dt)
         if down:
-            # print(self.entity.position)
             self.entity.engine.apply_force(Vec2d(0, 1), dt)
         if left:
-            # print(self.entity.position)
             self.entity.engine.apply_force(Vec2d(-1, 0), dt)
         if right:
-            # print(self.entity.position)
             self.entity.engine.apply_force(Vec2d(1, 0), dt)
         if rotate_clockwise:
             self.entity.engine.rotate_clockwise(dt, 0.1)
         if rotate_counterclockwise:
             self.entity.engine.rotate_counterclockwise(dt, 0.1)
-        # print(int(not (up or down)), int(not (left or right)), int(not (rotate_counterclockwise or rotate_clockwise)))
-        if controls.is_mouse_pressed():
+        if rotate_to:
             angle = (controls.get_mouse_pos() - Vec2d(W / 2, H / 2)).angle
             self.entity.engine.rotate_to(dt, (angle + math.pi / 2) % (math.pi * 2))
         self.entity.engine.stop(
             dt,
             not (up or down),
             not (left or right),
-            not (rotate_counterclockwise or rotate_clockwise),
+            not (rotate_counterclockwise or rotate_clockwise or rotate_to),
         )
