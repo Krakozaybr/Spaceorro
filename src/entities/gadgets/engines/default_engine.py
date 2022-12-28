@@ -48,11 +48,19 @@ class DefaultEngine(Engine):
         dx = abs(current_angle - alpha)
         self.bring_rotate_speed_to(dt, self.rotation_speed * k * dx / math.pi)
 
-    def move_to(self, pos: Vec2d):
-        ...
+    def move_to(self, dt: float, pos: Vec2d):
+        vec, length = (pos - self.control_body.position).normalized_and_length()
+        self.bring_speed_to(dt, vec * min(self.direct_force, length))
 
-    def bring_speed_to(self, dt: float, speed: float):
-        ...
+    def bring_speed_to(self, dt: float, speed: Vec2d):
+        ds = self.direct_force * dt
+        vel = self.control_body.velocity
+        diff_vec, diff_length = (speed - vel).normalized_and_length()
+        if diff_length <= ds:
+            self.control_body.velocity = speed
+        else:
+            self.control_body.velocity += diff_vec * ds
+        self.check_speed()
 
     def bring_rotate_speed_to(self, dt: float, speed: float):
         current_speed = self.body.angular_velocity
@@ -71,11 +79,14 @@ class DefaultEngine(Engine):
         elif self.body.angular_velocity > self.max_rotation_speed:
             self.body.angular_velocity = self.max_rotation_speed
 
+    def check_speed(self):
+        normalized, length = self.control_body.velocity.normalized_and_length()
+        if length > self.max_speed:
+            self.control_body.velocity = normalized * self.max_speed
+
     def apply_force(self, force: Vec2d, dt: float):
         self.control_body.velocity += force.normalized() * self.direct_force * dt
-        normalized, length = self.control_body.velocity.normalized_and_length()
-        if self.max_speed < length:
-            self.control_body.velocity = self.max_speed * normalized
+        self.check_speed()
 
     def stop(self, dt: float, vertical=True, horizontal=True, rotation=True):
         vel = x, y = self.control_body.velocity

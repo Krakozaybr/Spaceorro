@@ -36,7 +36,7 @@ class Engine:
         pass
 
     @abstractmethod
-    def move_to(self, pos: Vec2d):
+    def move_to(self, dt: float, pos: Vec2d):
         pass
 
     @abstractmethod
@@ -48,7 +48,7 @@ class Engine:
         pass
 
     @abstractmethod
-    def bring_speed_to(self, dt: float, speed: float):
+    def bring_speed_to(self, dt: float, speed: Vec2d):
         pass
 
 
