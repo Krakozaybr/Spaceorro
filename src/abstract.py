@@ -1,5 +1,7 @@
 from abc import abstractmethod, ABC
 
+from pygame import Surface
+
 
 class Serializable(ABC):
     @abstractmethod
@@ -14,13 +16,13 @@ class Serializable(ABC):
 
 class Updateable(ABC):
     @abstractmethod
-    def update(self, dt):
+    def update(self, dt: float):
         pass
 
 
 class Renderable(ABC):
     @abstractmethod
-    def render(self, screen, camera):
+    def render(self, screen: Surface, camera):
         pass
 
 

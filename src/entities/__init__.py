@@ -1,4 +1,4 @@
-from .player.entity import PlayerEntity
+from src.entities.entities_impls.player.entity import PlayerEntity
 import json
 
 

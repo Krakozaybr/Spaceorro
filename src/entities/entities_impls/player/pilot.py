@@ -2,7 +2,7 @@ import math
 
 from src.entities.abstract import Pilot, GuidedEntity
 from src.controls import Controls
-from src.entities.player.controls_config import *
+from src.entities.entities_impls.player.controls_config import *
 from pymunk.vec2d import Vec2d
 from src.settings import W, H
 
@@ -12,7 +12,7 @@ class PlayerPilot(Pilot):
         self.entity = entity
         # self.pos = Vec2d.zero()
 
-    def update(self, dt):
+    def update(self, dt: float):
         controls = Controls.get_instance()
 
         up = controls.is_key_pressed(GO_UP)

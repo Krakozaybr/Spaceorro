@@ -1,18 +1,17 @@
-from _ast import Tuple
 from abc import abstractmethod, ABC
 from typing import List, Tuple
-from src.entities.abstract import Entity
-from src.abstract import RenderUpdateObject, Serializable
+
+from pygame import Surface
 from pymunk.vec2d import Vec2d
 
-
-# TODO implement these
+from src.abstract import RenderUpdateObject, Serializable
+from src.entities.abstract import Entity
 from src.scenes.game.camera import Camera
 
 
 class AbstractCluster(Serializable, RenderUpdateObject, ABC):
     entities: List[Entity]
-    pos: Tuple[int]
+    pos: Tuple[int, int]
 
 
 class AbstractClustersStore(Serializable, ABC):
@@ -46,7 +45,7 @@ class AbstractMap(Serializable, ABC):
     map_generator: AbstractMapGenerator
 
     @abstractmethod
-    def render_at(self, screen, camera: Camera, pos: Vec2d):
+    def render_at(self, screen: Surface, camera: Camera, pos: Vec2d):
         pass
 
     @abstractmethod

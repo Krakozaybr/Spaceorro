@@ -5,6 +5,7 @@ import pygame.draw
 from pymunk import Vec2d
 
 from src.entities.abstract import HealthBar
+from pygame import Surface
 
 
 class DefaultBar(HealthBar, ABC):
@@ -15,7 +16,7 @@ class DefaultBar(HealthBar, ABC):
         self.w = w
         self.h = h
 
-    def render(self, screen, health: float, pos: Vec2d):
+    def render(self, screen: Surface, health: float, pos: Vec2d):
         x, y = pos + self.pos
         pygame.draw.rect(
             screen,

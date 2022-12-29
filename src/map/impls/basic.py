@@ -3,6 +3,7 @@ from typing import List, Dict, Set, Iterable
 
 import pygame.draw
 import pymunk
+from pygame import Surface
 from pymunk import Vec2d
 
 from src.map.abstract import (
@@ -30,15 +31,15 @@ class Cluster(AbstractCluster):
         for _ in range(100)
     ]
 
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int):
         self.entities = []
-        self.x, self.y = self.pos = (x, y)
+        self.pos = self.x, self.y = x, y
 
-    def update(self, dt):
+    def update(self, dt: float):
         for entity in self.entities:
             entity.update(dt)
 
-    def render(self, screen, camera):
+    def render(self, screen: Surface, camera: Camera):
         w, h = CLUSTER_SIZE
         dx, dy = camera.dv + Vec2d(self.x * w, self.y * h)
         for x, y, r in self.balls:
@@ -115,7 +116,7 @@ class ClustersStore(AbstractClustersStore):
             return
         raise TypeError
 
-    def generate_at(self, x, y):
+    def generate_at(self, x: int, y: int):
         for new_cluster in self.generator.generate_clusters(x, y, self):
             cx, cy = new_cluster.pos
             self[cx, cy] = new_cluster
@@ -153,7 +154,7 @@ class ClustersStore(AbstractClustersStore):
 
 class BasicMapGenerator(AbstractMapGenerator):
     # TODO make generation more complex
-    def generate_clusters(self, x, y, clusters: ClustersStore) -> List[AbstractCluster]:
+    def generate_clusters(self, x: int, y: int, clusters: ClustersStore) -> List[AbstractCluster]:
         print(f"generated at {x}, {y}")
         return [Cluster(x, y)]
 
@@ -187,14 +188,14 @@ class BasicMap(AbstractMap):
         w, h = CLUSTER_SIZE
         return int(pos.x // w), int(pos.y // h)
 
-    def get_clusters_near(self, x, y):
+    def get_clusters_near(self, x: int, y: int):
         result = set()
         for dx, dy in product(range(-VISION_RADIUS, VISION_RADIUS + 1), repeat=2):
             cluster = self.clusters[x + dx, y + dy]
             result.add(cluster)
         return result
 
-    def render_at(self, screen, camera: Camera, pos: Vec2d):
+    def render_at(self, screen: Surface, camera: Camera, pos: Vec2d):
         self.update_active_clusters(
             self.get_clusters_near(*self.determine_cluster(pos))
         )

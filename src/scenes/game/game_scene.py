@@ -1,9 +1,9 @@
 from src.scenes.abstract import Scene
 from .camera import Camera
-from src.entities.player.entity import PlayerEntity
-from pymunk.vec2d import Vec2d
+from src.entities.entities_impls.player.entity import PlayerEntity
 from src.abstract import Serializable
 from src.map.impls.basic import BasicMap
+from pygame import Surface
 
 
 # TODO
@@ -14,7 +14,7 @@ class GameScene(Serializable, Scene):
         self.map = BasicMap()
         self.player.add_to_space(self.map.space)
 
-    def render(self, screen):
+    def render(self, screen: Surface):
         self.map.render_at(screen, self.camera, self.player.position)
         self.player.render(screen, self.camera)
 

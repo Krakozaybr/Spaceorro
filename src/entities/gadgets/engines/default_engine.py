@@ -3,31 +3,20 @@ import math
 import pymunk
 from pymunk.vec2d import Vec2d
 
-from src.entities.abstract import Engine
-from math import inf
+from src.entities.characteristics import VelocityCharacteristics
+from .abstract import Engine
 
 
-# TODO implement engine as it could influence on body of entity
 class DefaultEngine(Engine):
     def __init__(
         self,
         body: pymunk.Body,
         control_body: pymunk.Body,
-        max_speed=inf,
-        max_rotation_speed=inf,
-        stop_coef=1.0,
-        stop_rotation_coef=0.1,
-        direct_force=100,
-        rotation_speed=40,
+        characteristics: VelocityCharacteristics,
     ):
-        self.rotation_speed = rotation_speed
-        self.direct_force = direct_force
         self.body = body
         self.control_body = control_body
-        self.max_speed = max_speed
-        self.max_rotation_speed = max_rotation_speed
-        self.stop_coef = stop_coef
-        self.stop_rotation_coef = stop_rotation_coef
+        self.characteristics = characteristics
 
     def rotate_clockwise(self, dt: float, power=1.0):
         self._rotate(dt * power)
@@ -35,7 +24,7 @@ class DefaultEngine(Engine):
     def rotate_counterclockwise(self, dt: float, power=1.0):
         self._rotate(-dt * power)
 
-    def _rotate(self, k):
+    def _rotate(self, k: float):
         self.body.angular_velocity += k * self.rotation_speed
         self.check_rotation()
 
@@ -51,6 +40,10 @@ class DefaultEngine(Engine):
     def move_to(self, dt: float, pos: Vec2d):
         vec, length = (pos - self.control_body.position).normalized_and_length()
         self.bring_speed_to(dt, vec * min(self.direct_force, length))
+
+    def keep_distance(self, dt: float, pos: Vec2d, distance: float):
+        vec = (self.control_body.position - pos).normalized()
+        self.move_to(dt, vec * distance)
 
     def bring_speed_to(self, dt: float, speed: Vec2d):
         ds = self.direct_force * dt
