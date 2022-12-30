@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 import pymunk
 from pygame import Surface
@@ -14,6 +14,7 @@ from src.entities.characteristics import (
 from src.entities.config.abstract_config import AbstractEntityConfig
 from src.entities.gadgets.engines.abstract import Engine
 from src.settings import get_entity_start_config
+from src.utils.body_serialization import *
 
 
 class BasicEntity(GuidedEntity, ABC):
@@ -28,10 +29,15 @@ class BasicEntity(GuidedEntity, ABC):
         life_characteristics: LifeCharacteristics,
         velocity_characteristics: VelocityCharacteristics,
         weapon_characteristics: WeaponCharacteristics,
+        mass: Optional[float] = None,
+        moment: Optional[float] = None,
     ):
         # Pymunk
-        moment = pymunk.moment_for_poly(self.config.MASS, self.config.VERTICES)
-        super().__init__(self.config.MASS, moment, body_type=pymunk.Body.DYNAMIC)
+        if moment is None:
+            moment = pymunk.moment_for_poly(self.config.MASS, self.config.VERTICES)
+        if mass is None:
+            mass = self.config.MASS
+        super().__init__(mass, moment, body_type=pymunk.Body.DYNAMIC)
 
         self.position = pos
         self.shape = pymunk.Poly(self, self.config.VERTICES)
@@ -110,3 +116,11 @@ class BasicEntity(GuidedEntity, ABC):
     def create_default(cls, pos=Vec2d.zero()):
         data = get_entity_start_config(cls.START_CONFIG_NAME)
         return cls(pos=pos, **cls.get_characteristics(data))
+
+    def to_dict(self) -> Dict:
+        characteristics = self.characteristics_to_dict()
+        body_data = {
+            "body": dynamic_body_to_dict(self),
+            "control_body": kinematic_body_to_dict(self.control_body),
+        }
+        return {**characteristics, **body_data}
