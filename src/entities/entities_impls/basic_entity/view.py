@@ -43,7 +43,7 @@ class BasicView(EntityView, ABC):
                 verts.append((x + pos.x, y + pos.y))
             pygame.draw.polygon(screen, "red", [(dx, dy) for dx, dy in verts])
         if SHOW_VELOCITY_VECTOR:
-            x, y = self.entity.position + pos
+            x, y = pos
             dx, dy = x + self.entity.velocity.x / 10, y + self.entity.velocity.y / 10
             pygame.draw.line(screen, "blue", (x, y), (dx, dy))
         self.health_bar.render(
