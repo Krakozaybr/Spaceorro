@@ -1,7 +1,7 @@
 {
   "debug": {
     "active": true,
-    "show_velocity_vector": true,
+    "show_velocity_vector": false,
     "show_clusters_borders": true,
     "show_player_collision_poly": true
   }

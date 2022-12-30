@@ -47,12 +47,15 @@ class BasicEntity(GuidedEntity, ABC):
         self.weapon_characteristics = weapon_characteristics
         self.velocity_characteristics = velocity_characteristics
         self.is_active = True
-        self.is_alive = True
 
         # Instruments
         self.engine = self.create_engine()
         self.pilot = self.create_pilot()
         self.view = self.create_view()
+
+    @property
+    def is_alive(self) -> bool:
+        return self.life_characteristics.health > 0
 
     @abstractmethod
     def create_engine(self) -> Engine:
@@ -85,26 +88,25 @@ class BasicEntity(GuidedEntity, ABC):
     @staticmethod
     def get_characteristics(data: Dict) -> Dict:
         return {
-            "life_characteristics": LifeCharacteristics.deserialize(
+            "life_characteristics": LifeCharacteristics.from_dict(
                 data["life_characteristics"]
             ),
-            "velocity_characteristics": VelocityCharacteristics.deserialize(
+            "velocity_characteristics": VelocityCharacteristics.from_dict(
                 data["velocity_characteristics"]
             ),
-            "weapon_characteristics": WeaponCharacteristics.deserialize(
+            "weapon_characteristics": WeaponCharacteristics.from_dict(
                 data["weapon_characteristics"]
             ),
         }
 
-    def serialize_characteristics(self):
+    def characteristics_to_dict(self):
         return {
-            "life_characteristics": self.life_characteristics.serialize(),
-            "velocity_characteristics": self.velocity_characteristics.serialize(),
-            "weapon_characteristics": self.weapon_characteristics.serialize(),
+            "life_characteristics": self.life_characteristics.to_dict(),
+            "velocity_characteristics": self.velocity_characteristics.to_dict(),
+            "weapon_characteristics": self.weapon_characteristics.to_dict(),
         }
 
     @classmethod
     def create_default(cls, pos=Vec2d.zero()):
         data = get_entity_start_config(cls.START_CONFIG_NAME)
-        print(cls.get_characteristics(data))
         return cls(pos=pos, **cls.get_characteristics(data))

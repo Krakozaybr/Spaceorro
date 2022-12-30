@@ -1,3 +1,5 @@
+from typing import Dict
+
 from src.scenes.abstract import Scene
 from .camera import Camera
 from src.entities.entities_impls.player.entity import PlayerEntity
@@ -24,8 +26,9 @@ class GameScene(Serializable, Scene):
         self.player.update(dt)
 
     # TODO serialization
-    def serialize(self):
+    def to_dict(self) -> Dict:
         pass
 
-    def deserialize(self, data):
+    @classmethod
+    def from_dict(cls, data: Dict):
         pass

@@ -1,3 +1,4 @@
+import random
 from itertools import product
 from typing import List, Dict, Set, Iterable
 
@@ -6,18 +7,17 @@ import pymunk
 from pygame import Surface
 from pymunk import Vec2d
 
+from src.entities import entity_from_dict
+from src.entities.abstract import Entity
 from src.map.abstract import (
     AbstractCluster,
     AbstractMap,
     AbstractMapGenerator,
     AbstractClustersStore,
 )
-import json
-from src.entities.abstract import Entity
 from src.map.settings import CLUSTER_SIZE, VISION_RADIUS
-from src.entities import deserialize as deserialize_entity
 from src.scenes.game.camera import Camera
-import random
+from src.settings import SHOW_CLUSTERS_BORDERS
 
 
 class Cluster(AbstractCluster):
@@ -36,18 +36,23 @@ class Cluster(AbstractCluster):
         self.pos = self.x, self.y = x, y
 
     def update(self, dt: float):
-        for entity in self.entities:
+        deleted = 0
+        for i, entity in enumerate(self.entities.copy()):
             entity.update(dt)
+            if not entity.is_active:
+                del self.entities[i - deleted]
+                deleted += 1
 
     def render(self, screen: Surface, camera: Camera):
         w, h = CLUSTER_SIZE
         dx, dy = camera.dv + Vec2d(self.x * w, self.y * h)
         for x, y, r in self.balls:
             pygame.draw.circle(screen, "white", (dx + x, dy + y), r)
-        pygame.draw.line(screen, "green", (dx, dy), (dx + w, dy))
-        pygame.draw.line(screen, "green", (dx + w, dy), (dx + w, dy + h))
-        pygame.draw.line(screen, "green", (dx + w, dy + h), (dx, dy + h))
-        pygame.draw.line(screen, "green", (dx, dy + h), (dx, dy))
+        if SHOW_CLUSTERS_BORDERS:
+            pygame.draw.line(screen, "green", (dx, dy), (dx + w, dy))
+            pygame.draw.line(screen, "green", (dx + w, dy), (dx + w, dy + h))
+            pygame.draw.line(screen, "green", (dx + w, dy + h), (dx, dy + h))
+            pygame.draw.line(screen, "green", (dx, dy + h), (dx, dy))
         for entity in self.entities:
             entity.render(screen, camera)
 
@@ -66,23 +71,18 @@ class Cluster(AbstractCluster):
                 result.append((entity, x, y))
         return result
 
-    def serialize(self) -> str:
-        return json.dumps(
-            {
-                "class_name": Cluster.__name__,
-                "x": self.x,
-                "y": self.y,
-                "entities": [entity.serialize() for entity in self.entities],
-            }
-        )
+    def to_dict(self) -> Dict:
+        return {
+            "class_name": Cluster.__name__,
+            "x": self.x,
+            "y": self.y,
+            "entities": [entity.to_dict() for entity in self.entities],
+        }
 
-    @staticmethod
-    def deserialize(data: str):
-        deserialized = json.loads(data)
-        cluster = Cluster(deserialized["x"], deserialized["y"])
-        cluster.entities = [
-            deserialize_entity(entity) for entity in deserialized["entities"]
-        ]
+    @classmethod
+    def from_dict(cls, data: Dict):
+        cluster = Cluster(data["x"], data["y"])
+        cluster.entities = [entity_from_dict(entity) for entity in data["entities"]]
         return cluster
 
     def __hash__(self):
@@ -130,31 +130,29 @@ class ClustersStore(AbstractClustersStore):
     def values(self):
         return [cluster for line in self.lines.values() for cluster in line.values()]
 
-    def serialize(self) -> str:
-        return json.dumps(
-            {
-                "class_name": self.__class__.__name__,
-                "lines": {
-                    y: {x: cluster.serialize() for x, cluster in line.items()}
-                    for y, line in self.lines.items()
-                },
-            }
-        )
-
-    @staticmethod
-    def deserialize(data: str):
-        deserialized = json.loads(data)
-        store = ClustersStore()
-        store.lines = {
-            y: {x: Cluster.deserialize(ser_cluster) for x, ser_cluster in line.items()}
-            for y, line in deserialized["lines"]
+    def to_dict(self) -> Dict:
+        return {
+            "class_name": self.__class__.__name__,
+            "lines": {
+                y: {x: cluster.to_dict() for x, cluster in line.items()}
+                for y, line in self.lines.items()
+            },
         }
-        return store
+
+    @classmethod
+    def from_dict(cls, data: Dict):
+        store = ClustersStore(BasicMapGenerator())
+        store.lines = {
+            y: {x: Cluster.from_dict(ser_cluster) for x, ser_cluster in line.items()}
+            for y, line in data["lines"]
+        }
 
 
 class BasicMapGenerator(AbstractMapGenerator):
     # TODO make generation more complex
-    def generate_clusters(self, x: int, y: int, clusters: ClustersStore) -> List[AbstractCluster]:
+    def generate_clusters(
+        self, x: int, y: int, clusters: ClustersStore
+    ) -> List[AbstractCluster]:
         print(f"generated at {x}, {y}")
         return [Cluster(x, y)]
 
@@ -218,17 +216,14 @@ class BasicMap(AbstractMap):
         self.delete_entities(entities_for_delete)
         self.space.step(dt)
 
-    def serialize(self) -> str:
-        return json.dumps(
-            {
-                "class_name": self.__class__.__name__,
-                "clusters": self.clusters.serialize(),
-            }
-        )
+    def to_dict(self) -> Dict:
+        return {
+            "class_name": self.__class__.__name__,
+            "clusters": self.clusters.to_dict(),
+        }
 
-    @staticmethod
-    def deserialize(data: str):
-        deserialized = json.loads(data)
+    @classmethod
+    def from_dict(cls, data: Dict):
         basic_map = BasicMap()
-        basic_map.clusters = ClustersStore.deserialize(deserialized["clusters"])
+        basic_map.clusters = ClustersStore.from_dict(data["clusters"])
         return basic_map

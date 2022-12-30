@@ -14,22 +14,18 @@ class VelocityCharacteristics(Serializable):
     stop_coef: float
     stop_rotation_coef: float
 
-    def serialize(self) -> str:
-        return json.dumps(
-            {
-                "rotation_speed": self.rotation_speed,
-                "direct_force": self.direct_force,
-                "max_speed": self.max_speed,
-                "max_rotation_speed": self.max_rotation_speed,
-                "stop_coef": self.stop_coef,
-                "stop_rotation_coef": self.stop_rotation_coef,
-            }
-        )
+    def to_dict(self) -> Dict:
+        return {
+            "rotation_speed": self.rotation_speed,
+            "direct_force": self.direct_force,
+            "max_speed": self.max_speed,
+            "max_rotation_speed": self.max_rotation_speed,
+            "stop_coef": self.stop_coef,
+            "stop_rotation_coef": self.stop_rotation_coef,
+        }
 
-    @staticmethod
-    def deserialize(data: Union[str, Dict]):
-        if isinstance(data, str):
-            data = json.loads(data)
+    @classmethod
+    def from_dict(cls, data: Dict):
         return VelocityCharacteristics(
             rotation_speed=data["rotation_speed"],
             direct_force=data["direct_force"],
@@ -48,21 +44,17 @@ class WeaponCharacteristics(Serializable):
     bullet_mass_coef: float
     bullet_speed_coef: float
 
-    def serialize(self) -> str:
-        return json.dumps(
-            {
-                "weapon_reload_coef": self.weapon_reload_coef,
-                "bullet_damage_coef": self.bullet_damage_coef,
-                "bullet_distance_coef": self.bullet_distance_coef,
-                "bullet_mass_coef": self.bullet_mass_coef,
-                "bullet_speed_coef": self.bullet_speed_coef,
-            }
-        )
+    def to_dict(self) -> Dict:
+        return {
+            "weapon_reload_coef": self.weapon_reload_coef,
+            "bullet_damage_coef": self.bullet_damage_coef,
+            "bullet_distance_coef": self.bullet_distance_coef,
+            "bullet_mass_coef": self.bullet_mass_coef,
+            "bullet_speed_coef": self.bullet_speed_coef,
+        }
 
-    @staticmethod
-    def deserialize(data: Union[str, Dict]):
-        if isinstance(data, str):
-            data = json.loads(data)
+    @classmethod
+    def from_dict(cls, data: Dict):
         return WeaponCharacteristics(
             weapon_reload_coef=data["weapon_reload_coef"],
             bullet_damage_coef=data["bullet_damage_coef"],
@@ -90,19 +82,15 @@ class LifeCharacteristics(Serializable):
     def health_fullness(self) -> float:
         return self.health / self.max_health
 
-    def serialize(self) -> str:
-        return json.dumps(
-            {
-                "health": self.health,
-                "max_health": self.max_health,
-                "armor": self.armor,
-            }
-        )
+    def to_dict(self) -> Dict:
+        return {
+            "health": self.health,
+            "max_health": self.max_health,
+            "armor": self.armor,
+        }
 
-    @staticmethod
-    def deserialize(data: Union[str, Dict]):
-        if isinstance(data, str):
-            data = json.loads(data)
+    @classmethod
+    def from_dict(cls, data: Dict):
         return LifeCharacteristics(
             health=data["health"],
             max_health=data["max_health"],
