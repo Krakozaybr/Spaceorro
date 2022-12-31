@@ -1,5 +1,6 @@
 import random
 from itertools import product
+from pprint import pprint
 from typing import List, Dict, Set, Iterable
 
 import pygame.draw
@@ -109,6 +110,8 @@ class ClustersStore(AbstractClustersStore):
         x, y = item
         if isinstance(x, int) and isinstance(y, int):
             if not self.exists(x, y):
+                if not hasattr(self, "lol"):
+                    self.lol = 12
                 self.generate_at(x, y)
             return self.lines[y][x]
         raise TypeError
@@ -150,7 +153,8 @@ class ClustersStore(AbstractClustersStore):
         store = ClustersStore(BasicMapGenerator())
         store.lines = {
             int(y): {
-                x: Cluster.from_dict(ser_cluster) for x, ser_cluster in line.items()
+                int(x): Cluster.from_dict(ser_cluster)
+                for x, ser_cluster in line.items()
             }
             for y, line in data["lines"].items()
         }
