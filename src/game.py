@@ -3,12 +3,15 @@ import pygame
 from settings import FPS, SIZE
 from src.controls import Controls
 from pymunk import Vec2d
+from src.settings import load_game
 
 
 class Game:
     def __init__(self):
         pygame.init()
         self.scene = GameScene()
+        # Uncomment this to load from game1.json
+        # self.scene = GameScene.deserialize(load_game("game1"))
         self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):

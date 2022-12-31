@@ -89,7 +89,13 @@ class Cluster(AbstractCluster):
         return hash(self.pos)
 
     def __eq__(self, other):
-        return id(self) == id(other)
+        if (
+            isinstance(other, AbstractCluster)
+            and self.entities == other.entities
+            and self.pos == other.pos
+        ):
+            return True
+        return False
 
 
 class ClustersStore(AbstractClustersStore):
@@ -143,9 +149,21 @@ class ClustersStore(AbstractClustersStore):
     def from_dict(cls, data: Dict):
         store = ClustersStore(BasicMapGenerator())
         store.lines = {
-            y: {x: Cluster.from_dict(ser_cluster) for x, ser_cluster in line.items()}
-            for y, line in data["lines"]
+            int(y): {
+                x: Cluster.from_dict(ser_cluster) for x, ser_cluster in line.items()
+            }
+            for y, line in data["lines"].items()
         }
+        return store
+
+    def __eq__(self, other):
+        if isinstance(other, AbstractClustersStore):
+            if list(self.keys()) != list(other.keys()):
+                return False
+            if any(self[x, y] != other[x, y] for x, y in self.keys()):
+                return False
+            return True
+        return False
 
 
 class BasicMapGenerator(AbstractMapGenerator):

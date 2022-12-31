@@ -123,4 +123,12 @@ class BasicEntity(GuidedEntity, ABC):
             "body": dynamic_body_to_dict(self),
             "control_body": kinematic_body_to_dict(self.control_body),
         }
-        return {**characteristics, **body_data}
+        return {"class_name": self.__class__.__name__, **characteristics, **body_data}
+
+    def __eq__(self, other):
+        if isinstance(other, GuidedEntity) and self.to_dict() == other.to_dict():
+            return True
+        return False
+
+    def __hash__(self):
+        return hash(self.serialize())

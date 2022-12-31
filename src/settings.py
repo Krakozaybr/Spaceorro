@@ -28,6 +28,17 @@ def get_entity_start_config(name: str):
     return get_json(config_path)
 
 
+def save_game(name: str, data: str) -> None:
+    with open(os.path.join(SAVES_DIR, f"{name}.json"), mode="w", encoding="utf-8") as w:
+        w.write(data)
+
+
+def load_game(name: str) -> str:
+    with open(os.path.join(SAVES_DIR, f"{name}.json"), mode="r", encoding="utf-8") as r:
+        return r.read()
+
+
+# DEBUG
 general_config = get_json(os.path.join(DATA_DIR, "configs/general.json"))
 debug_data = general_config["debug"]
 DEBUG = debug_data["active"]
