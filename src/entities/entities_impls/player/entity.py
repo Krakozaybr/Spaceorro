@@ -3,15 +3,17 @@ from typing import Dict
 from src.entities.abstract import Pilot, EntityView
 from src.entities.config.default_config import DefaultEntityConfig
 from src.entities.gadgets.engines.default_engine import DefaultEngine
-from src.utils.body_serialization import apply_params_to_kinematic_body_from_dict, \
-    apply_params_to_dynamic_body_from_dict
+from src.utils.body_serialization import (
+    apply_params_to_kinematic_body_from_dict,
+    apply_params_to_dynamic_body_from_dict,
+)
 from .pilot import PlayerPilot
 from .view import PlayerView
-from ..basic_entity.entity import BasicEntity
+from ..basic_entity.basic_guided_entity import BasicGuidedEntity
 from ...gadgets.engines.abstract import Engine
 
 
-class PlayerEntity(BasicEntity):
+class PlayerEntity(BasicGuidedEntity):
 
     CONFIG_NAME = "player.json"
     START_CONFIG_NAME = "player.json"
@@ -31,12 +33,12 @@ class PlayerEntity(BasicEntity):
 
     @classmethod
     def from_dict(cls, data: Dict):
-        body = data['body']
-        control_body = data['control_body']
+        body = data["body"]
+        control_body = data["control_body"]
         res = PlayerEntity(
-            pos=body['position'],
-            mass=body['mass'],
-            moment=body['moment'],
+            pos=body["position"],
+            mass=body["mass"],
+            moment=body["moment"],
             **cls.get_characteristics(data)
         )
         apply_params_to_dynamic_body_from_dict(res, body)

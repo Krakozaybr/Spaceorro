@@ -4,6 +4,8 @@ from src.entities.abstract import Pilot, GuidedEntity
 from src.controls import Controls
 from src.entities.entities_impls.player.controls_config import *
 from pymunk.vec2d import Vec2d
+
+from src.entities.teams import Team
 from src.settings import W, H
 
 
@@ -11,6 +13,7 @@ class PlayerPilot(Pilot):
     def __init__(self, entity: GuidedEntity):
         self.entity = entity
         # self.pos = Vec2d.zero()
+        self.team = Team.player
 
     def update(self, dt: float):
         controls = Controls.get_instance()

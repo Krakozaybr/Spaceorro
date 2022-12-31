@@ -1,34 +1,26 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Optional
 
 import pymunk
 from pygame import Surface
 from pymunk import Vec2d
 
-from src.entities.abstract import GuidedEntity, Pilot, EntityView
+from src.entities.abstract import Entity, EntityView
 from src.entities.characteristics import (
     LifeCharacteristics,
-    WeaponCharacteristics,
-    VelocityCharacteristics,
 )
-from src.entities.config.abstract_config import AbstractEntityConfig
-from src.entities.gadgets.engines.abstract import Engine
 from src.settings import get_entity_start_config
 from src.utils.body_serialization import *
 
 
-class BasicEntity(GuidedEntity, ABC):
+class BasicEntity(Entity, ABC):
     CONFIG_NAME: str
     START_CONFIG_NAME: str
-    config: AbstractEntityConfig
-    engine: Engine
 
     def __init__(
         self,
         pos: Vec2d,
         life_characteristics: LifeCharacteristics,
-        velocity_characteristics: VelocityCharacteristics,
-        weapon_characteristics: WeaponCharacteristics,
         mass: Optional[float] = None,
         moment: Optional[float] = None,
     ):
@@ -50,13 +42,9 @@ class BasicEntity(GuidedEntity, ABC):
 
         # Characteristics
         self.life_characteristics = life_characteristics
-        self.weapon_characteristics = weapon_characteristics
-        self.velocity_characteristics = velocity_characteristics
-        self.is_active = True
 
-        # Instruments
-        self.engine = self.create_engine()
-        self.pilot = self.create_pilot()
+        # Basic
+        self.is_active = True
         self.view = self.create_view()
 
     @property
@@ -64,22 +52,11 @@ class BasicEntity(GuidedEntity, ABC):
         return self.life_characteristics.health > 0
 
     @abstractmethod
-    def create_engine(self) -> Engine:
-        pass
-
-    @abstractmethod
-    def create_pilot(self) -> Pilot:
-        pass
-
-    @abstractmethod
     def create_view(self) -> EntityView:
         pass
 
     def render(self, screen: Surface, camera):
         self.view.draw(screen, camera.dv + self.position)
-
-    def update(self, dt):
-        self.pilot.update(dt)
 
     def add_to_space(self, space: pymunk.Space):
         space.add(self, self.shape)
@@ -97,19 +74,11 @@ class BasicEntity(GuidedEntity, ABC):
             "life_characteristics": LifeCharacteristics.from_dict(
                 data["life_characteristics"]
             ),
-            "velocity_characteristics": VelocityCharacteristics.from_dict(
-                data["velocity_characteristics"]
-            ),
-            "weapon_characteristics": WeaponCharacteristics.from_dict(
-                data["weapon_characteristics"]
-            ),
         }
 
     def characteristics_to_dict(self):
         return {
             "life_characteristics": self.life_characteristics.to_dict(),
-            "velocity_characteristics": self.velocity_characteristics.to_dict(),
-            "weapon_characteristics": self.weapon_characteristics.to_dict(),
         }
 
     @classmethod
@@ -126,7 +95,7 @@ class BasicEntity(GuidedEntity, ABC):
         return {"class_name": self.__class__.__name__, **characteristics, **body_data}
 
     def __eq__(self, other):
-        if isinstance(other, GuidedEntity) and self.to_dict() == other.to_dict():
+        if isinstance(other, self.__class__) and self.to_dict() == other.to_dict():
             return True
         return False
 

@@ -12,6 +12,8 @@ from src.entities.gadgets.weapon.abstract import Weapon
 from .characteristics import *
 from pygame import Surface
 
+from .teams import Team
+
 
 class EntityView(pygame.sprite.Sprite, ABC):
     health_bar: HealthBar
@@ -27,7 +29,6 @@ class Entity(Serializable, pymunk.Body, RenderUpdateObject, ABC):
     shape: pymunk.Shape
     control_body: pymunk.Body
     pivot: pymunk.PivotJoint
-    engine: Engine
     config: AbstractEntityConfig
     life_characteristics: LifeCharacteristics
     is_active: bool
@@ -53,6 +54,7 @@ class EntityFactory(ABC):
 
 class Pilot(Updateable, ABC):
     entity: Entity
+    team: Team
 
 
 class GuidedEntity(Entity, ABC):
@@ -60,3 +62,4 @@ class GuidedEntity(Entity, ABC):
     weapon: Weapon
     weapon_characteristics: WeaponCharacteristics
     velocity_characteristics: VelocityCharacteristics
+    engine: Engine

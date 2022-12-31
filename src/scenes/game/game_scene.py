@@ -18,7 +18,6 @@ from src.map.impls import map_from_dict
 from src.entities import entity_from_dict
 
 
-# TODO
 class GameScene(Serializable, Scene):
     def __init__(
         self,
@@ -45,7 +44,6 @@ class GameScene(Serializable, Scene):
         # if controls.is_key_pressed(pygame.K_o):  # Запомнить
         #     save_game("game1", self.serialize())
 
-    # TODO serialization
     def to_dict(self) -> Dict:
         return {
             "class_name": self.__class__.__name__,
