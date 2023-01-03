@@ -3,7 +3,7 @@ import math
 import pymunk
 from pymunk.vec2d import Vec2d
 
-from src.entities.characteristics import VelocityCharacteristics
+from src.entities.modifiers_and_characteristics import VelocityCharacteristics
 from .abstract import Engine
 
 

@@ -3,7 +3,7 @@ from abc import abstractmethod, ABC
 import pymunk
 from pymunk import Vec2d
 
-from src.entities.characteristics import VelocityCharacteristics
+from src.entities.modifiers_and_characteristics import VelocityCharacteristics
 
 
 class Engine(ABC):

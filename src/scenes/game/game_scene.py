@@ -5,17 +5,17 @@ from pygame import Surface
 from pymunk import Vec2d
 
 from src.abstract import Serializable
-from src.entities.entities_impls.player.entity import PlayerEntity
+from src.entities import entity_from_dict
+from src.entities.spaceships.player.entity import PlayerEntity
+from src.map.impls import map_from_dict
 from src.map.impls.basic import BasicMap
 from src.scenes.abstract import Scene
 from .camera import Camera
-
 from ...controls import Controls
-from src.settings import load_game, save_game
-
+from ...environment.abstract import set_environment
+from ...environment.impl import BasicEnvironment
 from ...map.abstract import AbstractMap
-from src.map.impls import map_from_dict
-from src.entities import entity_from_dict
+from ...settings import save_game
 
 
 class GameScene(Serializable, Scene):
@@ -25,10 +25,13 @@ class GameScene(Serializable, Scene):
         player: Optional[PlayerEntity] = None,
         map_impl: Optional[AbstractMap] = None,
     ):
+        self.map = map_impl or BasicMap()
+        environment = BasicEnvironment(self.map)
+        set_environment(environment)
+
         self.camera = camera or Camera()
         self.player = player or PlayerEntity.create_default(Vec2d(0, 0))
-        self.map = map_impl or BasicMap()
-        self.player.add_to_space(self.map.space)
+        self.map.add_entity(self.player)
 
     def render(self, screen: Surface):
         self.map.render_at(screen, self.camera, self.player.position)
@@ -41,8 +44,9 @@ class GameScene(Serializable, Scene):
 
         # Uncomment this to have opportunity to save game to game1.json by pressing key O
         # controls = Controls.get_instance()
-        # if controls.is_key_pressed(pygame.K_o):  # Запомнить
-        #     save_game("game1", self.serialize())
+        if Controls().is_key_pressed(pygame.K_o):  # Запомнить
+            save_game("game1", self.serialize())
+            print('saved')
 
     def to_dict(self) -> Dict:
         return {

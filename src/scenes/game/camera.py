@@ -1,6 +1,6 @@
 from typing import Union
 from pymunk.vec2d import Vec2d
-from src.entities.abstract import Entity
+from src.entities.abstract.abstract import Entity
 from src.settings import W, H
 
 

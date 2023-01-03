@@ -1,9 +1,11 @@
 from typing import Union, List
 from pymunk import Vec2d
 
+from src.utils.decorators import singleton
 
+
+@singleton
 class Controls:
-    __instance = None
 
     LEFT_MOUSE_BTN = 1
     MIDDLE_MOUSE_BTN = 2
@@ -12,16 +14,6 @@ class Controls:
     MIDDLE_MOUSE_BTN_DOWN = 5
     EXTRA_MOUSE_BTN_1 = 6
     EXTRA_MOUSE_BTN_2 = 7
-
-    def __new__(cls):
-        if cls.__instance is None:
-            cls.__instance = super().__new__(cls)
-            cls.__instance.__init__()
-        return cls.__instance
-
-    @classmethod
-    def get_instance(cls):
-        return cls.__new__(cls)
 
     def __init__(self):
         self.keys = dict()

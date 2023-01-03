@@ -1,17 +1,29 @@
 from abc import abstractmethod, ABC
-from typing import List, Tuple
+from typing import List, Tuple, Set
 
 from pygame import Surface
 from pymunk.vec2d import Vec2d
 
 from src.abstract import RenderUpdateObject, Serializable
-from src.entities.abstract import Entity
+from src.entities.abstract.abstract import Entity
 from src.scenes.game.camera import Camera
 
 
 class AbstractCluster(Serializable, RenderUpdateObject, ABC):
-    entities: List[Entity]
+    entities: Set[Entity]
     pos: Tuple[int, int]
+
+    @abstractmethod
+    def __contains__(self, item):
+        pass
+
+    @abstractmethod
+    def add_entity(self, entity: Entity):
+        pass
+
+    @abstractmethod
+    def remove_entity(self, entity: Entity):
+        pass
 
 
 class AbstractClustersStore(Serializable, ABC):
@@ -24,11 +36,15 @@ class AbstractClustersStore(Serializable, ABC):
         pass
 
     @abstractmethod
-    def keys(self):
+    def keys(self) -> List[Tuple[int, int]]:
         pass
 
     @abstractmethod
-    def values(self):
+    def values(self) -> List[AbstractCluster]:
+        pass
+
+    @abstractmethod
+    def __contains__(self, item):
         pass
 
 
@@ -40,7 +56,13 @@ class AbstractMapGenerator(ABC):
         ...
 
 
-class AbstractMap(Serializable, ABC):
+class EntityRegistrator(ABC):
+    @abstractmethod
+    def add_entity(self, entity: Entity):
+        pass
+
+
+class AbstractMap(Serializable, EntityRegistrator, ABC):
     clusters: AbstractClustersStore
     map_generator: AbstractMapGenerator
 
@@ -51,3 +73,10 @@ class AbstractMap(Serializable, ABC):
     @abstractmethod
     def update_at(self, pos: Vec2d, dt: float):
         pass
+
+    @abstractmethod
+    def remove_entity(self, entity: Entity):
+        pass
+
+    def contains_entity(self, entity: Entity):
+        return entity in self.clusters

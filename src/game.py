@@ -3,16 +3,16 @@ import pygame
 from settings import FPS, SIZE
 from src.controls import Controls
 from pymunk import Vec2d
-from src.settings import load_game
+from src.settings import load_game, SAVE_GAME
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.scene = GameScene()
-
-        # Uncomment this to load from game1.json
-        # self.scene = GameScene.deserialize(load_game("game1"))
+        if SAVE_GAME:
+            self.scene = GameScene.deserialize(load_game("game1"))
+        else:
+            self.scene = GameScene()
         self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):
@@ -22,7 +22,7 @@ class Game:
         self.scene.update(self.clock.get_time() / 1000)
 
     def catch_event(self, e):
-        controls = Controls.get_instance()
+        controls = Controls()
         if e.type == pygame.QUIT:
             self.run = False
         if e.type == pygame.KEYDOWN:

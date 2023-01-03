@@ -1,24 +1,32 @@
 import random
 from itertools import product
-from pprint import pprint
-from typing import List, Dict, Set, Iterable
+from typing import List, Dict, Set, Iterable, Tuple
 
 import pygame.draw
 import pymunk
 from pygame import Surface
 from pymunk import Vec2d
 
-from src.entities import entity_from_dict
-from src.entities.abstract import Entity
+from src.entities import entity_from_dict, PlayerEntity
+from src.entities.abstract.abstract import Entity, ENTITY_COLLISION
+from src.entities.spaceships.player.pilot import PlayerPilot
 from src.map.abstract import (
     AbstractCluster,
     AbstractMap,
     AbstractMapGenerator,
     AbstractClustersStore,
 )
-from src.map.settings import CLUSTER_SIZE, VISION_RADIUS
+from src.settings import CLUSTER_SIZE, VISION_DISTANCE, LOG_GENERATING
 from src.scenes.game.camera import Camera
 from src.settings import SHOW_CLUSTERS_BORDERS
+
+
+class EntityAlreadyAdded(Exception):
+    pass
+
+
+class EntityNotFound(Exception):
+    pass
 
 
 class Cluster(AbstractCluster):
@@ -33,18 +41,16 @@ class Cluster(AbstractCluster):
     ]
 
     def __init__(self, x: int, y: int):
-        self.entities = []
+        self.entities = set()
         self.pos = self.x, self.y = x, y
 
-    def update(self, dt: float):
-        deleted = 0
-        for i, entity in enumerate(self.entities.copy()):
+    def update(self, dt: float) -> None:
+        for entity in self.entities.copy():
             entity.update(dt)
             if not entity.is_active:
-                del self.entities[i - deleted]
-                deleted += 1
+                self.entities.remove(entity)
 
-    def render(self, screen: Surface, camera: Camera):
+    def render(self, screen: Surface, camera: Camera) -> None:
         w, h = CLUSTER_SIZE
         dx, dy = camera.dv + Vec2d(self.x * w, self.y * h)
         for x, y, r in self.balls:
@@ -57,27 +63,30 @@ class Cluster(AbstractCluster):
         for entity in self.entities:
             entity.render(screen, camera)
 
-    def add_entity(self, entity: Entity):
-        self.entities.append(entity)
+    def add_entity(self, entity: Entity) -> None:
+        self.entities.add(entity)
 
-    def remove_entity(self, entity: Entity):
+    def remove_entity(self, entity: Entity) -> None:
         self.entities.remove(entity)
 
-    def extra_entities(self):
+    def extra_entities(self) -> List[Tuple[Entity, int, int]]:
         result = []
         w, h = CLUSTER_SIZE
         for entity in self.entities:
             x, y = entity.position.x // w, entity.position.y // h
             if x != self.x or y != self.y:
-                result.append((entity, x, y))
+                result.append((entity, int(x), int(y)))
         return result
+
+    def dead_entities(self) -> Iterable[Entity]:
+        return filter(lambda e: not e.is_alive and e.in_space, self.entities)
 
     def to_dict(self) -> Dict:
         return {
             "class_name": Cluster.__name__,
             "x": self.x,
             "y": self.y,
-            "entities": [entity.to_dict() for entity in self.entities],
+            "entities": [entity.to_dict() for entity in self.entities if not isinstance(entity.pilot, PlayerPilot)],
         }
 
     @classmethod
@@ -86,16 +95,21 @@ class Cluster(AbstractCluster):
         cluster.entities = [entity_from_dict(entity) for entity in data["entities"]]
         return cluster
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.pos)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if (
             isinstance(other, AbstractCluster)
             and self.entities == other.entities
             and self.pos == other.pos
         ):
             return True
+        return False
+
+    def __contains__(self, item) -> bool:
+        if isinstance(item, Entity):
+            return item in self.entities
         return False
 
 
@@ -106,7 +120,7 @@ class ClustersStore(AbstractClustersStore):
         self.lines = dict()
         self.generator = generator
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> Cluster:
         x, y = item
         if isinstance(x, int) and isinstance(y, int):
             if not self.exists(x, y):
@@ -114,9 +128,9 @@ class ClustersStore(AbstractClustersStore):
                     self.lol = 12
                 self.generate_at(x, y)
             return self.lines[y][x]
-        raise TypeError
+        raise TypeError(f"Attempt to use {type(item[0])} as key")
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         x, y = key
         if isinstance(x, int) and isinstance(y, int) and isinstance(value, Cluster):
             if y not in self.lines:
@@ -125,18 +139,27 @@ class ClustersStore(AbstractClustersStore):
             return
         raise TypeError
 
-    def generate_at(self, x: int, y: int):
+    def __contains__(self, item) -> bool:
+        if isinstance(item, Entity):
+            cx, cy = BasicMap.determine_cluster(item.position)
+            return self.exists(cx, cy) and item in self[cx, cy]
+        elif isinstance(item, Cluster):
+            cx, cy = item.pos
+            return self.exists(cx, cy) and item == self[cx, cy]
+        return False
+
+    def generate_at(self, x: int, y: int) -> None:
         for new_cluster in self.generator.generate_clusters(x, y, self):
             cx, cy = new_cluster.pos
             self[cx, cy] = new_cluster
 
-    def exists(self, x: int, y: int):
+    def exists(self, x: int, y: int) -> bool:
         return y in self.lines and x in self.lines[y]
 
-    def keys(self):
+    def keys(self) -> List[Tuple[int, int]]:
         return [(x, y) for y, val in self.lines.items() for x in val.keys()]
 
-    def values(self):
+    def values(self) -> List[Cluster]:
         return [cluster for line in self.lines.values() for cluster in line.values()]
 
     def to_dict(self) -> Dict:
@@ -175,7 +198,8 @@ class BasicMapGenerator(AbstractMapGenerator):
     def generate_clusters(
         self, x: int, y: int, clusters: ClustersStore
     ) -> List[AbstractCluster]:
-        print(f"generated at {x}, {y}")
+        if LOG_GENERATING:
+            print(f"generated at {x}, {y}")
         return [Cluster(x, y)]
 
 
@@ -187,42 +211,53 @@ class BasicMap(AbstractMap):
         self.clusters = ClustersStore(self.map_generator)
         self.active_clusters = set()
         self.space = pymunk.Space()
+        handler = self.space.add_collision_handler(ENTITY_COLLISION, ENTITY_COLLISION)
+        handler.begin = self.collision
 
-    def update_active_clusters(self, clusters: Set[Cluster]):
+    @staticmethod
+    def collision(arbiter: pymunk.Arbiter, space: pymunk.Space, data: Dict) -> bool:
+        s1, s2 = arbiter.shapes
+        if isinstance(s1.body, Entity) and isinstance(s2.body, Entity):
+            s1.body.collide(s2.body)
+            s2.body.collide(s1.body)
+        return True
+
+    def update_active_clusters(self, clusters: Set[Cluster]) -> None:
         for cluster in self.active_clusters - clusters:
-            self.delete_entities(cluster.entities)
+            self.delete_entities_to_space(cluster.entities)
         for cluster in clusters - self.active_clusters:
-            self.add_entities(cluster.entities)
+            self.add_entities_to_space(cluster.entities)
         self.active_clusters = clusters
 
-    def add_entities(self, entities: Iterable[Entity]):
+    def add_entities_to_space(self, entities: Iterable[Entity]) -> None:
         for entity in entities:
-            entity.add_to_space(self.space)
+            if not entity.in_space:
+                entity.add_to_space(self.space)
 
-    def delete_entities(self, entities: Iterable[Entity]):
+    def delete_entities_to_space(self, entities: Iterable[Entity]) -> None:
         for entity in entities:
             entity.remove_from_space(self.space)
 
     @staticmethod
-    def determine_cluster(pos: Vec2d):
+    def determine_cluster(pos: Vec2d) -> Tuple[int, int]:
         w, h = CLUSTER_SIZE
         return int(pos.x // w), int(pos.y // h)
 
-    def get_clusters_near(self, x: int, y: int):
+    def get_clusters_near(self, x: int, y: int) -> Set[Cluster]:
         result = set()
-        for dx, dy in product(range(-VISION_RADIUS, VISION_RADIUS + 1), repeat=2):
+        for dx, dy in product(range(-VISION_DISTANCE, VISION_DISTANCE + 1), repeat=2):
             cluster = self.clusters[x + dx, y + dy]
             result.add(cluster)
         return result
 
-    def render_at(self, screen: Surface, camera: Camera, pos: Vec2d):
+    def render_at(self, screen: Surface, camera: Camera, pos: Vec2d) -> None:
         self.update_active_clusters(
             self.get_clusters_near(*self.determine_cluster(pos))
         )
         for cluster in self.active_clusters:
             cluster.render(screen, camera)
 
-    def update_at(self, pos: Vec2d, dt: float):
+    def update_at(self, pos: Vec2d, dt: float) -> None:
         self.update_active_clusters(
             self.get_clusters_near(*self.determine_cluster(pos))
         )
@@ -230,12 +265,14 @@ class BasicMap(AbstractMap):
             cluster.update(dt)
         entities_for_delete = []
         for cluster in self.active_clusters:
+            for entity in cluster.dead_entities():
+                entity.remove_from_space(self.space)
             for entity, x, y in cluster.extra_entities():
                 self.clusters[x, y].add_entity(entity)
                 cluster.remove_entity(entity)
                 if self.clusters[x, y] not in self.active_clusters:
                     entities_for_delete.append(entity)
-        self.delete_entities(entities_for_delete)
+        self.delete_entities_to_space(entities_for_delete)
         self.space.step(dt)
 
     def to_dict(self) -> Dict:
@@ -244,8 +281,33 @@ class BasicMap(AbstractMap):
             "clusters": self.clusters.to_dict(),
         }
 
+    def add_entity(self, entity: Entity) -> None:
+        if entity in self.clusters:
+            raise EntityAlreadyAdded
+        cx, cy = self.determine_cluster(entity.position)
+        self.clusters[cx, cy].add_entity(entity)
+        entity.add_to_space(self.space)
+
+    def remove_entity(self, entity: Entity) -> None:
+        if entity not in self.clusters:
+            raise EntityNotFound
+        cx, cy = self.determine_cluster(entity.position)
+        self.clusters[cx, cy].remove_entity(entity)
+        entity.remove_from_space(self.space)
+
     @classmethod
     def from_dict(cls, data: Dict):
         basic_map = BasicMap()
         basic_map.clusters = ClustersStore.from_dict(data["clusters"])
         return basic_map
+
+    def get_entities_near(self, pos: Vec2d, radius: float):
+        min_x, min_y = self.determine_cluster(pos - Vec2d(radius, radius))
+        max_x, max_y = self.determine_cluster(pos + Vec2d(radius, radius))
+        res = []
+        for x in range(min_x, max_x + 1):
+            for y in range(min_y, max_y + 1):
+                for entity in self.clusters[x, y].entities:
+                    if (entity.position - pos).length <= radius:
+                        res.append(entity)
+        return res

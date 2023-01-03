@@ -1,11 +1,10 @@
 from abc import ABC
-from typing import Union, Tuple
 
 import pygame.draw
+from pygame import Surface
 from pymunk import Vec2d
 
-from src.entities.abstract import HealthBar
-from pygame import Surface
+from src.entities.abstract.abstract import HealthBar
 
 
 class DefaultBar(HealthBar, ABC):
@@ -38,3 +37,8 @@ class NeutralBar(DefaultBar):
 
 class EnemyBar(DefaultBar):
     color = "red"
+
+
+class NoHealthBar(HealthBar):
+    def render(self, screen: Surface, health: float, pos: Vec2d):
+        pass

@@ -1,0 +1,42 @@
+[
+  {
+    "level": 0,
+    "radius": 6,
+    "damage": 4,
+    "speed": 170,
+    "life_time": 1.2,
+    "mass": 0.007,
+    "explosion_radius": 10,
+    "image":"blaster_charge0.png"
+  },
+  {
+    "level": 1,
+    "radius": 10,
+    "damage": 10,
+    "speed": 200,
+    "life_time": 1.5,
+    "mass": 0.01,
+    "explosion_radius": 18,
+    "image": "blaster_charge1.png"
+  },
+  {
+    "level": 2,
+    "radius": 12,
+    "damage": 15,
+    "speed": 240,
+    "life_time": 1.8,
+    "mass": 0.015,
+    "explosion_radius": 20,
+    "image": "blaster_charge2.png"
+  },
+  {
+    "level": 3,
+    "radius": 14,
+    "damage": 18,
+    "speed": 260,
+    "life_time": 2,
+    "mass": 0.02,
+    "explosion_radius": 22,
+    "image": "blaster_charge3.png"
+  }
+]

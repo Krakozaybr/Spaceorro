@@ -4,6 +4,9 @@ cur_dir = os.path.dirname(__file__)
 ways = [cur_dir]
 total = 0
 without_spaces = 0
+without_spaces_and_imports = 0
+py_files = 0
+not_init_py_files = 0
 
 banned_dirs = ["data", "venv"]
 
@@ -14,6 +17,9 @@ while ways:
         and filename.endswith(".py")
         and not filename.endswith("check_lines_of_code.py")
     ):
+        py_files += 1
+        if not filename.endswith("__init__.py"):
+            not_init_py_files += 1
         with open(filename, "r", encoding="utf-8") as r:
             comment_now = False
             for line in r.readlines():
@@ -27,14 +33,19 @@ while ways:
                     l
                     and not l.startswith("#")
                     and not comment_now
-                    and not (l.startswith("import") or l.startswith("from"))
                 ):
                     without_spaces += 1
+                    if not (l.startswith("import") or l.startswith("from")):
+                        without_spaces_and_imports += 1
                 total += 1
     elif os.path.isdir(filename) and os.path.basename(filename) not in banned_dirs:
         files = os.listdir(filename)
         for file in files:
             ways.append(os.path.join(filename, file))
 
-print(f"Непустые строки кода (без импортов): {without_spaces}")
-print(f"Всего: {total}")
+print(f"Всего .py файлов: {py_files}")
+print(f"Из них не __init__.py файлов: {not_init_py_files}")
+print()
+print(f'Непустые строки кода: {without_spaces}')
+print(f"Непустые строки кода (без импортов): {without_spaces_and_imports}")
+print(f"Всего строк кода: {total}")
