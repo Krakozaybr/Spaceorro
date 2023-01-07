@@ -73,7 +73,7 @@ DEBUG = debug_data["active"]
 SHOW_VELOCITY_VECTOR = DEBUG and debug_data["show_velocity_vector"]
 SHOW_CLUSTERS_BORDERS = DEBUG and debug_data["show_clusters_borders"]
 SHOW_PLAYER_COLLISION_POLY = DEBUG and debug_data["show_player_collision_poly"]
-SAVE_GAME = False
+SAVE_GAME = True
 LOG_GENERATING = False
 
 # MAP

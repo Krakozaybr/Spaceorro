@@ -1,15 +1,17 @@
 import random
 from itertools import product
-from typing import List, Dict, Set, Iterable, Tuple
+from pprint import pprint
+from typing import List, Dict, Set, Iterable, Tuple, Optional
 
 import pygame.draw
 import pymunk
 from pygame import Surface
 from pymunk import Vec2d
 
-from src.entities import entity_from_dict, PlayerEntity
-from src.entities.abstract.abstract import Entity, ENTITY_COLLISION
-from src.entities.spaceships.player.pilot import PlayerPilot
+from src.entities import entity_from_dict
+from src.entities.abstract.abstract import Entity, ENTITY_COLLISION, SaveStrategy
+from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
+from src.entities.pilots.player import PlayerPilot
 from src.map.abstract import (
     AbstractCluster,
     AbstractMap,
@@ -31,6 +33,8 @@ class EntityNotFound(Exception):
 
 class Cluster(AbstractCluster):
 
+    dependent_entities_data: List[Dict]
+
     balls = [
         (
             random.randint(0, CLUSTER_SIZE[0]),
@@ -40,9 +44,19 @@ class Cluster(AbstractCluster):
         for _ in range(100)
     ]
 
-    def __init__(self, x: int, y: int):
-        self.entities = set()
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        entities: Optional[Set[Entity]] = None,
+        dependent_entities_data: Optional[List[Dict]] = None,
+    ):
+        if entities is None:
+            entities = set()
+        self.entities = entities
         self.pos = self.x, self.y = x, y
+        if dependent_entities_data is not None:
+            self.dependent_entities_data = dependent_entities_data
 
     def update(self, dt: float) -> None:
         for entity in self.entities.copy():
@@ -83,17 +97,41 @@ class Cluster(AbstractCluster):
 
     def to_dict(self) -> Dict:
         return {
-            "class_name": Cluster.__name__,
+            **super().to_dict(),
             "x": self.x,
             "y": self.y,
-            "entities": [entity.to_dict() for entity in self.entities if not isinstance(entity.pilot, PlayerPilot)],
+            "independent_entities": [
+                entity.to_dict()
+                for entity in self.entities
+                if (
+                    not hasattr(entity, "pilot")
+                    or not isinstance(entity.pilot, PlayerPilot)
+                )
+                and entity.is_alive
+                and entity.save_strategy == SaveStrategy.ENTITY
+            ],
+            "dependent_entities": [
+                entity.to_dict()
+                for entity in self.entities
+                if entity.is_alive and entity.save_strategy == SaveStrategy.DEPENDED
+            ],
         }
 
     @classmethod
     def from_dict(cls, data: Dict):
-        cluster = Cluster(data["x"], data["y"])
-        cluster.entities = [entity_from_dict(entity) for entity in data["entities"]]
+        cluster = Cluster(
+            data["x"],
+            data["y"],
+            entities={
+                entity_from_dict(entity) for entity in data["independent_entities"]
+            },
+            dependent_entities_data=data["dependent_entities"],
+        )
         return cluster
+
+    def load_depended_entities(self):
+        for entity in self.dependent_entities_data:
+            self.entities.add(entity_from_dict(entity))
 
     def __hash__(self) -> int:
         return hash(self.pos)
@@ -164,7 +202,7 @@ class ClustersStore(AbstractClustersStore):
 
     def to_dict(self) -> Dict:
         return {
-            "class_name": self.__class__.__name__,
+            **super().to_dict(),
             "lines": {
                 y: {x: cluster.to_dict() for x, cluster in line.items()}
                 for y, line in self.lines.items()
@@ -181,6 +219,8 @@ class ClustersStore(AbstractClustersStore):
             }
             for y, line in data["lines"].items()
         }
+        for cluster in store.values():
+            cluster.load_depended_entities()
         return store
 
     def __eq__(self, other):
@@ -276,10 +316,7 @@ class BasicMap(AbstractMap):
         self.space.step(dt)
 
     def to_dict(self) -> Dict:
-        return {
-            "class_name": self.__class__.__name__,
-            "clusters": self.clusters.to_dict(),
-        }
+        return {"clusters": self.clusters.to_dict(), **super().to_dict()}
 
     def add_entity(self, entity: Entity) -> None:
         if entity in self.clusters:

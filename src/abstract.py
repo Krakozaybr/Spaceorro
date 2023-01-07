@@ -8,7 +8,7 @@ import json
 class Serializable(ABC):
     @abstractmethod
     def to_dict(self) -> Dict:
-        pass
+        return {"class_name": self.__class__.__name__}
 
     @classmethod
     @abstractmethod

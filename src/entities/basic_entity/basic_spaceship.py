@@ -3,10 +3,10 @@ from typing import Optional
 
 from pymunk import Vec2d
 
-from src.entities.abstract.abstract import Pilot, entities
-from src.entities.abstract.guided_entity import GuidedEntity
-from src.entities.basic_entity.health_entity_mixin import HealthEntityMixin
+from src.entities.abstract.abstract import Pilot, SaveStrategy, Entity
+from src.entities.abstract.guided_entity import AbstractSpaceship
 from src.entities.basic_entity.basic_entity import BasicEntity
+from src.entities.basic_entity.health_entity_mixin import HealthEntityMixin
 from src.entities.entity_configs import SpaceshipEntityConfig
 from src.entities.gadgets.engines.abstract import Engine
 from src.entities.gadgets.weapon.abstract_weapon import AbstractStateWeapon
@@ -15,11 +15,14 @@ from src.entities.modifiers_and_characteristics import (
     VelocityCharacteristics,
     HealthLifeCharacteristics,
 )
+from src.entities.teams import Team
 from src.settings import get_entity_start_config
 from src.utils.body_serialization import *
 
 
-class BasicSpaceship(GuidedEntity, BasicEntity, HealthEntityMixin, ABC):
+class BasicSpaceship(AbstractSpaceship, BasicEntity, HealthEntityMixin, ABC):
+
+    save_strategy = SaveStrategy.ENTITY
 
     life_characteristics: HealthLifeCharacteristics
     start_config_name: str
@@ -37,6 +40,7 @@ class BasicSpaceship(GuidedEntity, BasicEntity, HealthEntityMixin, ABC):
         moment: Optional[float] = None,
         weapon: Optional[AbstractStateWeapon] = None,
         entity_id: Optional[int] = None,
+        pilot: Optional[Pilot] = None,
     ):
         BasicEntity.__init__(
             self,
@@ -58,7 +62,9 @@ class BasicSpaceship(GuidedEntity, BasicEntity, HealthEntityMixin, ABC):
 
         # Instruments
         self.engine = self.create_engine()
-        self.pilot = self.create_pilot()
+        if pilot is None:
+            pilot = self.create_pilot()
+        self.pilot = pilot
         if weapon is None:
             weapon = self.create_weapon()
         self.weapon = weapon
@@ -68,6 +74,10 @@ class BasicSpaceship(GuidedEntity, BasicEntity, HealthEntityMixin, ABC):
         super().__init_subclass__(**kwargs)
         cls.start_config = get_entity_start_config(cls.start_config_name)
         cls.config = SpaceshipEntityConfig.load(cls.config_name)
+
+    @property
+    def team(self) -> Team:
+        return self.pilot.team
 
     def take_damage(self, damage: float) -> None:
         self.life_characteristics.decrease(damage)
@@ -103,6 +113,7 @@ class BasicSpaceship(GuidedEntity, BasicEntity, HealthEntityMixin, ABC):
     def update(self, dt) -> None:
         self.pilot.update(dt)
         self.weapon.update(dt)
+        self.engine.update(dt)
 
     @staticmethod
     def get_characteristics(data: Dict) -> Dict:
@@ -127,6 +138,7 @@ class BasicSpaceship(GuidedEntity, BasicEntity, HealthEntityMixin, ABC):
         data = BasicEntity.to_dict(self)
         return {
             "weapon": self.weapon.to_dict(),
+            "pilot": self.pilot.to_dict(),
             **data,
         }
 
@@ -135,20 +147,24 @@ class BasicSpaceship(GuidedEntity, BasicEntity, HealthEntityMixin, ABC):
         return cls(pos=pos)
 
 
-class MasterMixin:
-    _master: BasicSpaceship
-    master_id: int
+class SpaceshipMixin:
+    _spaceship: BasicSpaceship
+    spaceship_id: int
 
-    def __init__(self, master_id: int):
-        self.master_id = master_id
+    def __init__(self, spaceship_id: int):
+        self.spaceship_id = spaceship_id
 
     @property
-    def master(self) -> BasicSpaceship:
-        if not hasattr(self, "_master"):
-            self._master = entities[self.master_id]
-        return self._master
+    def spaceship(self) -> BasicSpaceship:
+        if not hasattr(self, "_spaceship"):
+            self._spaceship = Entity.store[self.spaceship_id]
+        return self._spaceship
 
-    @master.setter
-    def master(self, val: BasicSpaceship) -> None:
-        self._master = val
-        self.master_id = val.id
+    @spaceship.setter
+    def spaceship(self, val: BasicSpaceship) -> None:
+        self._spaceship = val
+        self.spaceship_id = val.id
+
+    @property
+    def spaceship_exists(self):
+        return self.spaceship is not None

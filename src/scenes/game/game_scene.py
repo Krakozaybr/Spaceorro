@@ -35,28 +35,24 @@ class GameScene(Serializable, Scene):
 
     def render(self, screen: Surface):
         self.map.render_at(screen, self.camera, self.player.position)
-        self.player.render(screen, self.camera)
 
     def update(self, dt):
         self.camera.look_at(self.player)
         self.map.update_at(self.player.position, dt)
-        self.player.update(dt)
 
-        # Uncomment this to have opportunity to save game to game1.json by pressing key O
-        # controls = Controls.get_instance()
-        if Controls().is_key_pressed(pygame.K_o):  # Запомнить
+        if Controls().is_key_just_up(pygame.K_o):  # Запомнить
             save_game("game1", self.serialize())
-            print('saved')
+            print("saved")
 
     def to_dict(self) -> Dict:
         return {
-            "class_name": self.__class__.__name__,
             "map": self.map.to_dict(),
             "player": self.player.to_dict(),
+            **super().to_dict(),
         }
 
     @classmethod
     def from_dict(cls, data: Dict):
         return GameScene(
-            map_impl=map_from_dict(data["map"]), player=entity_from_dict(data["player"])
+            player=entity_from_dict(data["player"]), map_impl=map_from_dict(data["map"])
         )

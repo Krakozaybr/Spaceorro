@@ -3,32 +3,36 @@ from typing import Dict
 
 from pymunk import Vec2d
 
-from src.entities.abstract.guided_entity import GuidedEntity
+from src.entities.abstract.abstract import SaveStrategy
+from src.entities.abstract.guided_entity import AbstractSpaceship
 from src.entities.basic_entity.basic_entity import BasicEntity
-from src.entities.basic_entity.basic_spaceship import MasterMixin
+from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
 from src.entities.entity_configs import BulletEntityConfig
 from src.entities.modifiers_and_characteristics import (
     WeaponModifiers,
     BulletCharacteristics,
 )
+from src.entities.teams import Team
 from src.settings import get_bullet_configs
 
 
-class AbstractBullet(BasicEntity, MasterMixin, ABC):
+class AbstractBullet(BasicEntity, SpaceshipMixin, ABC):
 
     # static fields
     configs: Dict[int, BulletEntityConfig]
+    save_strategy = SaveStrategy.DEPENDED
 
     # non-static fields
-    master_id: int
+    spaceship_id: int
     level: int
+    team: Team
     _characteristics: BulletCharacteristics
     _modifiers: WeaponModifiers = None
     _config: BulletEntityConfig
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
+        super().__init_subclass__()
         cls.configs = {
             data["level"]: BulletEntityConfig.from_dict(data)
             for data in get_bullet_configs(cls.config_name)
@@ -41,7 +45,7 @@ class AbstractBullet(BasicEntity, MasterMixin, ABC):
     @property
     def modifiers(self) -> WeaponModifiers:
         if hasattr(self, "_modifiers"):
-            self._modifiers = self.master.weapon_modifiers
+            self._modifiers = self.spaceship.weapon_modifiers
         return self._modifiers
 
     @property
@@ -62,5 +66,5 @@ class AbstractBullet(BasicEntity, MasterMixin, ABC):
 
     @classmethod
     @abstractmethod
-    def new(cls, master: GuidedEntity, dpos: Vec2d, direction: Vec2d):
+    def new(cls, master: AbstractSpaceship, dpos: Vec2d, direction: Vec2d):
         pass

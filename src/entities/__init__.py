@@ -1,8 +1,9 @@
 from typing import Dict
 
+from src.entities.gadgets.weapon.bullets import BlasterCharge
 from src.entities.spaceships.player.entity import PlayerEntity
 
-entities_classes = [PlayerEntity]
+entities_classes = [PlayerEntity, BlasterCharge]
 entities_dict = {i.__name__: i for i in entities_classes}
 
 

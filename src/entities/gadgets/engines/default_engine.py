@@ -21,6 +21,9 @@ class DefaultEngine(Engine):
     def rotate_clockwise(self, dt: float, power=1.0):
         self._rotate(dt * power)
 
+    def update(self, dt: float):
+        pass
+
     def rotate_counterclockwise(self, dt: float, power=1.0):
         self._rotate(-dt * power)
 

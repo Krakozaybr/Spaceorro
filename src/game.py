@@ -19,7 +19,9 @@ class Game:
         self.scene.render(self.screen)
 
     def update(self):
-        self.scene.update(self.clock.get_time() / 1000)
+        dt = self.clock.get_time() / 1000
+        self.scene.update(dt)
+        Controls().update()
 
     def catch_event(self, e):
         controls = Controls()

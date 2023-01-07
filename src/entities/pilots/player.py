@@ -1,12 +1,11 @@
 import math
+from pprint import pprint
+from typing import Dict, Optional
 
-import pygame
-
-from src.entities.abstract.abstract import Pilot
-from src.entities.abstract.guided_entity import GuidedEntity
+from src.entities.abstract.abstract import Pilot, Entity
 from src.controls import Controls
 from src.entities.basic_entity.basic_spaceship import BasicSpaceship
-from src.entities.spaceships.player.controls_config import *
+from src.entities.pilots.controls_config import *
 from pymunk.vec2d import Vec2d
 
 from src.entities.teams import Team
@@ -17,7 +16,8 @@ class PlayerPilot(Pilot):
 
     entity: BasicSpaceship
 
-    def __init__(self, entity: BasicSpaceship):
+    def __init__(self, entity: BasicSpaceship, _id: Optional[int] = None):
+        super().__init__(_id)
         self.entity = entity
         self.team = Team.player
 
@@ -40,14 +40,7 @@ class PlayerPilot(Pilot):
         #     self.entity.engine.move_to(dt, self.pos)
 
         if controls.is_key_pressed(FIRE):
-            from src.entities.abstract.abstract import entities
             self.entity.shoot()
-
-        if controls.is_key_pressed(pygame.K_p):
-            from src.entities.abstract.abstract import entities
-
-            print(entities)
-
         if up:
             self.entity.engine.apply_force(Vec2d(0, -1), dt)
         if down:
@@ -69,3 +62,10 @@ class PlayerPilot(Pilot):
             not (left or right),  # not (left or right or move_to),
             not (rotate_counterclockwise or rotate_clockwise or rotate_to),
         )
+
+    @classmethod
+    def from_dict(cls, data: Dict):
+        return cls(Entity.store[data["spaceship_id"]])
+
+    def to_dict(self) -> Dict:
+        return {**super().to_dict(), "spaceship_id": self.entity.id}

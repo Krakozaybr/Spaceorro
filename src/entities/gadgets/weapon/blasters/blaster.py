@@ -56,13 +56,13 @@ class Blaster(AbstractStateWeapon, WeaponModifiersMixin):
 
     def shoot(self, pos: Vec2d) -> bool:
         if self.can_shoot():
-            dpos = Vec2d(*self.master.config.blaster_relative_position).rotated(
-                self.master.angle
+            dpos = Vec2d(*self.spaceship.config.blaster_relative_position).rotated(
+                self.spaceship.angle
             )
             bt = self.config.bullet_types[self.current_bullet_type]
             self.entity_registrator.add_entity(
                 bt.new(
-                    master=self.master,
+                    master=self.spaceship,
                     dpos=dpos,
                     direction=pos,
                 )
@@ -83,7 +83,8 @@ class Blaster(AbstractStateWeapon, WeaponModifiersMixin):
 
     def to_dict(self) -> Dict:
         return {
-            "master_id": self.master_id,
+            **super().to_dict(),
+            "master_id": self.spaceship_id,
             "reload_time": self.reload_time,
             "config_name": self.config_name,
             "current_bullet_type": self.current_bullet_type,

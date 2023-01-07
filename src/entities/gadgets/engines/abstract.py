@@ -3,10 +3,11 @@ from abc import abstractmethod, ABC
 import pymunk
 from pymunk import Vec2d
 
+from src.abstract import Updateable
 from src.entities.modifiers_and_characteristics import VelocityCharacteristics
 
 
-class Engine(ABC):
+class Engine(Updateable, ABC):
     characteristics: VelocityCharacteristics
     body: pymunk.Body
     control_body: pymunk.Body

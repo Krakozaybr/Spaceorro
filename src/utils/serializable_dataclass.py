@@ -21,7 +21,7 @@ class SerializableDataclass(Serializable):
                 res[field_name] = sfs[field_name](val)
             else:
                 res[field_name] = val
-        return res
+        return {**res, **super().to_dict()}
 
     @classmethod
     def from_dict(cls, data: Dict):

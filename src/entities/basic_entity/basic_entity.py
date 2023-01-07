@@ -24,16 +24,13 @@ class BasicEntity(Entity, ABC):
         moment: Optional[float] = None,
         entity_id: Optional[int] = None,
     ):
-        if entity_id is not None:
-            self.id = entity_id
-
         # Pymunk
         if moment is None:
             moment = self.create_moment()
         if mass is None:
             mass = self.config.mass
 
-        super().__init__(mass, moment, body_type=pymunk.Body.DYNAMIC)
+        super().__init__(mass, moment, body_type=pymunk.Body.DYNAMIC, _id=entity_id)
 
         self.shape = self.create_shape()
         self.shape.collision_type = ENTITY_COLLISION
@@ -109,7 +106,7 @@ class BasicEntity(Entity, ABC):
             "body": dynamic_body_to_dict(self),
             "control_body": kinematic_body_to_dict(self.control_body),
         }
-        return {"class_name": self.__class__.__name__, **characteristics, **body_data}
+        return {**super().to_dict(), **characteristics, **body_data}
 
     def __eq__(self, other) -> bool:
         if isinstance(other, self.__class__) and self.id == other.id:

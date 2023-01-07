@@ -1,4 +1,5 @@
 from typing import Union, List
+
 from pymunk import Vec2d
 
 from src.utils.decorators import singleton
@@ -27,14 +28,25 @@ class Controls:
             self.EXTRA_MOUSE_BTN_2: False,
         }
         self.mouse_pos = Vec2d.zero()
+        self.just_changed = dict()
 
-    def is_key_pressed(self, key: Union[int, List[int]]):
+    def update(self):
+        self.just_changed.clear()
+
+    def is_key_pressed(self, key: Union[int, List[int]]) -> bool:
         if isinstance(key, int):
             return self.keys.get(key, False)
         return any(self.keys.get(i, False) for i in key)
 
+    def is_key_just_down(self, key: int) -> bool:
+        return self.just_changed.get(key, False)
+
+    def is_key_just_up(self, key: int) -> bool:
+        return not self.just_changed.get(key, True)
+
     def set_key_pressed(self, key: int, pressed: bool):
         self.keys[key] = pressed
+        self.just_changed[key] = pressed
 
     def set_mouse_pressed(self, button: int, state: bool):
         self.mouse_pressed[button] = state
