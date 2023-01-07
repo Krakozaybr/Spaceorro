@@ -15,7 +15,7 @@ class BasicView(EntityView, ABC):
     # Are inited in init_sizes()
     w: float
     h: float
-    left_top_corner_delta: Vec2d
+    right_top_corner_delta: Vec2d
 
     def __init__(self, entity: Entity, *groups: AbstractGroup):
         super().__init__(*groups)
@@ -31,10 +31,16 @@ class BasicView(EntityView, ABC):
     def init_sizes(self):
         pass
 
-    def draw(self, screen: pygame.Surface, pos: Vec2d) -> None:
+    def draw_image(self, screen: pygame.Surface, pos: Vec2d) -> None:
         if hasattr(self, "image") and self.image is not None:
-            x, y = self.left_top_corner_delta + pos
-            self.image.blit(screen, (x, y))
+            x, y = pos
+            screen.blit(
+                self.image,
+                (x - self.image.get_width() / 2, y - self.image.get_height() / 2),
+            )
+
+    def draw(self, screen: pygame.Surface, pos: Vec2d) -> None:
+        self.draw_image(screen, pos)
         if SHOW_VELOCITY_VECTOR:
             x, y = pos
             dx, dy = x + self.entity.velocity.x / 10, y + self.entity.velocity.y / 10

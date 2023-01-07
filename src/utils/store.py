@@ -34,3 +34,7 @@ class Store(Generic[T]):
 
     def __contains__(self, item: T):
         return item in self.objects.values()
+
+    def clear(self):
+        self.objects.clear()
+        self.current_id = 0

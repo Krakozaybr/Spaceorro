@@ -3,10 +3,11 @@ from typing import Dict, Optional
 import pymunk
 from pymunk import Vec2d
 
-from src.entities.abstract.abstract import Entity, SaveStrategy
+from src.entities.abstract.abstract import Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship
 from src.entities.basic_entity.basic_entity import BasicEntity
 from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
+from src.entities.basic_entity.explosive import Explosive
 from src.entities.gadgets.weapon.bullets import AbstractBullet
 from src.entities.gadgets.weapon.bullets.view import BlasterChargeView
 from src.entities.modifiers_and_characteristics import (
@@ -21,11 +22,10 @@ from src.utils.body_serialization import (
 CONFIG_NAME = "blaster_charge.json"
 
 
-class BlasterCharge(AbstractBullet):
+class BlasterCharge(AbstractBullet, Explosive):
 
     config_name = "blaster_charge.json"
     life_characteristics: BulletLifeCharacteristics
-    exploding: bool
     view: BlasterChargeView
 
     def __init__(
@@ -45,10 +45,10 @@ class BlasterCharge(AbstractBullet):
             pos = (
                 self.spaceship.position + dpos + dpos.normalized() * self.config.radius
             )
-        BasicEntity.__init__(
+        Explosive.__init__(
             self,
-            pos,
-            life_characteristics,
+            pos=pos,
+            life_characteristics=life_characteristics,
         )
         self.angle = angle
         self.control_body.velocity = direction.normalized() * self.characteristics.speed
@@ -67,23 +67,18 @@ class BlasterCharge(AbstractBullet):
         return pymunk.Circle(self, self.config.radius)
 
     def update(self, dt: float):
+        super().update(dt)
         self.life_characteristics.decrease(dt)
-        self.view.update(dt)
-        if not self.exploding and not self.is_alive:
-            self.explode()
-        if self.exploding and self.view.animation_passed:
-            self.is_active = False
 
-    def explode(self):
-        self.control_body.velocity = Vec2d.zero()
-        self.life_characteristics.decrease(self.life_characteristics.life_time)
-        self.exploding = True
-        self.view.start_exposing()
+    def on_explode(self):
         env = get_environment()
         for entity in env.get_entities_near(
             self.position, self.characteristics.explosion_radius
         ):
             entity.take_damage(self.characteristics.damage)
+
+    def die(self):
+        self.life_characteristics.decrease(self.life_characteristics.life_time)
 
     def collide(self, other: Entity):
         self.explode()

@@ -12,6 +12,7 @@ from src.map.impls.basic import BasicMap
 from src.scenes.abstract import Scene
 from .camera import Camera
 from ...controls import Controls
+from ...entities.abstract.abstract import Pilot, Entity
 from ...environment.abstract import set_environment
 from ...environment.impl import BasicEnvironment
 from ...map.abstract import AbstractMap
@@ -25,6 +26,9 @@ class GameScene(Serializable, Scene):
         player: Optional[PlayerEntity] = None,
         map_impl: Optional[AbstractMap] = None,
     ):
+        Entity.store.clear()
+        Pilot.store.clear()
+
         self.map = map_impl or BasicMap()
         environment = BasicEnvironment(self.map)
         set_environment(environment)

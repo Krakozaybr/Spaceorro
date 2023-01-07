@@ -1,4 +1,4 @@
 {
-  "full_reload_time": 1,
+  "full_reload_time": 0.2,
   "bullet_types": ["BlasterCharge"]
 }

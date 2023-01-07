@@ -71,6 +71,10 @@ class BasicEntity(Entity, ABC):
     def create_view(self) -> EntityView:
         pass
 
+    @abstractmethod
+    def die(self):
+        pass
+
     def render(self, screen: Surface, camera) -> None:
         self.view.draw(screen, camera.dv + self.position)
 

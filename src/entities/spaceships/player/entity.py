@@ -33,6 +33,9 @@ class PlayerEntity(BasicSpaceship, PolyBasicEntity):
     def create_pilot(self) -> Pilot:
         return PlayerPilot(self)
 
+    def on_explode(self):
+        pass
+
     def to_dict(self) -> Dict:
         return super().to_dict()
 

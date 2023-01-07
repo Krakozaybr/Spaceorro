@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
 
 from src.entities.abstract.abstract import Pilot, SaveStrategy, Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship
 from src.entities.basic_entity.basic_entity import BasicEntity
+from src.entities.basic_entity.explosive import Explosive, ExplosiveView
 from src.entities.basic_entity.health_entity_mixin import HealthEntityMixin
+from src.entities.basic_entity.view import PolyBasicView
 from src.entities.entity_configs import SpaceshipEntityConfig
 from src.entities.gadgets.engines.abstract import Engine
 from src.entities.gadgets.weapon.abstract_weapon import AbstractStateWeapon
@@ -20,7 +23,15 @@ from src.settings import get_entity_start_config
 from src.utils.body_serialization import *
 
 
-class BasicSpaceship(AbstractSpaceship, BasicEntity, HealthEntityMixin, ABC):
+class BasicSpaceshipView(PolyBasicView, ExplosiveView, ABC):
+    def __init__(self, entity: Entity, fps: Optional[int] = 1, *groups: AbstractGroup):
+        PolyBasicView.__init__(self, entity=entity, *groups)
+        ExplosiveView.__init__(
+            self, entity=entity, explosion_radius=max(self.w, self.h), fps=fps, *groups
+        )
+
+
+class BasicSpaceship(AbstractSpaceship, Explosive, HealthEntityMixin, ABC):
 
     save_strategy = SaveStrategy.ENTITY
 
@@ -42,7 +53,7 @@ class BasicSpaceship(AbstractSpaceship, BasicEntity, HealthEntityMixin, ABC):
         entity_id: Optional[int] = None,
         pilot: Optional[Pilot] = None,
     ):
-        BasicEntity.__init__(
+        Explosive.__init__(
             self,
             pos=pos,
             life_characteristics=life_characteristics,
@@ -94,8 +105,12 @@ class BasicSpaceship(AbstractSpaceship, BasicEntity, HealthEntityMixin, ABC):
     def create_pilot(self) -> Pilot:
         pass
 
+    def die(self):
+        self.life_characteristics.decrease(self.life_characteristics.health)
+
     def shoot(self):
-        self.weapon.shoot(Vec2d(0, -1).rotated(self.angle))
+        if self.is_alive:
+            self.weapon.shoot(Vec2d(0, -1).rotated(self.angle))
 
     def create_life_characteristics(self) -> HealthLifeCharacteristics:
         return HealthLifeCharacteristics.from_dict(
@@ -111,6 +126,7 @@ class BasicSpaceship(AbstractSpaceship, BasicEntity, HealthEntityMixin, ABC):
         )
 
     def update(self, dt) -> None:
+        super().update(dt)
         self.pilot.update(dt)
         self.weapon.update(dt)
         self.engine.update(dt)

@@ -1,16 +1,15 @@
+import math
 import random
 from itertools import product
-from pprint import pprint
 from typing import List, Dict, Set, Iterable, Tuple, Optional
 
 import pygame.draw
 import pymunk
 from pygame import Surface
-from pymunk import Vec2d
+from pymunk import Vec2d, ShapeFilter
 
 from src.entities import entity_from_dict
 from src.entities.abstract.abstract import Entity, ENTITY_COLLISION, SaveStrategy
-from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
 from src.entities.pilots.player import PlayerPilot
 from src.map.abstract import (
     AbstractCluster,
@@ -18,9 +17,10 @@ from src.map.abstract import (
     AbstractMapGenerator,
     AbstractClustersStore,
 )
-from src.settings import CLUSTER_SIZE, VISION_DISTANCE, LOG_GENERATING
 from src.scenes.game.camera import Camera
+from src.settings import CLUSTER_SIZE, VISION_DISTANCE, LOG_GENERATING
 from src.settings import SHOW_CLUSTERS_BORDERS
+from src.utils.funcs import rects_overlapped_by_circle
 
 
 class EntityAlreadyAdded(Exception):
@@ -339,12 +339,19 @@ class BasicMap(AbstractMap):
         return basic_map
 
     def get_entities_near(self, pos: Vec2d, radius: float):
-        min_x, min_y = self.determine_cluster(pos - Vec2d(radius, radius))
-        max_x, max_y = self.determine_cluster(pos + Vec2d(radius, radius))
+        # That realization don`t make projections on shapes of entities
+        # So, I decided to use native method of pymunk.Space, but it works only with shapes
+        # which are inside space. However, only some entities are included in space for optimisation
+        # Maybe, I`ll make it better in far future :)
+        #
+        # w, h = CLUSTER_SIZE
+        # res = []
+        # for x, y in rects_overlapped_by_circle(w, h, pos, radius):
+        #     for entity in self.clusters[x, y].entities:
+        #         if entity.position.get_distance(pos) <= radius:
+        #             res.append(entity)
+        # return res
         res = []
-        for x in range(min_x, max_x + 1):
-            for y in range(min_y, max_y + 1):
-                for entity in self.clusters[x, y].entities:
-                    if (entity.position - pos).length <= radius:
-                        res.append(entity)
+        for query_info in self.space.point_query(pos, radius, ShapeFilter()):
+            res.append(query_info.shape.body)
         return res
