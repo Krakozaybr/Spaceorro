@@ -49,6 +49,7 @@ class GameScene(Serializable, Scene):
             print("saved")
 
     def to_dict(self) -> Dict:
+        self.map.remove_entity(self.player)
         return {
             "map": self.map.to_dict(),
             "player": self.player.to_dict(),

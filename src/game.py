@@ -11,7 +11,7 @@ class Game:
     def __init__(self):
         pygame.init()
         if SAVE_GAME:
-            self.scene = GameScene.deserialize(load_game("game1.json"))
+            self.scene = GameScene.deserialize(load_game("game1"))
         else:
             self.scene = GameScene()
         self.screen = pygame.display.set_mode(SIZE)

@@ -20,7 +20,6 @@ from src.map.abstract import (
 from src.scenes.game.camera import Camera
 from src.settings import CLUSTER_SIZE, VISION_DISTANCE, LOG_GENERATING
 from src.settings import SHOW_CLUSTERS_BORDERS
-from src.utils.funcs import rects_overlapped_by_circle
 
 
 class EntityAlreadyAdded(Exception):
@@ -103,11 +102,7 @@ class Cluster(AbstractCluster):
             "independent_entities": [
                 entity.to_dict()
                 for entity in self.entities
-                if (
-                    not hasattr(entity, "pilot")
-                    or not isinstance(entity.pilot, PlayerPilot)
-                )
-                and entity.is_alive
+                if entity.is_alive
                 and entity.save_strategy == SaveStrategy.ENTITY
             ],
             "dependent_entities": [
@@ -330,7 +325,8 @@ class BasicMap(AbstractMap):
             raise EntityNotFound
         cx, cy = self.determine_cluster(entity.position)
         self.clusters[cx, cy].remove_entity(entity)
-        entity.remove_from_space(self.space)
+        if entity.in_space:
+            entity.remove_from_space(self.space)
 
     @classmethod
     def from_dict(cls, data: Dict):
@@ -344,6 +340,7 @@ class BasicMap(AbstractMap):
         # which are inside space. However, only some entities are included in space for optimisation
         # Maybe, I`ll make it better in far future :)
         #
+        # from src.utils.funcs import rects_overlapped_by_circle
         # w, h = CLUSTER_SIZE
         # res = []
         # for x, y in rects_overlapped_by_circle(w, h, pos, radius):
