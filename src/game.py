@@ -1,7 +1,7 @@
 import pygame
 from pymunk import Vec2d
 
-from settings import FPS, SIZE
+from src.settings import FPS, SIZE
 from src.controls import Controls
 from src.scenes.game.game_scene import GameScene
 from src.settings import load_game, SAVE_GAME
