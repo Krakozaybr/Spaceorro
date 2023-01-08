@@ -1,4 +1,4 @@
-from pprint import pprint
+import os.path
 
 import pygame
 from PIL import Image
@@ -7,10 +7,11 @@ from pygame import Surface
 from src.controls import Controls
 from src.game import Game
 from src.scenes.abstract import Scene
+from src.settings import IMAGES_DIR
 
-path = (
-    r"C:\Users\alex_\PycharmProjects\Spaceorro\src\data\images\pallarians cruiser.png"
-)
+
+name = "pallarians cruiser.png"
+path = os.path.join(IMAGES_DIR, name)
 
 
 class HelperScene(Scene):
@@ -20,7 +21,7 @@ class HelperScene(Scene):
         self.w, self.h = img.size
         self.colors = [self.pixels[i, j] for i in range(self.w) for j in range(self.h)]
         self.points = []
-        self.weapon_pos = None
+        self.weapon_pos = (0, 0)
         self.dx = self.dy = 0
         self._s = 100
         self._size = 2
@@ -49,7 +50,7 @@ class HelperScene(Scene):
             )
         if self.weapon_pos:
             x, y = self.weapon_pos
-            pygame.draw.rect(screen, (255, 0, 0), self.get_rect(x, y))
+            pygame.draw.rect(screen, "yellow", self.get_rect(x, y))
 
     def apply_x(self, x):
         return x * self.size + self.dx
@@ -96,8 +97,8 @@ class HelperScene(Scene):
         elif controls.is_mouse_just_down(controls.RIGHT_MOUSE_BTN):
             x, y = controls.get_mouse_pos()
             self.weapon_pos = (
-                int((x + self.dx) // self.size),
-                int((y + self.dy) // self.size),
+                int((x - self.dx) // self.size),
+                int((y - self.dy) // self.size),
             )
         if (
             controls.is_key_pressed(pygame.K_LCTRL)
@@ -111,7 +112,9 @@ class HelperScene(Scene):
             print(
                 f'  "vertices": {[[x - self.w // 2, y - self.h // 2] for x, y in self.points]},'
             )
-            print(f'  "blaster_relative_position": {list(self.weapon_pos or (0, 0))}')
+            print(
+                f'  "blaster_relative_position": {[self.weapon_pos[0] - self.w // 2, self.weapon_pos[1] - self.h // 2]}'
+            )
             print("}")
 
 
