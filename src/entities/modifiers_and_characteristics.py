@@ -50,7 +50,7 @@ class HealthLifeCharacteristics(LifeCharacteristics):
 
 
 @dataclass
-class BulletLifeCharacteristics(LifeCharacteristics):
+class TemporaryObjectLifeCharacteristics(LifeCharacteristics):
     life_time: float
 
     def decrease(self, dt: float):
@@ -58,6 +58,36 @@ class BulletLifeCharacteristics(LifeCharacteristics):
 
     def is_alive(self) -> bool:
         return self.life_time > 0
+
+
+@dataclass
+class AsteroidLifeCharacteristics(LifeCharacteristics):
+
+    health: float
+    max_health: float
+    mining_health: float
+    max_mining_health: float
+
+    def is_alive(self) -> bool:
+        return not (self.is_mined() or self.is_destroyed())
+
+    def is_mined(self) -> bool:
+        return self.mining_health == 0.0
+
+    def is_destroyed(self) -> bool:
+        return self.health == 0.0
+
+    def decrease(self, damage: float):
+        self.health = max(0.0, self.health - damage)
+
+    def decrease_by_mining(self, damage):
+        self.mining_health = max(0.0, self.mining_health - damage)
+
+    def health_fullness(self) -> float:
+        return self.health / self.max_health
+
+    def mining_health_fullness(self) -> float:
+        return self.mining_health / self.max_mining_health
 
 
 @dataclass

@@ -5,7 +5,7 @@ from pymunk import Vec2d
 
 from src.entities.basic_entity.basic_spaceship import BasicSpaceship
 from src.entities.gadgets.weapon.abstract_weapon import AbstractStateWeapon
-from src.entities.gadgets.weapon.bullets import find_bullet_cls_by_name
+from src.entities.gadgets.weapon.bullets.get_bullet import find_bullet_cls_by_name
 from src.entities.gadgets.weapon.bullets.abstract import (
     AbstractBullet,
 )

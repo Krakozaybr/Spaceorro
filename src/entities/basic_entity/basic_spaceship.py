@@ -4,12 +4,13 @@ from typing import Optional
 from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
 
-from src.entities.abstract.abstract import Pilot, SaveStrategy, Entity
+from src.entities.pilots.abstract import Pilot
+from src.entities.abstract.abstract import SaveStrategy, Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship
-from src.entities.basic_entity.basic_entity import BasicEntity
+from src.entities.basic_entity.basic_entity import BasicEntity, EntityWithFixedMass
 from src.entities.basic_entity.explosive import Explosive, ExplosiveView
 from src.entities.basic_entity.health_entity_mixin import HealthEntityMixin
-from src.entities.basic_entity.view import PolyBasicView
+from src.entities.basic_entity.view import PolyBasicView, HealthBarMixin
 from src.entities.entity_configs import SpaceshipEntityConfig
 from src.entities.gadgets.engines.abstract import Engine
 from src.entities.gadgets.weapon.abstract_weapon import AbstractStateWeapon
@@ -18,20 +19,24 @@ from src.entities.modifiers_and_characteristics import (
     VelocityCharacteristics,
     HealthLifeCharacteristics,
 )
+from src.entities.pickupable.abstract import Pickupable
 from src.entities.teams import Team
 from src.settings import get_entity_start_config
 from src.utils.body_serialization import *
 
 
-class BasicSpaceshipView(PolyBasicView, ExplosiveView, ABC):
+class BasicSpaceshipView(PolyBasicView, HealthBarMixin, ExplosiveView, ABC):
     def __init__(self, entity: Entity, fps: Optional[int] = 1, *groups: AbstractGroup):
         PolyBasicView.__init__(self, entity=entity, *groups)
         ExplosiveView.__init__(
             self, entity=entity, explosion_radius=max(self.w, self.h), fps=fps, *groups
         )
+        HealthBarMixin.__init__(self, entity=entity, *groups)
 
 
-class BasicSpaceship(AbstractSpaceship, Explosive, HealthEntityMixin, ABC):
+class BasicSpaceship(
+    AbstractSpaceship, Explosive, EntityWithFixedMass, HealthEntityMixin, ABC
+):
 
     save_strategy = SaveStrategy.ENTITY
 
@@ -40,6 +45,7 @@ class BasicSpaceship(AbstractSpaceship, Explosive, HealthEntityMixin, ABC):
     weapon: AbstractStateWeapon
     start_config: Dict
     config: SpaceshipEntityConfig
+    config_name: str
 
     def __init__(
         self,
@@ -89,6 +95,12 @@ class BasicSpaceship(AbstractSpaceship, Explosive, HealthEntityMixin, ABC):
     @property
     def team(self) -> Team:
         return self.pilot.team
+
+    def collide(self, other: Entity):
+        super().collide(other)
+        if isinstance(other, Pickupable):
+            self.pilot.pick_up(other)
+            other.die()
 
     def take_damage(self, damage: float) -> None:
         self.life_characteristics.decrease(damage)

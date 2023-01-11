@@ -1,18 +1,15 @@
 from typing import Dict
 
-from src.entities.abstract.abstract import Pilot, EntityView
+from src.entities.abstract.abstract import EntityView
 from src.entities.gadgets.engines.default_engine import DefaultEngine
-from src.utils.body_serialization import (
-    apply_params_to_kinematic_body_from_dict,
-    apply_params_to_dynamic_body_from_dict,
-)
+from src.entities.pilots.abstract import Pilot
 from src.entities.pilots.player import PlayerPilot
 from .view import PlayerView
 from ...basic_entity.basic_entity import PolyBasicEntity
 from ...basic_entity.basic_spaceship import BasicSpaceship
 from ...gadgets.engines.abstract import Engine
 from ...gadgets.weapon.blasters.blaster import Blaster
-from ...pilots import get_pilot
+from ...pilots.get_pilot import get_pilot
 
 
 class PlayerEntity(BasicSpaceship, PolyBasicEntity):
@@ -41,17 +38,9 @@ class PlayerEntity(BasicSpaceship, PolyBasicEntity):
 
     @classmethod
     def from_dict(cls, data: Dict):
-        body = data["body"]
-        control_body = data["control_body"]
         res = PlayerEntity(
-            pos=body["position"],
-            mass=body["mass"],
-            moment=body["moment"],
-            weapon=Blaster.from_dict(data["weapon"]),
-            entity_id=int(data["id"]),
-            **cls.get_characteristics(data),
+            weapon=Blaster.from_dict(data["weapon"]), **cls.get_default_params(data)
         )
         res.pilot = get_pilot(data["pilot"])
-        apply_params_to_dynamic_body_from_dict(res, body)
-        apply_params_to_kinematic_body_from_dict(res.control_body, control_body)
+        res.apply_params_to_bodies(data)
         return res

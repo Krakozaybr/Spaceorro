@@ -30,6 +30,8 @@ class SerializableDataclass(Serializable):
         for field_name, field_cls in all_annotations(cls).items():
             if field_name in SerializableDataclass.__annotations__:
                 continue
+            if hasattr(cls, "fields") and field_name not in cls.fields:
+                continue
             if isinstance(field_cls, type(Serializable)):
                 field_cls: Type[Serializable]
                 vals[field_name] = field_cls.from_dict(data[field_name])

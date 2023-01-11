@@ -5,19 +5,15 @@ from pymunk import Vec2d
 
 from src.entities.abstract.abstract import Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship
-from src.entities.basic_entity.basic_entity import BasicEntity
 from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
 from src.entities.basic_entity.explosive import Explosive
-from src.entities.gadgets.weapon.bullets import AbstractBullet
+from src.entities.gadgets.weapon.bullets.abstract import AbstractBullet
 from src.entities.gadgets.weapon.bullets.view import BlasterChargeView
 from src.entities.modifiers_and_characteristics import (
-    BulletLifeCharacteristics,
+    TemporaryObjectLifeCharacteristics,
 )
+from src.entities.pickupable.abstract import Pickupable
 from src.environment.abstract import get_environment
-from src.utils.body_serialization import (
-    apply_params_to_dynamic_body_from_dict,
-    apply_params_to_kinematic_body_from_dict,
-)
 
 CONFIG_NAME = "blaster_charge.json"
 
@@ -25,7 +21,7 @@ CONFIG_NAME = "blaster_charge.json"
 class BlasterCharge(AbstractBullet, Explosive):
 
     config_name = "blaster_charge.json"
-    life_characteristics: BulletLifeCharacteristics
+    life_characteristics: TemporaryObjectLifeCharacteristics
     view: BlasterChargeView
 
     def __init__(
@@ -36,7 +32,7 @@ class BlasterCharge(AbstractBullet, Explosive):
         angle: Optional[float] = 0.0,
         pos: Optional[Vec2d] = None,
         dpos: Optional[Vec2d] = None,
-        life_characteristics: Optional[BulletLifeCharacteristics] = None,
+        life_characteristics: Optional[TemporaryObjectLifeCharacteristics] = None,
     ):
         self.level = level
         SpaceshipMixin.__init__(self, spaceship_id)
@@ -55,8 +51,8 @@ class BlasterCharge(AbstractBullet, Explosive):
         self.direction = direction
         self.exploding = False
 
-    def create_life_characteristics(self) -> BulletLifeCharacteristics:
-        return BulletLifeCharacteristics(
+    def create_life_characteristics(self) -> TemporaryObjectLifeCharacteristics:
+        return TemporaryObjectLifeCharacteristics(
             life_time=self.config.life_time * self.modifiers.bullet_life_time_coef
         )
 
@@ -64,7 +60,7 @@ class BlasterCharge(AbstractBullet, Explosive):
         return pymunk.moment_for_circle(self.config.mass, 0, self.config.radius)
 
     def create_shape(self) -> pymunk.Shape:
-        return pymunk.Circle(self, self.config.radius)
+        return pymunk.Circle(None, self.config.radius)
 
     def update(self, dt: float):
         super().update(dt)
@@ -81,7 +77,8 @@ class BlasterCharge(AbstractBullet, Explosive):
         self.life_characteristics.decrease(self.life_characteristics.life_time)
 
     def collide(self, other: Entity):
-        self.explode()
+        if not isinstance(other, Pickupable):
+            self.explode()
 
     def take_damage(self, damage: float):
         self.life_characteristics.decrease(self.life_characteristics.life_time)
@@ -92,13 +89,12 @@ class BlasterCharge(AbstractBullet, Explosive):
     @staticmethod
     def get_characteristics(data: Dict) -> Dict:
         return {
-            "life_characteristics": BulletLifeCharacteristics.from_dict(
+            "life_characteristics": TemporaryObjectLifeCharacteristics.from_dict(
                 data["life_characteristics"]
             ),
         }
 
     def to_dict(self) -> Dict:
-        print("saved blaster charge")
         return {
             "level": self.level,
             "spaceship_id": self.spaceship_id,
@@ -108,18 +104,14 @@ class BlasterCharge(AbstractBullet, Explosive):
 
     @classmethod
     def from_dict(cls, data: Dict):
-        print(cls.__name__, "inited")
         res = BlasterCharge(
             level=data["level"],
             spaceship_id=data["spaceship_id"],
             pos=data["body"]["position"],
             **cls.get_characteristics(data)
         )
-        body = data["body"]
-        control_body = data["control_body"]
         res.in_space = False
-        apply_params_to_dynamic_body_from_dict(res, body)
-        apply_params_to_kinematic_body_from_dict(res.control_body, control_body)
+        res.apply_params_to_bodies(data)
         return res
 
     @classmethod

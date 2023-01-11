@@ -12,7 +12,7 @@
   {
     "level": 1,
     "radius": 10,
-    "damage": 10,
+    "damage": 1000,
     "speed": 200,
     "life_time": 1.5,
     "mass": 0.01,

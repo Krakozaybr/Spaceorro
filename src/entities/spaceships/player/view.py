@@ -22,6 +22,6 @@ class PlayerView(BasicSpaceshipView):
     def draw_health_bar(self, screen: pygame.Surface, pos: Vec2d):
         self.health_bar.render(
             screen,
-            self.entity.life_characteristics.health_fullness(),
+            self.entity.life_characteristics,
             pos,
         )

@@ -5,14 +5,15 @@ from pygame import Surface
 from pymunk import Vec2d
 
 from src.abstract import Serializable
-from src.entities import entity_from_dict
+from src.entities.get_entity import entity_from_dict
 from src.entities.spaceships.player.entity import PlayerEntity
 from src.map.impls import map_from_dict
 from src.map.impls.basic import BasicMap
 from src.scenes.abstract import Scene
 from .camera import Camera
 from ...controls import Controls
-from ...entities.abstract.abstract import Pilot, Entity
+from ...entities.abstract.abstract import Entity
+from src.entities.pilots.abstract import Pilot
 from ...environment.abstract import set_environment
 from ...environment.impl import BasicEnvironment
 from ...map.abstract import AbstractMap

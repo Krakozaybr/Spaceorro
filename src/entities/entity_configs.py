@@ -8,11 +8,16 @@ from src.utils.serializable_dataclass import SerializableDataclass
 
 @dataclass
 class AbstractEntityConfig(SerializableDataclass, ABC):
+    pass
+
+
+@dataclass
+class EntityWithFixedMassConfig(AbstractEntityConfig):
     mass: float
 
 
 @dataclass
-class PolyEntityConfig(AbstractEntityConfig, ABC):
+class PolyEntityConfig(EntityWithFixedMassConfig, ABC):
     vertices: Sequence[Tuple[float, float]]
 
 
@@ -26,7 +31,7 @@ class SpaceshipEntityConfig(PolyEntityConfig):
 
 
 @dataclass
-class BulletEntityConfig(AbstractEntityConfig):
+class BulletEntityConfig(EntityWithFixedMassConfig):
     radius: float
     level: int
     damage: float
@@ -34,3 +39,21 @@ class BulletEntityConfig(AbstractEntityConfig):
     life_time: float
     explosion_radius: float
     image: str
+
+
+@dataclass
+class PickupableEntityConfig(AbstractEntityConfig):
+    radius: float
+    life_time: float
+
+
+@dataclass
+class AsteroidEntityConfig(AbstractEntityConfig):
+    mining_health_area_coef: float
+    mass_coef: float
+    health_area_coef: float
+    radius_interval: Tuple[int, int]
+    vertices_count: Tuple[int, int]
+    polygons_count: Tuple[int, int]
+    frequency: float
+    losses_coef: float

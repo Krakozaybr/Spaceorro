@@ -8,8 +8,9 @@ import pymunk
 from pygame import Surface
 from pymunk import Vec2d, ShapeFilter
 
-from src.entities import entity_from_dict
+from src.entities.get_entity import entity_from_dict
 from src.entities.abstract.abstract import Entity, ENTITY_COLLISION, SaveStrategy
+from src.entities.asteroids.factory import AsteroidFactory
 from src.entities.pilots.player import PlayerPilot
 from src.map.abstract import (
     AbstractCluster,
@@ -31,7 +32,6 @@ class EntityNotFound(Exception):
 
 
 class Cluster(AbstractCluster):
-
     dependent_entities_data: List[Dict]
 
     balls = [
@@ -60,8 +60,6 @@ class Cluster(AbstractCluster):
     def update(self, dt: float) -> None:
         for entity in self.entities.copy():
             entity.update(dt)
-            if not entity.is_active:
-                self.entities.remove(entity)
 
     def render(self, screen: Surface, camera: Camera) -> None:
         w, h = CLUSTER_SIZE
@@ -94,6 +92,14 @@ class Cluster(AbstractCluster):
     def dead_entities(self) -> Iterable[Entity]:
         return filter(lambda e: not e.is_alive and e.in_space, self.entities)
 
+    def pop_inactive_entities(self) -> Iterable[Entity]:
+        result = []
+        for entity in self.entities.copy():
+            if not entity.is_active:
+                result.append(entity)
+                self.entities.remove(entity)
+        return result
+
     def to_dict(self) -> Dict:
         return {
             **super().to_dict(),
@@ -102,8 +108,7 @@ class Cluster(AbstractCluster):
             "independent_entities": [
                 entity.to_dict()
                 for entity in self.entities
-                if entity.is_alive
-                and entity.save_strategy == SaveStrategy.ENTITY
+                if entity.is_alive and entity.save_strategy == SaveStrategy.ENTITY
             ],
             "dependent_entities": [
                 entity.to_dict()
@@ -235,7 +240,13 @@ class BasicMapGenerator(AbstractMapGenerator):
     ) -> List[AbstractCluster]:
         if LOG_GENERATING:
             print(f"generated at {x}, {y}")
-        return [Cluster(x, y)]
+        w, h = CLUSTER_SIZE
+        entities = set()
+        for _ in range(random.randint(4, 7)):
+            entity_x = random.randint(w * x, w * (x + 1))
+            entity_y = random.randint(h * y, h * (y + 1))
+            entities.add(AsteroidFactory.create_entity(Vec2d(entity_x, entity_y)))
+        return [Cluster(x, y, entities=entities)]
 
 
 class BasicMap(AbstractMap):
@@ -246,6 +257,9 @@ class BasicMap(AbstractMap):
         self.clusters = ClustersStore(self.map_generator)
         self.active_clusters = set()
         self.space = pymunk.Space()
+        self.space.collision_slop = 0.01
+        self.space.sleep_time_threshold = 10
+        self.space.damping = 0.6
         handler = self.space.add_collision_handler(ENTITY_COLLISION, ENTITY_COLLISION)
         handler.begin = self.collision
 
@@ -259,7 +273,7 @@ class BasicMap(AbstractMap):
 
     def update_active_clusters(self, clusters: Set[Cluster]) -> None:
         for cluster in self.active_clusters - clusters:
-            self.delete_entities_to_space(cluster.entities)
+            self.delete_entities_from_space(cluster.entities)
         for cluster in clusters - self.active_clusters:
             self.add_entities_to_space(cluster.entities)
         self.active_clusters = clusters
@@ -269,7 +283,7 @@ class BasicMap(AbstractMap):
             if not entity.in_space:
                 entity.add_to_space(self.space)
 
-    def delete_entities_to_space(self, entities: Iterable[Entity]) -> None:
+    def delete_entities_from_space(self, entities: Iterable[Entity]) -> None:
         for entity in entities:
             entity.remove_from_space(self.space)
 
@@ -296,19 +310,22 @@ class BasicMap(AbstractMap):
         self.update_active_clusters(
             self.get_clusters_near(*self.determine_cluster(pos))
         )
-        for cluster in self.active_clusters:
-            cluster.update(dt)
         entities_for_delete = []
         for cluster in self.active_clusters:
             for entity in cluster.dead_entities():
                 entity.remove_from_space(self.space)
+            for entity in cluster.pop_inactive_entities():
+                if entity.in_space:
+                    entity.remove_from_space(self.space)
             for entity, x, y in cluster.extra_entities():
                 self.clusters[x, y].add_entity(entity)
                 cluster.remove_entity(entity)
                 if self.clusters[x, y] not in self.active_clusters:
                     entities_for_delete.append(entity)
-        self.delete_entities_to_space(entities_for_delete)
+        self.delete_entities_from_space(entities_for_delete)
         self.space.step(dt)
+        for cluster in self.active_clusters:
+            cluster.update(dt)
 
     def to_dict(self) -> Dict:
         return {"clusters": self.clusters.to_dict(), **super().to_dict()}

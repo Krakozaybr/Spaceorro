@@ -14,5 +14,22 @@
       "height": 1000
     },
     "vision_distance": 4
+  },
+  "resources_images": {
+    "gold": "gold.png",
+    "eternium": "eternium.png",
+    "infinitum": "infinitum.png",
+    "mithril": "mithril.png",
+    "crystallium": "crystallium.png"
+  },
+  "resources_colors": {
+    "gold": [249, 193, 62],
+    "eternium": [42, 249, 33],
+    "infinitum": [109, 153, 221],
+    "mithril": [179, 116, 84],
+    "crystallium": [15, 240, 235]
+  },
+  "general_images": {
+    "dust_particle": "dust_particle.png"
   }
 }

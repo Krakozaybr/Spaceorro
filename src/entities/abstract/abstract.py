@@ -11,6 +11,7 @@ from src.entities.entity_configs import AbstractEntityConfig
 from src.entities.gadgets.health_bars.abstract import HealthBar
 from src.entities.modifiers_and_characteristics import *
 from src.entities.teams import Team
+from src.resources import Resources
 from src.utils.decorators import storable
 from src.utils.store import Store
 
@@ -67,8 +68,6 @@ class IsActiveMixin(StoreMixin, ABC):
 
 
 class EntityView(pygame.sprite.Sprite, ABC):
-    health_bar: HealthBar
-
     @abstractmethod
     def draw(self, screen: Surface, pos: Vec2d) -> None:
         pass
@@ -120,21 +119,7 @@ class Entity(Serializable, pymunk.Body, RenderUpdateObject, IsActiveMixin, ABC):
 
 
 class EntityFactory(ABC):
+    @classmethod
     @abstractmethod
-    def create_entity(self) -> Entity:
+    def create_entity(cls, pos: Vec2d) -> Entity:
         pass
-
-
-@storable
-class Pilot(Updateable, StoreMixin, Serializable, ABC):
-    entity: Entity
-    team: Team
-
-    @property
-    def is_active(self) -> bool:
-        res = self.entity.is_active
-        if not res:
-            del self.store[self.id]
-        else:
-            self.store[self.id] = self
-        return res

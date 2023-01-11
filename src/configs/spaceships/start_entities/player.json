@@ -21,7 +21,7 @@
     "direct_force": 400,
     "max_speed": 500,
     "max_rotation_speed": 10,
-    "stop_coef": 8,
-    "stop_rotation_coef": 10
+    "stop_coef": 2,
+    "stop_rotation_coef": 4
   }
 }

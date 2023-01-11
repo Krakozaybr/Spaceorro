@@ -6,7 +6,7 @@ from pygame import Surface
 from pymunk import Vec2d
 
 from src.entities.abstract.abstract import Entity, EntityView, ENTITY_COLLISION
-from src.entities.entity_configs import PolyEntityConfig
+from src.entities.entity_configs import PolyEntityConfig, EntityWithFixedMassConfig
 from src.entities.modifiers_and_characteristics import (
     LifeCharacteristics,
 )
@@ -14,8 +14,6 @@ from src.utils.body_serialization import *
 
 
 class BasicEntity(Entity, ABC):
-    config_name: str
-
     def __init__(
         self,
         pos: Vec2d,
@@ -25,15 +23,16 @@ class BasicEntity(Entity, ABC):
         entity_id: Optional[int] = None,
     ):
         # Pymunk
+        self.shape = self.create_shape()
+        self.shape.collision_type = ENTITY_COLLISION
+        if mass is None:
+            mass = self.create_mass()
         if moment is None:
             moment = self.create_moment()
-        if mass is None:
-            mass = self.config.mass
 
         super().__init__(mass, moment, body_type=pymunk.Body.DYNAMIC, _id=entity_id)
 
-        self.shape = self.create_shape()
-        self.shape.collision_type = ENTITY_COLLISION
+        self.shape.body = self
         self.position = pos
 
         self.control_body = pymunk.Body(body_type=pymunk.Body.KINEMATIC)
@@ -49,7 +48,12 @@ class BasicEntity(Entity, ABC):
 
         # Basic
         self.is_active = True
+        self.in_space = False
         self.view = self.create_view()
+
+    @abstractmethod
+    def create_mass(self) -> float:
+        pass
 
     @abstractmethod
     def create_life_characteristics(self) -> LifeCharacteristics:
@@ -101,7 +105,14 @@ class BasicEntity(Entity, ABC):
         }
 
     def collide(self, other: Entity):
-        other.take_damage(self.mass * self.velocity.length / 100)
+        pass
+        # other.take_damage(self.mass * self.velocity.length / 100)
+
+    def apply_params_to_bodies(self, data: Dict):
+        apply_params_to_dynamic_body_from_dict(self, data["body"])
+        apply_params_to_kinematic_body_from_dict(
+            self.control_body, data["control_body"]
+        )
 
     def to_dict(self) -> Dict:
         characteristics = self.characteristics_to_dict()
@@ -111,6 +122,16 @@ class BasicEntity(Entity, ABC):
             "control_body": kinematic_body_to_dict(self.control_body),
         }
         return {**super().to_dict(), **characteristics, **body_data}
+
+    @classmethod
+    def get_default_params(cls, data: Dict) -> Dict:
+        return {
+            "entity_id": data["id"],
+            "pos": data["body"]["position"],
+            "mass": data["body"]["mass"],
+            "moment": data["body"]["moment"],
+            **cls.get_characteristics(data),
+        }
 
     def __eq__(self, other) -> bool:
         if isinstance(other, self.__class__) and self.id == other.id:
@@ -129,4 +150,11 @@ class PolyBasicEntity(BasicEntity, ABC):
         return pymunk.moment_for_poly(self.config.mass, self.config.vertices)
 
     def create_shape(self) -> pymunk.Shape:
-        return pymunk.Poly(self, self.config.vertices)
+        return pymunk.Poly(None, self.config.vertices)
+
+
+class EntityWithFixedMass(BasicEntity, ABC):
+    config: EntityWithFixedMassConfig
+
+    def create_mass(self) -> float:
+        return self.config.mass

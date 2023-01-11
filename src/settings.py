@@ -43,6 +43,16 @@ def get_bullet_configs(name: str):
     return get_json(config_path)
 
 
+def get_pickupable_config(name: str):
+    pickupable_configs_directory = os.path.join(CONFIGS_DIR, "pickupable")
+    config_path = os.path.join(pickupable_configs_directory, name)
+    return get_json(config_path)
+
+
+def get_asteroid_config():
+    return get_json(os.path.join(CONFIGS_DIR, "asteroids.json"))
+
+
 def save_game(name: str, data: str) -> None:
     with open(os.path.join(SAVES_DIR, f"{name}.json"), mode="w", encoding="utf-8") as w:
         w.write(data)
@@ -66,6 +76,9 @@ general_config = get_json(os.path.join(CONFIGS_DIR, "general.json"))
 # GENERAL
 FPS = general_config["fps"]
 SIZE = W, H = general_config["screen_width"], general_config["screen_height"]
+RESOURCES_IMAGES = general_config["resources_images"]
+RESOURCES_COLORS = general_config["resources_colors"]
+DUST_PARTICLE_IMAGE = general_config["general_images"]["dust_particle"]
 
 # DEBUG
 debug_data = general_config["debug"]
