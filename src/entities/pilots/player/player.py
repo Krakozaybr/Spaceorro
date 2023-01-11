@@ -1,40 +1,45 @@
 import math
 from typing import Dict, Optional
 
+from pygame import Surface
+from pygame_gui import UIManager
 from pymunk.vec2d import Vec2d
 
 from src.controls import Controls
-from src.entities.abstract.abstract import Entity
 from src.entities.basic_entity.basic_spaceship import BasicSpaceship
-from src.entities.pickupable.abstract import Pickupable
-from src.entities.pickupable.resource import PickupableResource
-from src.entities.pilots.abstract import Pilot
+from src.entities.pilots.basic_pilot import BasicPilot
 from src.entities.pilots.controls_config import *
+from src.entities.pilots.player.ui_overlapping import UIOverlapping
 from src.entities.teams import Team
 from src.resources import Resources
 from src.settings import W, H
 
 
-class PlayerPilot(Pilot):
+class PlayerPilot(BasicPilot):
 
     entity: BasicSpaceship
+    ui: Optional[UIOverlapping]
 
     def __init__(
         self,
-        entity: BasicSpaceship,
+        entity: Optional[BasicSpaceship] = None,
+        manager: Optional[UIManager] = None,
         _id: Optional[int] = None,
         resources: Optional[Resources] = None,
     ):
-        super().__init__(_id)
-        self.entity = entity
-        self.team = Team.player
-        if resources is None:
-            resources = Resources()
-        self.resources = resources
+        super().__init__(
+            entity=entity, _id=_id, resources=resources, team=Team.player
+        )
+        self.ui = None
+        if manager is not None:
+            self.ui = UIOverlapping(manager=manager, resources=self.resources)
 
-    def pick_up(self, item: Pickupable):
-        if isinstance(item, PickupableResource):
-            self.resources += item.resource
+    def set_manager(self, manager: UIManager):
+        self.ui = UIOverlapping(manager=manager, resources=self.resources)
+
+    def set_spaceship(self, spaceship: BasicSpaceship):
+        self.entity = spaceship
+        spaceship.pilot = self
 
     def update(self, dt: float):
         controls = Controls()
@@ -53,6 +58,9 @@ class PlayerPilot(Pilot):
         #     print(self.pos)
         # if move_to:
         #     self.entity.engine.move_to(dt, self.pos)
+
+        if self.ui is not None and controls.is_key_pressed(pygame.K_t):
+            self.ui.make_toast("lolll")
 
         if controls.is_key_pressed(FIRE):
             self.entity.shoot()
@@ -78,18 +86,13 @@ class PlayerPilot(Pilot):
             not (rotate_counterclockwise or rotate_clockwise or rotate_to),
         )
 
+        if self.ui is not None:
+            self.ui.update(dt)
+
+    def render(self, screen: Surface):
+        if self.ui is not None:
+            self.ui.render(screen)
+
     @classmethod
     def from_dict(cls, data: Dict):
-        return cls(
-            entity=Entity.store[data["spaceship_id"]],
-            _id=data["id"],
-            resources=Resources.from_dict(data["resources"]),
-        )
-
-    def to_dict(self) -> Dict:
-        return {
-            **super().to_dict(),
-            "spaceship_id": self.entity.id,
-            "id": self.id,
-            "resources": self.resources.to_dict(),
-        }
+        return cls(**super().get_default_params(data))

@@ -3,16 +3,17 @@ from typing import Dict
 from src.entities.abstract.abstract import EntityView
 from src.entities.gadgets.engines.default_engine import DefaultEngine
 from src.entities.pilots.abstract import Pilot
-from src.entities.pilots.player import PlayerPilot
 from .view import PlayerView
 from ...basic_entity.basic_entity import PolyBasicEntity
 from ...basic_entity.basic_spaceship import BasicSpaceship
 from ...gadgets.engines.abstract import Engine
 from ...gadgets.weapon.blasters.blaster import Blaster
 from ...pilots.get_pilot import get_pilot
+from ...pilots.simple_bot import SimpleBot
+from ...teams import Team
 
 
-class PlayerEntity(BasicSpaceship, PolyBasicEntity):
+class PallariansCruiser(BasicSpaceship, PolyBasicEntity):
 
     # static fields
     config_name = "player.json"
@@ -28,7 +29,7 @@ class PlayerEntity(BasicSpaceship, PolyBasicEntity):
         return Blaster.create_simple_blaster(self)
 
     def create_pilot(self) -> Pilot:
-        return PlayerPilot(self)
+        return SimpleBot(self, Team.neutral)
 
     def on_explode(self):
         pass
@@ -38,7 +39,7 @@ class PlayerEntity(BasicSpaceship, PolyBasicEntity):
 
     @classmethod
     def from_dict(cls, data: Dict):
-        res = PlayerEntity(
+        res = PallariansCruiser(
             weapon=Blaster.from_dict(data["weapon"]), **cls.get_default_params(data)
         )
         res.pilot = get_pilot(data["pilot"])

@@ -1,4 +1,3 @@
-import math
 import random
 from itertools import product
 from typing import List, Dict, Set, Iterable, Tuple, Optional
@@ -11,7 +10,6 @@ from pymunk import Vec2d, ShapeFilter
 from src.entities.get_entity import entity_from_dict
 from src.entities.abstract.abstract import Entity, ENTITY_COLLISION, SaveStrategy
 from src.entities.asteroids.factory import AsteroidFactory
-from src.entities.pilots.player import PlayerPilot
 from src.map.abstract import (
     AbstractCluster,
     AbstractMap,
