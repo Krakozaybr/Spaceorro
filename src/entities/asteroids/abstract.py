@@ -1,14 +1,14 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple, List, Union
+from typing import Dict, Optional, Tuple, Union
 
 import pygame
-import pymunk
 from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
 
-from src.entities.abstract.abstract import EntityView, Entity, SaveStrategy
+from src.entities.abstract.abstract import Entity, SaveStrategy
 from src.entities.basic_entity.basic_entity import BasicEntity
-from src.entities.basic_entity.view import PolyBasicView, HealthBarMixin
+from src.entities.basic_entity.view import HealthBarMixin
 from src.entities.entity_configs import AsteroidEntityConfig
 from src.entities.gadgets.health_bars.abstract import HealthBar
 from src.entities.gadgets.health_bars.default_bars import AsteroidHealthBar
@@ -19,39 +19,29 @@ from src.entities.pickupable.resource import PickupableResource
 from src.environment.abstract import get_environment
 from src.resources import Resource
 from src.settings import get_asteroid_config, DUST_PARTICLE_IMAGE, load_image
-from src.utils.get_polygon_verts import apply_rotation_for_verts
 from src.utils.serializable_dataclass import SerializableDataclass
 
 
 @dataclass
-class ViewData(SerializableDataclass):
-    polygons: List[List[Tuple[float, float]]]
-    vertices: List[Tuple[float, float]]
+class AsteroidViewData(SerializableDataclass):
     resource_color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]
     color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]]
+    radius: float
 
 
-class AsteroidView(PolyBasicView, HealthBarMixin):
+class AbstractAsteroidView(HealthBarMixin, ABC):
 
     dust_image = load_image(DUST_PARTICLE_IMAGE)
-    view_data: ViewData
+    view_data: AsteroidViewData
 
-    def __init__(self, entity: Entity, view_data: ViewData, *groups: AbstractGroup):
-        super().__init__(entity, *groups)
+    def __init__(
+        self, entity: Entity, view_data: AsteroidViewData, *groups: AbstractGroup
+    ):
         self.view_data = view_data
-
-    def draw_image(self, screen: pygame.Surface, pos: Vec2d) -> None:
-        verts = apply_rotation_for_verts(
-            self.entity.shape.get_vertices(), self.entity.angle, pos
-        )
-        pygame.draw.polygon(screen, self.view_data.color, verts)
-        pygame.draw.polygon(screen, (0, 0, 0), verts, width=2)
-        for polygon in self.view_data.polygons:
-            verts = apply_rotation_for_verts(polygon, self.entity.angle, pos)
-            pygame.draw.polygon(screen, self.view_data.resource_color, verts)
+        super().__init__(entity, *groups)
 
     def create_health_bar(self) -> HealthBar:
-        return AsteroidHealthBar(Vec2d(-self.w / 2 - 2, -self.h + 4), self.w + 4, 8)
+        return AsteroidHealthBar(Vec2d(-self.w / 2 - 2, -self.h), self.w + 4, 6)
 
     def draw_health_bar(self, screen: pygame.Surface, pos: Vec2d):
         self.health_bar.render(
@@ -61,11 +51,11 @@ class AsteroidView(PolyBasicView, HealthBarMixin):
         )
 
 
-class Asteroid(BasicEntity):
+class AbstractAsteroid(BasicEntity, ABC):
 
     resource: Resource
     life_characteristics: AsteroidLifeCharacteristics
-    view_data: ViewData
+    view_data: AsteroidViewData
     config = AsteroidEntityConfig.from_dict(get_asteroid_config())
     save_strategy = SaveStrategy.ENTITY
 
@@ -73,7 +63,7 @@ class Asteroid(BasicEntity):
         self,
         pos: Vec2d,
         resource: Resource,
-        view_data: ViewData,
+        view_data: AsteroidViewData,
         life_characteristics: Optional[AsteroidLifeCharacteristics] = None,
         mass: Optional[float] = None,
         moment: Optional[float] = None,
@@ -103,15 +93,6 @@ class Asteroid(BasicEntity):
             max_mining_health=mining_health,
         )
 
-    def create_moment(self) -> float:
-        return pymunk.moment_for_poly(self.create_mass(), self.view_data.vertices)
-
-    def create_shape(self) -> pymunk.Shape:
-        return pymunk.Poly(None, self.view_data.vertices)
-
-    def create_view(self) -> EntityView:
-        return AsteroidView(self, self.view_data)
-
     def die(self):
         self.life_characteristics.decrease(self.life_characteristics.health)
 
@@ -137,10 +118,15 @@ class Asteroid(BasicEntity):
         }
 
     @classmethod
+    @abstractmethod
+    def get_view_data_from_dict(cls, data: Dict) -> AsteroidViewData:
+        return AsteroidViewData.from_dict(data)
+
+    @classmethod
     def from_dict(cls, data: Dict):
         res = cls(
             resource=Resource.from_dict(data["resource"]),
-            view_data=ViewData.from_dict(data["view_data"]),
+            view_data=cls.get_view_data_from_dict(data["view_data"]),
             **cls.get_default_params(data)
         )
         cls.apply_params_to_bodies(res, data)

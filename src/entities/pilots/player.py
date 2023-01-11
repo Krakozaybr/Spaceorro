@@ -1,16 +1,15 @@
 import math
-from pprint import pprint
 from typing import Dict, Optional
 
+from pymunk.vec2d import Vec2d
+
+from src.controls import Controls
+from src.entities.abstract.abstract import Entity
+from src.entities.basic_entity.basic_spaceship import BasicSpaceship
 from src.entities.pickupable.abstract import Pickupable
 from src.entities.pickupable.resource import PickupableResource
 from src.entities.pilots.abstract import Pilot
-from src.entities.abstract.abstract import Entity
-from src.controls import Controls
-from src.entities.basic_entity.basic_spaceship import BasicSpaceship
 from src.entities.pilots.controls_config import *
-from pymunk.vec2d import Vec2d
-
 from src.entities.teams import Team
 from src.resources import Resources
 from src.settings import W, H

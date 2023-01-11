@@ -46,13 +46,13 @@ class Controls:
     def is_key_just_down(self, key: int) -> bool:
         return self.key_just_changed.get(key, False)
 
-    def is_key_just_up(self, button=LEFT_MOUSE_BTN) -> bool:
+    def is_mouse_just_up(self, button=LEFT_MOUSE_BTN) -> bool:
         return not self.mouse_just_pressed.get(button, True)
 
     def is_mouse_just_down(self, button=LEFT_MOUSE_BTN) -> bool:
         return self.mouse_just_pressed.get(button, False)
 
-    def is_mouse_just_up(self, key: int) -> bool:
+    def is_key_just_up(self, key: int) -> bool:
         return not self.key_just_changed.get(key, True)
 
     def set_key_pressed(self, key: int, pressed: bool):

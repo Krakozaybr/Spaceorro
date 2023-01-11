@@ -52,8 +52,10 @@ class AsteroidEntityConfig(AbstractEntityConfig):
     mining_health_area_coef: float
     mass_coef: float
     health_area_coef: float
-    radius_interval: Tuple[int, int]
-    vertices_count: Tuple[int, int]
-    polygons_count: Tuple[int, int]
+    polygon_asteroid_radius_interval: Tuple[int, int]
+    polygon_asteroid_vertices_count: Tuple[int, int]
+    polygon_asteroid_polygons_count: Tuple[int, int]
+    brightness: Tuple[int, int]
+    inner_circle_radius_interval: Tuple[int, int]
     frequency: float
     losses_coef: float

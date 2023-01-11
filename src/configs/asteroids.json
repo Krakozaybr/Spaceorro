@@ -2,9 +2,11 @@
   "health_area_coef": 0.2,
   "mining_health_area_coef": 0.2,
   "mass_coef": 0.1,
-  "radius_interval": [15, 45],
-  "vertices_count": [6, 11],
-  "polygons_count": [2, 4],
+  "polygon_asteroid_radius_interval": [15, 45],
+  "polygon_asteroid_vertices_count": [6, 11],
+  "polygon_asteroid_polygons_count": [2, 4],
+  "brightness": [60, 255],
   "frequency": 6,
-  "losses_coef": 0.1
+  "losses_coef": 0.1,
+  "inner_circle_radius_interval": [3, 12]
 }

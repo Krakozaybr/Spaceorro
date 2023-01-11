@@ -39,6 +39,7 @@ class Game:
         if e.type == pygame.MOUSEMOTION:
             x, y = e.pos
             controls.set_mouse_pos(Vec2d(x, y))
+        self.scene.process_event(e)
 
     def start(self):
         self.clock = pygame.time.Clock()

@@ -80,13 +80,16 @@ RESOURCES_IMAGES = general_config["resources_images"]
 RESOURCES_COLORS = general_config["resources_colors"]
 DUST_PARTICLE_IMAGE = general_config["general_images"]["dust_particle"]
 
+# UI
+RESOURCE_LINE_HEIGHT = general_config["resource_line_height"]
+
 # DEBUG
 debug_data = general_config["debug"]
 DEBUG = debug_data["active"]
 SHOW_VELOCITY_VECTOR = DEBUG and debug_data["show_velocity_vector"]
 SHOW_CLUSTERS_BORDERS = DEBUG and debug_data["show_clusters_borders"]
 SHOW_PLAYER_COLLISION_POLY = DEBUG and debug_data["show_player_collision_poly"]
-SAVE_GAME = False
+SAVE_GAME = True
 LOG_GENERATING = False
 
 # MAP

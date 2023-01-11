@@ -184,7 +184,7 @@ class SpaceshipMixin:
 
     @property
     def spaceship(self) -> BasicSpaceship:
-        if not hasattr(self, "_spaceship"):
+        if not hasattr(self, "_spaceship") or self._spaceship is None:
             self._spaceship = Entity.store[self.spaceship_id]
         return self._spaceship
 

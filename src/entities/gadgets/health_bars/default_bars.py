@@ -20,7 +20,13 @@ class DefaultHealthBar(HealthBar, ABC):
         self.w = w
         self.h = h
 
-    def draw_health_line(self, screen: Surface, pos: Vec2d, health: float, color: Union[str, Tuple[int, int, int]]):
+    def draw_health_line(
+        self,
+        screen: Surface,
+        pos: Vec2d,
+        health: float,
+        color: Union[str, Tuple[int, int, int]],
+    ):
         x, y = pos + self.pos
         pygame.draw.rect(
             screen,
@@ -32,7 +38,6 @@ class DefaultHealthBar(HealthBar, ABC):
 
 
 class BasicHealthBar(DefaultHealthBar, ABC):
-
     def render(
         self,
         screen: Surface,
@@ -62,6 +67,7 @@ class NoHealthBar(HealthBar):
 
 
 class AsteroidHealthBar(NeutralBar):
+    border_color = "white"
 
     def render(
         self,
@@ -72,4 +78,6 @@ class AsteroidHealthBar(NeutralBar):
         health = life_characteristics.health_fullness()
         self.draw_health_line(screen, pos, health, color=self.__class__.color)
         mining_health = life_characteristics.mining_health_fullness()
-        self.draw_health_line(screen, pos + Vec2d(0, self.h + 6), mining_health, color=(3, 252, 223))
+        self.draw_health_line(
+            screen, pos + Vec2d(0, self.h + 6), mining_health, color=(3, 252, 223)
+        )

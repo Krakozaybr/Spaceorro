@@ -6,12 +6,14 @@ from src.entities.basic_entity.basic_spaceship import BasicSpaceshipView
 from src.entities.basic_entity.health_entity_mixin import HealthEntityMixin
 from src.entities.gadgets.health_bars.abstract import HealthBar
 from src.entities.gadgets.health_bars.default_bars import AllyBar
+from src.settings import load_image
 
 
 # TODO image
 class PlayerView(BasicSpaceshipView):
 
     entity: HealthEntityMixin
+    # image = load_image("pallarians cruiser.png")
 
     def __init__(self, entity: HealthEntityMixin, *groups: AbstractGroup):
         super().__init__(entity, fps=8, *groups)

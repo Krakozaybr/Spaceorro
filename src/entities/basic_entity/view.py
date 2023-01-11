@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 from math import inf
 
@@ -31,9 +32,12 @@ class BasicView(EntityView, ABC):
     def draw_image(self, screen: pygame.Surface, pos: Vec2d) -> None:
         if hasattr(self, "image") and self.image is not None:
             x, y = pos
+            img = pygame.transform.rotate(
+                self.image, self.entity.angle * 180 / -math.pi
+            )
             screen.blit(
-                self.image,
-                (x - self.image.get_width() / 2, y - self.image.get_height() / 2),
+                img,
+                (x - img.get_width() / 2, y - img.get_height() / 2),
             )
 
     def draw(self, screen: pygame.Surface, pos: Vec2d) -> None:

@@ -17,8 +17,8 @@ class ResourceType(Enum):
     def get_image(self, w: int = None, h: int = None):
         return ImageManager().get_pic(self.value, w, h)
 
-    @classmethod
-    def get_color(cls, resource_type: "ResourceType"):
+    def get_color(self):
+        cls = self.__class__
         if not hasattr(cls, "_colors"):
             cls._colors = {
                 ResourceType.gold: RESOURCES_COLORS["gold"],
@@ -27,7 +27,7 @@ class ResourceType(Enum):
                 ResourceType.mithril: RESOURCES_COLORS["mithril"],
                 ResourceType.crystallium: RESOURCES_COLORS["crystallium"],
             }
-        return cls._colors.get(resource_type, (100, 100, 100))
+        return cls._colors.get(self, (100, 100, 100))
 
 
 class Resource(Serializable):
@@ -91,6 +91,9 @@ class Resource(Serializable):
     def __str__(self):
         return str(self.quantity)
 
+    def __repr__(self):
+        return str(self)
+
     def to_dict(self) -> Dict:
         return {"resource_type": self.resource_type.value, "quantity": self.quantity}
 
@@ -127,7 +130,10 @@ class Resources(Serializable):
         return self.from_dict(self.to_dict())
 
     def to_dict(self) -> Dict:
-        return {"resources": {rt.value: val for val, rt in self}, **super().to_dict()}
+        return {
+            "resources": {rt.value: val.to_dict() for val, rt in self},
+            **super().to_dict(),
+        }
 
     def __iadd__(self, other: Union["Resources", Resource]):
         if isinstance(other, Resources):
@@ -156,7 +162,13 @@ class Resources(Serializable):
     def from_dict(cls, data: Dict):
         res = Resources()
         res.resources = {
-            ResourceType(rt): Resource(val, ResourceType(rt))
+            ResourceType(rt): Resource.from_dict(val)
             for rt, val in data["resources"].items()
         }
         return res
+
+    def __str__(self):
+        return str(self.to_dict())
+
+    def __repr__(self):
+        return str(self)

@@ -45,7 +45,7 @@ class TextObject:
 # TODO implement that
 class PreviewScene(Scene):
     def render(self, screen: Surface):
-        ...
+        super().render(screen)
 
     def update(self, dt):
-        ...
+        super().update(dt)
