@@ -24,6 +24,11 @@ class WeaponModifiers(SerializableDataclass):
     bullet_speed_coef: float
 
 
+@dataclass
+class MiningCharacteristics(SerializableDataclass):
+    level: int
+
+
 class LifeCharacteristics(SerializableDataclass, ABC):
     @abstractmethod
     def is_alive(self) -> bool:

@@ -84,7 +84,7 @@ class AbstractAsteroid(BasicEntity, ABC):
         return self.shape.area * self.config.mass_coef
 
     def create_life_characteristics(self) -> AsteroidLifeCharacteristics:
-        health = self.shape.area * self.config.health_area_coef
+        health = self.create_mass() * self.config.health_area_coef
         mining_health = self.shape.area * self.config.mining_health_area_coef
         return AsteroidLifeCharacteristics(
             health=health,

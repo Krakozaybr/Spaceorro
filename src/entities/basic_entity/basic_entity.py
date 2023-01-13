@@ -11,9 +11,13 @@ from src.entities.modifiers_and_characteristics import (
     LifeCharacteristics,
 )
 from src.utils.body_serialization import *
+from src.utils.signal import Signal
 
 
 class BasicEntity(Entity, ABC):
+
+    on_death: Signal
+
     def __init__(
         self,
         pos: Vec2d,
@@ -77,7 +81,7 @@ class BasicEntity(Entity, ABC):
 
     @abstractmethod
     def die(self):
-        pass
+        self.on_death.emit()
 
     def render(self, screen: Surface, camera) -> None:
         self.view.draw(screen, camera.dv + self.position)
@@ -105,8 +109,7 @@ class BasicEntity(Entity, ABC):
         }
 
     def collide(self, other: Entity):
-        pass
-        # other.take_damage(self.mass * self.velocity.length / 100)
+        other.take_damage(self.mass * (other.velocity - self.velocity).length / 10000)
 
     def apply_params_to_bodies(self, data: Dict):
         apply_params_to_dynamic_body_from_dict(self, data["body"])

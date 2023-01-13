@@ -70,8 +70,10 @@ class Controls:
         else:
             self.mouse_just_pressed[button] = state
 
-    def is_mouse_pressed(self, button=LEFT_MOUSE_BTN):
-        return self.mouse_pressed[button]
+    def is_mouse_pressed(self, button: Union[List[int], int] = LEFT_MOUSE_BTN):
+        if isinstance(button, int):
+            return self.mouse_pressed.get(button, False)
+        return any(self.mouse_pressed.get(i, False) for i in button)
 
     def set_mouse_pos(self, pos: Vec2d):
         self.mouse_pos = pos

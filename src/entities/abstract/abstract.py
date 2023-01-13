@@ -13,6 +13,7 @@ from src.entities.modifiers_and_characteristics import *
 from src.entities.teams import Team
 from src.resources import Resources
 from src.utils.decorators import storable
+from src.utils.signal import SignalMixin, Signal
 from src.utils.store import Store
 
 ENTITY_COLLISION = 1
@@ -51,8 +52,11 @@ class StoreMixin(ABC):
         self._id = val
 
 
-class IsActiveMixin(StoreMixin, ABC):
+class IsActiveMixin(StoreMixin, SignalMixin, ABC):
     _is_active: bool
+
+    on_inactive: Signal
+    on_active: Signal
 
     @property
     def is_active(self) -> bool:
@@ -63,8 +67,10 @@ class IsActiveMixin(StoreMixin, ABC):
         self._is_active = val
         if not self.is_active:
             del self.store[self.id]
+            self.on_inactive.emit()
         else:
             self.store[self.id] = self
+            self.on_active.emit()
 
 
 class EntityView(pygame.sprite.Sprite, ABC):
@@ -74,7 +80,9 @@ class EntityView(pygame.sprite.Sprite, ABC):
 
 
 @storable
-class Entity(Serializable, pymunk.Body, RenderUpdateObject, IsActiveMixin, ABC):
+class Entity(
+    Serializable, RenderUpdateObject, IsActiveMixin, pymunk.Body, SignalMixin, ABC
+):
 
     view: EntityView
     shape: pymunk.Shape
@@ -86,9 +94,12 @@ class Entity(Serializable, pymunk.Body, RenderUpdateObject, IsActiveMixin, ABC):
     in_space: bool
     save_strategy: SaveStrategy
 
+    on_damage: Signal
+
     def __init__(
         self, mass: float, moment: float, body_type: int, _id: Optional[int] = None
     ):
+        SignalMixin.__init__(self)
         pymunk.Body.__init__(self, mass, moment, body_type)
         IsActiveMixin.__init__(self, _id=_id)
         self.__is_active = False
@@ -108,7 +119,7 @@ class Entity(Serializable, pymunk.Body, RenderUpdateObject, IsActiveMixin, ABC):
 
     @abstractmethod
     def take_damage(self, damage: float) -> None:
-        pass
+        self.on_damage.emit(damage)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(id={self.id})"

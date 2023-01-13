@@ -43,6 +43,11 @@ def get_bullet_configs(name: str):
     return get_json(config_path)
 
 
+def get_drills_configs():
+    config_path = os.path.join(CONFIGS_DIR, "gadgets/drills.json")
+    return get_json(config_path)
+
+
 def get_pickupable_config(name: str):
     pickupable_configs_directory = os.path.join(CONFIGS_DIR, "pickupable")
     config_path = os.path.join(pickupable_configs_directory, name)

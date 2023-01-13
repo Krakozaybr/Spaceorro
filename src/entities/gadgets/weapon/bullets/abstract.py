@@ -6,7 +6,7 @@ from pymunk import Vec2d
 from src.entities.abstract.abstract import SaveStrategy
 from src.entities.abstract.guided_entity import AbstractSpaceship
 from src.entities.basic_entity.basic_entity import BasicEntity, EntityWithFixedMass
-from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
+from src.entities.basic_entity.basic_spaceship import BasicSpaceshipMixin
 from src.entities.entity_configs import BulletEntityConfig
 from src.entities.modifiers_and_characteristics import (
     WeaponModifiers,
@@ -16,7 +16,7 @@ from src.entities.teams import Team
 from src.settings import get_bullet_configs
 
 
-class AbstractBullet(EntityWithFixedMass, SpaceshipMixin, ABC):
+class AbstractBullet(EntityWithFixedMass, BasicSpaceshipMixin, ABC):
 
     # static fields
     configs: Dict[int, BulletEntityConfig]

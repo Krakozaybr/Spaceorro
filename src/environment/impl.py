@@ -20,3 +20,6 @@ class BasicEnvironment(Environment):
 
     def get_entities_near(self, pos: Vec2d, radius: float) -> List[Entity]:
         return self.map_impl.get_entities_near(pos, radius)
+
+    def get_entity_at(self, pos: Vec2d):
+        return self.map_impl.get_entity_at(pos)

@@ -5,7 +5,7 @@ from pymunk import Vec2d
 
 from src.entities.abstract.abstract import Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship
-from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
+from src.entities.basic_entity.basic_spaceship import BasicSpaceshipMixin
 from src.entities.basic_entity.explosive import Explosive
 from src.entities.gadgets.weapon.bullets.abstract import AbstractBullet
 from src.entities.gadgets.weapon.bullets.view import BlasterChargeView
@@ -35,7 +35,7 @@ class BlasterCharge(AbstractBullet, Explosive):
         life_characteristics: Optional[TemporaryObjectLifeCharacteristics] = None,
     ):
         self.level = level
-        SpaceshipMixin.__init__(self, spaceship_id)
+        BasicSpaceshipMixin.__init__(self, spaceship_id)
         self.team = self.spaceship.team
         if pos is None:
             pos = (

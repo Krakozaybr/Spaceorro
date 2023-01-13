@@ -1,0 +1,44 @@
+[
+  {
+    "level": 0,
+    "gif": "drill0.gif",
+    "damage": 100,
+    "mining_distance": 100,
+    "animation_height": 20
+  },
+  {
+    "level": 1,
+    "gif": "drill1.gif",
+    "damage": 200,
+    "mining_distance": 200,
+    "animation_height": 28
+  },
+  {
+    "level": 2,
+    "gif": "drill2.gif",
+    "damage": 240,
+    "mining_distance": 240,
+    "animation_height": 30
+  },
+  {
+    "level": 3,
+    "gif": "drill3.gif",
+    "damage": 280,
+    "mining_distance": 280,
+    "animation_height": 32
+  },
+  {
+    "level": 4,
+    "gif": "drill4.gif",
+    "damage": 350,
+    "mining_distance": 350,
+    "animation_height": 34
+  },
+  {
+    "level": 5,
+    "gif": "drill5.gif",
+    "damage": 400,
+    "mining_distance": 400,
+    "animation_height": 36
+  }
+]

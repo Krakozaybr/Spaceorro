@@ -23,5 +23,8 @@
     "max_rotation_speed": 10,
     "stop_coef": 2,
     "stop_rotation_coef": 4
+  },
+  "mining_characteristics": {
+    "level": 1
   }
 }

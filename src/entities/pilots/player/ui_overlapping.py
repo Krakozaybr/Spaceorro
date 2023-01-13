@@ -69,6 +69,6 @@ class UIOverlapping(Updateable):
         self.current_toast = text, max(0.0, alpha - dt / self.TOAST_DURATION), color
 
     def make_toast(
-        self, text: str, color: Union[str, Tuple[int, int, int]] = (255, 255, 255)
+        self, text: str, color: Union[str, Tuple[int, int, int]] = TOAST_DEFAULT_COLOR
     ):
         self.current_toast = text, 1, color

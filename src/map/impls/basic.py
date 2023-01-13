@@ -367,3 +367,9 @@ class BasicMap(AbstractMap):
         for query_info in self.space.point_query(pos, radius, ShapeFilter()):
             res.append(query_info.shape.body)
         return res
+
+    def get_entity_at(self, pos: Vec2d):
+        res = self.space.point_query_nearest(pos, 0, ShapeFilter())
+        if res is not None:
+            res = res.shape.body
+        return res

@@ -1,8 +1,8 @@
-from src.entities.basic_entity.basic_spaceship import SpaceshipMixin
+from src.entities.basic_entity.basic_spaceship import BasicSpaceshipMixin
 from src.entities.modifiers_and_characteristics import WeaponModifiers
 
 
-class WeaponModifiersMixin(SpaceshipMixin):
+class WeaponModifiersMixin(BasicSpaceshipMixin):
     _modifiers: WeaponModifiers
 
     @property

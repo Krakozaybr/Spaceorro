@@ -1,5 +1,6 @@
+import inspect
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, TypeVar, Generic
 
 from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
@@ -89,8 +90,9 @@ class BasicSpaceship(
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls.start_config = get_entity_start_config(cls.start_config_name)
-        cls.config = SpaceshipEntityConfig.load(cls.config_name)
+        if not inspect.isabstract(cls):
+            cls.start_config = get_entity_start_config(cls.start_config_name)
+            cls.config = SpaceshipEntityConfig.load(cls.config_name)
 
     @property
     def team(self) -> Team:
@@ -103,6 +105,7 @@ class BasicSpaceship(
             other.die()
 
     def take_damage(self, damage: float) -> None:
+        super().take_damage(damage)
         self.life_characteristics.decrease(damage)
 
     @abstractmethod
@@ -118,6 +121,7 @@ class BasicSpaceship(
         pass
 
     def die(self):
+        super().die()
         self.life_characteristics.decrease(self.life_characteristics.health)
 
     def shoot(self):
@@ -175,24 +179,31 @@ class BasicSpaceship(
         return cls(pos=pos)
 
 
-class SpaceshipMixin:
-    _spaceship: BasicSpaceship
+Spaceship = TypeVar("Spaceship", bound=BasicSpaceship)
+
+
+class SpaceshipMixin(Generic[Spaceship]):
+    _spaceship: Spaceship
     spaceship_id: int
 
     def __init__(self, spaceship_id: int):
         self.spaceship_id = spaceship_id
 
     @property
-    def spaceship(self) -> BasicSpaceship:
+    def spaceship(self) -> Spaceship:
         if not hasattr(self, "_spaceship") or self._spaceship is None:
             self._spaceship = Entity.store[self.spaceship_id]
         return self._spaceship
 
     @spaceship.setter
-    def spaceship(self, val: BasicSpaceship) -> None:
+    def spaceship(self, val: Spaceship) -> None:
         self._spaceship = val
         self.spaceship_id = val.id
 
     @property
     def spaceship_exists(self):
         return self.spaceship is not None
+
+
+class BasicSpaceshipMixin(SpaceshipMixin[BasicSpaceship]):
+    pass

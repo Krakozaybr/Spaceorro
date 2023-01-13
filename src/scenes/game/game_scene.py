@@ -6,7 +6,7 @@ from pymunk import Vec2d
 
 from src.abstract import Serializable
 from src.entities.get_entity import entity_from_dict
-from src.entities.spaceships.player.entity import PallariansCruiser
+from src.entities.spaceships.pallarians import PallariansCruiser
 from src.map.impls import map_from_dict
 from src.map.impls.basic import BasicMap
 from src.scenes.abstract import Scene
@@ -37,7 +37,7 @@ class GameScene(Serializable, Scene):
         self.camera = camera or Camera()
 
         self.player = player or PlayerPilot(
-            spaceship=player_entity, manager=self.ui_manager
+            entity=player_entity, manager=self.ui_manager
         )
         self.player_entity = player_entity or PallariansCruiser.create_default(
             Vec2d(0, 0)

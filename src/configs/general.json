@@ -1,7 +1,7 @@
 {
   "fps": 60,
-  "screen_width": 800,
-  "screen_height": 500,
+  "screen_width": 1200,
+  "screen_height": 700,
   "resource_line_height": 35,
   "debug": {
     "active": true,

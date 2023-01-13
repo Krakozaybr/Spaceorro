@@ -19,6 +19,10 @@ class Environment(ABC):
     def get_entities_near(self, pos: Vec2d, radius: float) -> List[Entity]:
         pass
 
+    @abstractmethod
+    def get_entity_at(self, pos: Vec2d):
+        pass
+
 
 impl: Environment
 

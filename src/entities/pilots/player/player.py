@@ -5,14 +5,16 @@ from pygame import Surface
 from pygame_gui import UIManager
 from pymunk.vec2d import Vec2d
 
-from src.controls import Controls
+from src.entities.asteroids.abstract import AbstractAsteroid
 from src.entities.basic_entity.basic_spaceship import BasicSpaceship
 from src.entities.pilots.basic_pilot import BasicPilot
-from src.entities.pilots.controls_config import *
+from src.entities.pilots.player.controls_config import *
 from src.entities.pilots.player.ui_overlapping import UIOverlapping
+from src.entities.spaceships.miner.miner_mixin import MinerMixin
 from src.entities.teams import Team
 from src.resources import Resources
 from src.settings import W, H
+from src.environment.abstract import get_environment
 
 
 class PlayerPilot(BasicPilot):
@@ -27,9 +29,7 @@ class PlayerPilot(BasicPilot):
         _id: Optional[int] = None,
         resources: Optional[Resources] = None,
     ):
-        super().__init__(
-            entity=entity, _id=_id, resources=resources, team=Team.player
-        )
+        super().__init__(entity=entity, _id=_id, resources=resources, team=Team.player)
         self.ui = None
         if manager is not None:
             self.ui = UIOverlapping(manager=manager, resources=self.resources)
@@ -51,19 +51,24 @@ class PlayerPilot(BasicPilot):
         rotate_clockwise = controls.is_key_pressed(ROTATE_CLOCKWISE)
         rotate_counterclockwise = controls.is_key_pressed(ROTATE_COUNTERCLOCKWISE)
         rotate_to = controls.is_mouse_pressed(controls.LEFT_MOUSE_BTN)
-        # move_to = controls.is_key_pressed(pygame.K_h)
 
-        # if controls.is_key_pressed(pygame.K_t):
-        #     self.pos = controls.mouse_pos - Vec2d(W / 2, H / 2) + self.entity.position
-        #     print(self.pos)
-        # if move_to:
-        #     self.entity.engine.move_to(dt, self.pos)
+        mouse_pos = controls.get_mouse_pos() - Vec2d(W / 2, H / 2)
 
-        if self.ui is not None and controls.is_key_pressed(pygame.K_t):
-            self.ui.make_toast("lolll")
+        if isinstance(self.entity, MinerMixin):
+            if controls.is_mouse_pressed(MINE):
+                env = get_environment()
+                asteroid = env.get_entity_at(self.entity.position + mouse_pos)
+                if not isinstance(asteroid, AbstractAsteroid):
+                    asteroid = None
+                else:
+                    self.toast("Mining")
+                self.entity.drill.set_target(asteroid)
+            else:
+                self.entity.drill.set_target(None)
 
         if controls.is_key_pressed(FIRE):
             self.entity.shoot()
+            self.toast("Shoot")
         if up:
             self.entity.engine.apply_force(Vec2d(0, -1), dt)
         if down:
@@ -77,17 +82,21 @@ class PlayerPilot(BasicPilot):
         if rotate_counterclockwise:
             self.entity.engine.rotate_counterclockwise(dt, 0.1)
         if rotate_to:
-            angle = (controls.get_mouse_pos() - Vec2d(W / 2, H / 2)).angle
+            angle = mouse_pos.angle
             self.entity.engine.rotate_to(dt, (angle + math.pi / 2) % (math.pi * 2))
         self.entity.engine.stop(
             dt,
-            not (up or down),  # not (up or down or move_to),
-            not (left or right),  # not (left or right or move_to),
+            not (up or down),
+            not (left or right),
             not (rotate_counterclockwise or rotate_clockwise or rotate_to),
         )
 
         if self.ui is not None:
             self.ui.update(dt)
+
+    def toast(self, text: str):
+        if self.ui is not None:
+            self.ui.make_toast(text)
 
     def render(self, screen: Surface):
         if self.ui is not None:
