@@ -32,7 +32,7 @@ class PallariansCruiserView(BasicSpaceshipView):
         super().__init__(entity, fps=8, *groups)
 
     def create_health_bar(self) -> HealthBar:
-        return AllyBar(Vec2d(-self.w / 2 - 2, -self.h + 4), self.w + 4, 8)
+        return AllyBar(Vec2d(-self.w / 2 - 2, -self.h + 4), self.w + 4)
 
     def draw_health_bar(self, screen: pygame.Surface, pos: Vec2d):
         self.health_bar.render(

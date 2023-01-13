@@ -41,7 +41,7 @@ class AbstractAsteroidView(HealthBarMixin, ABC):
         super().__init__(entity, *groups)
 
     def create_health_bar(self) -> HealthBar:
-        return AsteroidHealthBar(Vec2d(-self.w / 2 - 2, -self.h), self.w + 4, 6)
+        return AsteroidHealthBar(Vec2d(-self.w / 2 - 2, -self.h), self.w + 4)
 
     def draw_health_bar(self, screen: pygame.Surface, pos: Vec2d):
         self.health_bar.render(

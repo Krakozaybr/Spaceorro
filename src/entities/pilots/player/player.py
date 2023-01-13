@@ -85,7 +85,7 @@ class PlayerPilot(BasicPilot):
             angle = mouse_pos.angle
             self.entity.engine.rotate_to(dt, (angle + math.pi / 2) % (math.pi * 2))
         self.entity.engine.stop(
-            dt,
+            dt * 0.4,
             not (up or down),
             not (left or right),
             not (rotate_counterclockwise or rotate_clockwise or rotate_to),

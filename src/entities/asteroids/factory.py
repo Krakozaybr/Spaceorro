@@ -26,7 +26,7 @@ class AsteroidFactory(EntityFactory):
         # Polygon asteroids are too complex, so the game will be slower with them
         # return cls.create_polygon_asteroid(pos)
         asteroid = cls.create_circle_asteroid(pos)
-        # asteroid.control_body.velocity = Vec2d(randint(-200, 200), randint(-200, 200))
+        asteroid.control_body.velocity = Vec2d(randint(-200, 200), randint(-200, 200))
         return asteroid
 
     @classmethod

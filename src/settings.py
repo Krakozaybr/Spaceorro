@@ -84,6 +84,11 @@ SIZE = W, H = general_config["screen_width"], general_config["screen_height"]
 RESOURCES_IMAGES = general_config["resources_images"]
 RESOURCES_COLORS = general_config["resources_colors"]
 DUST_PARTICLE_IMAGE = general_config["general_images"]["dust_particle"]
+SHOW_FPS = general_config["show_fps"]
+FPS_UPDATE_TIME = general_config["fps_update_time"]
+HEALTH_BAR_H = general_config["health_bar_h"]
+HEALTH_BAR_FONT_SIZE = general_config["health_bar_font_size"]
+HEALTH_BAR_FONT_COLOR = general_config["health_bar_font_color"]
 
 # UI
 RESOURCE_LINE_HEIGHT = general_config["resource_line_height"]
@@ -94,7 +99,7 @@ DEBUG = debug_data["active"]
 SHOW_VELOCITY_VECTOR = DEBUG and debug_data["show_velocity_vector"]
 SHOW_CLUSTERS_BORDERS = DEBUG and debug_data["show_clusters_borders"]
 SHOW_PLAYER_COLLISION_POLY = DEBUG and debug_data["show_player_collision_poly"]
-SAVE_GAME = True
+SAVE_GAME = False
 LOG_GENERATING = False
 
 # MAP

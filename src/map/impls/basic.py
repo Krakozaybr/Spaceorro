@@ -255,7 +255,7 @@ class BasicMap(AbstractMap):
         self.clusters = ClustersStore(self.map_generator)
         self.active_clusters = set()
         self.space = pymunk.Space()
-        self.space.collision_slop = 0.01
+        self.space.collision_slop = 0.05
         self.space.sleep_time_threshold = 10
         self.space.damping = 0.6
         handler = self.space.add_collision_handler(ENTITY_COLLISION, ENTITY_COLLISION)

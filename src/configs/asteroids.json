@@ -1,7 +1,7 @@
 {
   "health_area_coef": 0.2,
   "mining_health_area_coef": 0.2,
-  "mass_coef": 2,
+  "mass_coef": 0.3,
   "polygon_asteroid_radius_interval": [15, 45],
   "polygon_asteroid_vertices_count": [6, 11],
   "polygon_asteroid_polygons_count": [2, 4],
