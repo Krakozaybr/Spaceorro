@@ -3,7 +3,7 @@
     "level": 0,
     "gif": "drill0.gif",
     "damage": 100,
-    "mining_distance": 100,
+    "mining_distance": 150,
     "animation_height": 20
   },
   {

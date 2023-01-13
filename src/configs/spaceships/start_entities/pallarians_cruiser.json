@@ -1,12 +1,10 @@
 {
-  "health": 100,
-  "max_health": 100,
   "max_speed": 500,
   "max_rotation_speed": 10,
   "life_characteristics": {
-    "health": 100,
-    "max_health": 100,
-    "armor": 0
+    "health": 400,
+    "max_health": 400,
+    "armor": 10
   },
   "weapon_modifiers": {
     "weapon_level": 1,
@@ -18,13 +16,13 @@
   },
   "velocity_characteristics": {
     "rotation_speed": 40,
-    "direct_force": 100,
-    "max_speed": 200,
+    "direct_force": 200,
+    "max_speed": 400,
     "max_rotation_speed": 10,
     "stop_coef": 2,
     "stop_rotation_coef": 4
   },
   "mining_characteristics": {
-    "level": 1
+    "level": 0
   }
 }

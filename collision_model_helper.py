@@ -16,6 +16,7 @@ path = os.path.join(IMAGES_DIR, name)
 
 class HelperScene(Scene):
     def __init__(self, src: str):
+        super().__init__()
         img = Image.open(src)
         self.pixels = img.load()
         self.w, self.h = img.size
