@@ -81,7 +81,11 @@ class AbstractAsteroid(BasicEntity, ABC):
         )
 
     def create_mass(self) -> float:
-        return self.shape.area * self.config.mass_coef
+        return self.get_area() * self.config.mass_coef
+
+    @abstractmethod
+    def get_area(self) -> float:
+        pass
 
     def create_life_characteristics(self) -> AsteroidLifeCharacteristics:
         health = self.create_mass() * self.config.health_area_coef
@@ -116,6 +120,9 @@ class AbstractAsteroid(BasicEntity, ABC):
             "resource": self.resource.to_dict(),
             "view_data": self.view_data.to_dict(),
         }
+
+    def collide(self, other: Entity):
+        super().collide(other)
 
     @classmethod
     @abstractmethod

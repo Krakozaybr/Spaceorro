@@ -5,6 +5,7 @@ from typing import Optional, TypeVar, Generic
 from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
 
+from src.abstract import Serializable
 from src.entities.pilots.abstract import Pilot
 from src.entities.abstract.abstract import SaveStrategy, Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship

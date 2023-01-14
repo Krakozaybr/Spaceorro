@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from src.abstract import Serializable
 from src.utils.serializable_dataclass import SerializableDataclass
 
 

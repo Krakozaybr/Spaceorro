@@ -7,6 +7,8 @@ from pymunk.vec2d import Vec2d
 
 from src.entities.asteroids.abstract import AbstractAsteroid
 from src.entities.basic_entity.basic_spaceship import BasicSpaceship
+from src.entities.basic_entity.mixins.upgradeable_miner_mixin import UpgradeableMinerMixin
+from src.entities.basic_entity.mixins.upgradeable_spaceship_mixin import UpgradeableSpaceshipMixin
 from src.entities.pilots.basic_pilot import BasicPilot
 from src.entities.pilots.player.controls_config import *
 from src.entities.pilots.player.ui_overlapping import UIOverlapping
@@ -19,12 +21,12 @@ from src.environment.abstract import get_environment
 
 class PlayerPilot(BasicPilot):
 
-    entity: BasicSpaceship
+    entity: UpgradeableSpaceshipMixin
     ui: Optional[UIOverlapping]
 
     def __init__(
         self,
-        entity: Optional[BasicSpaceship] = None,
+        entity: Optional[UpgradeableSpaceshipMixin] = None,
         manager: Optional[UIManager] = None,
         _id: Optional[int] = None,
         resources: Optional[Resources] = None,
@@ -37,7 +39,7 @@ class PlayerPilot(BasicPilot):
     def set_manager(self, manager: UIManager):
         self.ui = UIOverlapping(manager=manager, resources=self.resources)
 
-    def set_spaceship(self, spaceship: BasicSpaceship):
+    def set_spaceship(self, spaceship: UpgradeableSpaceshipMixin):
         self.entity = spaceship
         spaceship.pilot = self
 
@@ -50,7 +52,6 @@ class PlayerPilot(BasicPilot):
         right = controls.is_key_pressed(GO_RIGHT)
         rotate_clockwise = controls.is_key_pressed(ROTATE_CLOCKWISE)
         rotate_counterclockwise = controls.is_key_pressed(ROTATE_COUNTERCLOCKWISE)
-        rotate_to = controls.is_mouse_pressed(controls.LEFT_MOUSE_BTN)
 
         mouse_pos = controls.get_mouse_pos() - Vec2d(W / 2, H / 2)
 
@@ -69,6 +70,9 @@ class PlayerPilot(BasicPilot):
         if controls.is_key_pressed(FIRE):
             self.entity.shoot()
             self.toast("Shoot")
+        if controls.is_key_just_up(pygame.K_u) and isinstance(self.entity, UpgradeableMinerMixin):
+            self.entity.upgrade_system.mining_characteristics.upgrade_level()
+
         if up:
             self.entity.engine.apply_force(Vec2d(0, -1), dt)
         if down:
@@ -81,15 +85,11 @@ class PlayerPilot(BasicPilot):
             self.entity.engine.rotate_clockwise(dt, 0.1)
         if rotate_counterclockwise:
             self.entity.engine.rotate_counterclockwise(dt, 0.1)
-        if rotate_to:
-            angle = mouse_pos.angle
-            self.entity.engine.rotate_to(dt, (angle + math.pi / 2) % (math.pi * 2))
-        self.entity.engine.stop(
-            dt * 0.4,
-            not (up or down),
-            not (left or right),
-            not (rotate_counterclockwise or rotate_clockwise or rotate_to),
-        )
+
+        angle = mouse_pos.angle
+        self.entity.engine.rotate_to(dt, (angle + math.pi / 2) % (math.pi * 2))
+
+        self.entity.engine.stop(dt * 0.4, not (up or down), not (left or right), False)
 
         if self.ui is not None:
             self.ui.update(dt)

@@ -1,10 +1,14 @@
 from pygame import Surface
 
 from .abstract import Scene
+from .context import ContextScene, Context
 
 
 # TODO implement that
-class MainMenuScene(Scene):
+class MainMenuScene(ContextScene):
+    def __init__(self, context: Context):
+        super().__init__(context)
+
     def render(self, screen: Surface):
         super().render(screen)
 

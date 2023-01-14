@@ -5,11 +5,12 @@ from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
 
 from src.entities.abstract.abstract import EntityView
-from src.entities.asteroids.abstract import AbstractAsteroid
 from src.entities.basic_entity.basic_entity import PolyBasicEntity
-from src.entities.basic_entity.basic_spaceship import BasicSpaceship
 from src.entities.basic_entity.basic_spaceship import BasicSpaceshipView
 from src.entities.basic_entity.health_entity_mixin import HealthEntityMixin
+from src.entities.basic_entity.mixins.upgradeable_miner_mixin import (
+    UpgradeableMinerMixin,
+)
 from src.entities.gadgets.engines.abstract import Engine
 from src.entities.gadgets.engines.default_engine import DefaultEngine
 from src.entities.gadgets.health_bars.abstract import HealthBar
@@ -18,7 +19,6 @@ from src.entities.gadgets.weapon.blasters.blaster import Blaster
 from src.entities.pilots.abstract import Pilot
 from src.entities.pilots.get_pilot import get_pilot
 from src.entities.pilots.simple_bot import SimpleBot
-from src.entities.spaceships.miner.miner_mixin import MinerMixin
 from src.entities.teams import Team
 from src.utils.image_manager import ImageManager
 
@@ -42,7 +42,7 @@ class PallariansCruiserView(BasicSpaceshipView):
         )
 
 
-class PallariansCruiser(MinerMixin, PolyBasicEntity):
+class PallariansCruiser(UpgradeableMinerMixin, PolyBasicEntity):
 
     # static fields
     config_name = "pallarians_cruiser.json"

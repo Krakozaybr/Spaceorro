@@ -11,6 +11,7 @@ from src.map.impls import map_from_dict
 from src.map.impls.basic import BasicMap
 from src.scenes.abstract import Scene
 from .camera import Camera
+from ..context import ContextScene, Context
 from ...controls import Controls
 from ...entities.basic_entity.basic_spaceship import BasicSpaceship
 from ...entities.pilots.player.player import PlayerPilot
@@ -20,15 +21,16 @@ from ...map.abstract import AbstractMap
 from ...settings import save_game
 
 
-class GameScene(Serializable, Scene):
+class GameScene(Serializable, ContextScene):
     def __init__(
         self,
+        context: Context,
         camera: Optional[Camera] = None,
         player: Optional[PlayerPilot] = None,
         player_entity: Optional[BasicSpaceship] = None,
         map_impl: Optional[AbstractMap] = None,
     ):
-        super().__init__()
+        super().__init__(context)
 
         self.map = map_impl or BasicMap()
         environment = BasicEnvironment(self.map)
@@ -78,5 +80,8 @@ class GameScene(Serializable, Scene):
         entity = entity_from_dict(data["player"])
         player = entity.pilot
         return GameScene(
-            player_entity=entity, player=player, map_impl=map_from_dict(data["map"])
+            context=data["context"],
+            player_entity=entity,
+            player=player,
+            map_impl=map_from_dict(data["map"]),
         )

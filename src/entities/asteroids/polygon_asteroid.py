@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import Tuple, List, Dict
 
@@ -9,7 +10,7 @@ from src.entities.abstract.abstract import EntityView
 from src.entities.asteroids.abstract import AsteroidViewData, AbstractAsteroidView, AbstractAsteroid
 from src.entities.basic_entity.view import PolyBasicView
 from src.utils.get_polygon_verts import apply_rotation_for_verts
-
+from src.utils.polygon_area import polygon_area
 
 """
 That works, but too slow.
@@ -49,6 +50,9 @@ class PolygonAsteroid(AbstractAsteroid):
 
     def create_view(self) -> EntityView:
         return PolygonAsteroidView(self, self.view_data)
+
+    def get_area(self) -> float:
+        return polygon_area(self.view_data.vertices)
 
     @classmethod
     def get_view_data_from_dict(cls, data: Dict) -> PolygonAsteroidViewData:

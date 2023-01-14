@@ -1,19 +1,25 @@
+from typing import Type
+
 import pygame
 from pymunk import Vec2d
 
+from src.scenes.abstract import Scene
+from src.scenes.context import Context
+from src.scenes.game_menu_scene import GameMenuScene
+from src.scenes.main_menu_scene import MainMenuScene
 from src.settings import FPS, SIZE
 from src.controls import Controls
 from src.scenes.game.game_scene import GameScene
 from src.settings import load_game, SAVE_GAME
 
 
-class Game:
+class Game(Context):
     def __init__(self):
         pygame.init()
         if SAVE_GAME:
-            self.scene = GameScene.deserialize(load_game("game1"))
+            self.launch_game_scene("game1")
         else:
-            self.scene = GameScene()
+            self.scene = GameScene(self)
         self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):
@@ -53,3 +59,20 @@ class Game:
             self.clock.tick(FPS)
             pygame.display.flip()
         pygame.quit()
+
+    def change_scene(self, sender: Scene, target: Type[Scene], **kwargs):
+        self.scene = target(context=self, **kwargs)
+
+    def launch_main_menu_scene(self):
+        self.scene = MainMenuScene(self)
+
+    def launch_game_scene(self, save_name: str):
+        data = load_game(save_name)
+        data["context"] = self
+        self.scene = GameScene.from_dict(data)
+
+    def launch_game_menu_scene(self, game_scene: Scene):
+        self.scene = GameMenuScene(self, game_scene)
+
+    def screenshot(self) -> pygame.Surface:
+        return self.screen.copy()

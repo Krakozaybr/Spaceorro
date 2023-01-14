@@ -4,6 +4,7 @@ from pygame import Surface
 from .abstract import Scene
 
 # from game_object import GameObject
+from .context import ContextScene, Context
 
 
 class TextObject:
@@ -43,7 +44,10 @@ class TextObject:
 
 
 # TODO implement that
-class PreviewScene(Scene):
+class PreviewScene(ContextScene):
+    def __init__(self, context: Context):
+        super().__init__(context)
+
     def render(self, screen: Surface):
         super().render(screen)
 

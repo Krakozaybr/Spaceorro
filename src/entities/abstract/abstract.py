@@ -13,7 +13,7 @@ from src.entities.modifiers_and_characteristics import *
 from src.entities.teams import Team
 from src.resources import Resources
 from src.utils.decorators import storable
-from src.utils.signal import SignalMixin, Signal
+from src.utils.signal import SignalAnnotationMixin, Signal
 from src.utils.store import Store
 
 ENTITY_COLLISION = 1
@@ -52,7 +52,7 @@ class StoreMixin(ABC):
         self._id = val
 
 
-class IsActiveMixin(StoreMixin, SignalMixin, ABC):
+class IsActiveMixin(StoreMixin, SignalAnnotationMixin, ABC):
     _is_active: bool
 
     on_inactive: Signal
@@ -81,7 +81,7 @@ class EntityView(pygame.sprite.Sprite, ABC):
 
 @storable
 class Entity(
-    Serializable, RenderUpdateObject, IsActiveMixin, pymunk.Body, SignalMixin, ABC
+    Serializable, RenderUpdateObject, IsActiveMixin, pymunk.Body, SignalAnnotationMixin, ABC
 ):
 
     view: EntityView
@@ -99,7 +99,7 @@ class Entity(
     def __init__(
         self, mass: float, moment: float, body_type: int, _id: Optional[int] = None
     ):
-        SignalMixin.__init__(self)
+        SignalAnnotationMixin.__init__(self)
         pymunk.Body.__init__(self, mass, moment, body_type)
         IsActiveMixin.__init__(self, _id=_id)
         self.__is_active = False

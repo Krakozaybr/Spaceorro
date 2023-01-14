@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import Tuple, List, Dict
 
@@ -40,7 +41,10 @@ class CircleAsteroid(AbstractAsteroid):
         return pymunk.moment_for_circle(self.create_mass(), 0, self.view_data.radius)
 
     def create_shape(self) -> pymunk.Shape:
-        return pymunk.Circle(None, self.view_data.radius)
+        return pymunk.Circle(self, self.view_data.radius)
+
+    def get_area(self) -> float:
+        return math.pi * self.view_data.radius ** 2
 
     def create_view(self) -> EntityView:
         return CircleAsteroidView(self, self.view_data)

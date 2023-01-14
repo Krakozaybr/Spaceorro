@@ -1,5 +1,6 @@
 import os
 import json
+from typing import Dict, List
 
 import pygame.image
 from pygame import Surface
@@ -17,13 +18,13 @@ def get_json(path: str):
         return json.load(r)
 
 
-def get_spaceship_general_config(name: str):
+def get_spaceship_general_config(name: str) -> Dict:
     entity_general_configs_directory = os.path.join(CONFIGS_DIR, "spaceships/general")
     config_path = os.path.join(entity_general_configs_directory, name)
     return get_json(config_path)
 
 
-def get_entity_start_config(name: str):
+def get_entity_start_config(name: str) -> Dict:
     entity_start_configs_directory = os.path.join(
         CONFIGS_DIR, "spaceships/start_entities"
     )
@@ -31,31 +32,35 @@ def get_entity_start_config(name: str):
     return get_json(config_path)
 
 
-def get_blaster_characteristics(name: str):
+def get_blaster_characteristics(name: str) -> Dict:
     blasters_config_dir = os.path.join(CONFIGS_DIR, "gadgets/weapon/blasters")
     config_path = os.path.join(blasters_config_dir, name)
     return get_json(config_path)
 
 
-def get_bullet_configs(name: str):
+def get_bullet_configs(name: str) -> List[Dict]:
     bullet_configs_directory = os.path.join(CONFIGS_DIR, "gadgets/weapon/bullets")
     config_path = os.path.join(bullet_configs_directory, name)
     return get_json(config_path)
 
 
-def get_drills_configs():
+def get_drills_configs() -> List[Dict]:
     config_path = os.path.join(CONFIGS_DIR, "gadgets/drills.json")
     return get_json(config_path)
 
 
-def get_pickupable_config(name: str):
+def get_pickupable_config(name: str) -> Dict:
     pickupable_configs_directory = os.path.join(CONFIGS_DIR, "pickupable")
     config_path = os.path.join(pickupable_configs_directory, name)
     return get_json(config_path)
 
 
-def get_asteroid_config():
+def get_asteroid_config() -> Dict:
     return get_json(os.path.join(CONFIGS_DIR, "asteroids.json"))
+
+
+def get_spaceship_upgrade_config(name: str) -> Dict:
+    return get_json(os.path.join(CONFIGS_DIR, f"spaceships/upgrades/{name}.json"))
 
 
 def save_game(name: str, data: str) -> None:
@@ -63,9 +68,8 @@ def save_game(name: str, data: str) -> None:
         w.write(data)
 
 
-def load_game(name: str) -> str:
-    with open(os.path.join(SAVES_DIR, f"{name}.json"), mode="r", encoding="utf-8") as r:
-        return r.read()
+def load_game(name: str) -> Dict:
+    return get_json(os.path.join(SAVES_DIR, f"{name}.json"))
 
 
 def get_path_to_image(name: str) -> str:

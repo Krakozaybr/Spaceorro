@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
 
-from src.entities.abstract.abstract import EntityView, Entity
+from src.entities.abstract.abstract import EntityView, Entity, SaveStrategy
 from src.entities.basic_entity.view import BasicView
 from src.entities.entity_configs import PickupableEntityConfig
 from src.entities.modifiers_and_characteristics import (
@@ -34,8 +34,9 @@ class PickupableResource(Pickupable):
 
     view: PickupableResourceView
     resource: Resource
-    config_name = 'resource.json'
+    config_name = "resource.json"
     config = PickupableEntityConfig.from_dict(get_pickupable_config(config_name))
+    save_strategy = SaveStrategy.ENTITY
 
     def __init__(
         self,

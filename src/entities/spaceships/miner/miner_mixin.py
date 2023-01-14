@@ -45,11 +45,14 @@ class MinerMixin(AbstractMiner, ABC):
             pilot=pilot,
         )
         if mining_characteristics is None:
-            mining_characteristics = MiningCharacteristics.from_dict(
-                self.start_config["mining_characteristics"]
-            )
+            mining_characteristics = self.create_mining_characteristics()
         self.mining_characteristics = mining_characteristics
         self.drill = Drill(self.id)
+
+    def create_mining_characteristics(self) -> MiningCharacteristics:
+        return MiningCharacteristics.from_dict(
+            self.start_config["mining_characteristics"]
+        )
 
     def render(self, screen: Surface, camera) -> None:
         self.drill.render(screen, camera)

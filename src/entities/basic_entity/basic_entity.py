@@ -27,14 +27,15 @@ class BasicEntity(Entity, ABC):
         entity_id: Optional[int] = None,
     ):
         # Pymunk
-        self.shape = self.create_shape()
-        self.shape.collision_type = ENTITY_COLLISION
         if mass is None:
             mass = self.create_mass()
         if moment is None:
             moment = self.create_moment()
-
         super().__init__(mass, moment, body_type=pymunk.Body.DYNAMIC, _id=entity_id)
+
+        self.shape = self.create_shape()
+        self.shape.collision_type = ENTITY_COLLISION
+        self.shape.elasticity = 90
 
         self.shape.body = self
         self.position = pos
@@ -109,7 +110,7 @@ class BasicEntity(Entity, ABC):
         }
 
     def collide(self, other: Entity):
-        other.take_damage(self.mass * (other.velocity - self.velocity).length / 10000)
+        other.take_damage(self.mass * (other.velocity - self.velocity).length / 100000)
 
     def apply_params_to_bodies(self, data: Dict):
         apply_params_to_dynamic_body_from_dict(self, data["body"])
@@ -153,7 +154,7 @@ class PolyBasicEntity(BasicEntity, ABC):
         return pymunk.moment_for_poly(self.config.mass, self.config.vertices)
 
     def create_shape(self) -> pymunk.Shape:
-        return pymunk.Poly(None, self.config.vertices)
+        return pymunk.Poly(self, self.config.vertices)
 
 
 class EntityWithFixedMass(BasicEntity, ABC):

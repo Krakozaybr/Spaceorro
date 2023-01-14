@@ -13,6 +13,9 @@ class Signal:
         for listener in self.listeners:
             listener(*args, **kwargs)
 
+    def __call__(self, *args, **kwargs):
+        self.emit(*args, **kwargs)
+
     def connect(self, listener: Callable):
         self.listeners.append(listener)
 
@@ -20,8 +23,29 @@ class Signal:
         self.listeners.remove(listener)
 
 
-class SignalMixin:
+class SignalAnnotationMixin:
     def __init__(self):
         for field_name, cls in all_annotations(self.__class__).items():
             if not hasattr(self, field_name) and cls == Signal:
                 setattr(self, field_name, cls())
+
+
+class SignalFieldMixin:
+
+    _signals = []
+
+    def __init__(self):
+        for signal_name in self._signals:
+            setattr(self, signal_name, Signal())
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__()
+        cls._signals: List[str]
+
+        if not hasattr(cls, "_signals"):
+            cls._signals = []
+        else:
+            cls._signals = cls._signals.copy()
+        for field_name, value in cls.__dict__.items():
+            if isinstance(value, Signal):
+                cls._signals.append(field_name)

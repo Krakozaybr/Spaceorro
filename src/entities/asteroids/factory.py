@@ -159,7 +159,9 @@ class AsteroidFactory(EntityFactory):
                     Vec2d(1, 0)
                     .rotated(randint(0, int(math.pi * 200)) / 100)
                     .normalized()
-                    * (radius - inner_radius),
+                    * (radius - inner_radius)
+                    * randint(0, 1000)
+                    / 1000,
                     inner_radius,
                 )
             )
