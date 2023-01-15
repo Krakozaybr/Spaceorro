@@ -2,6 +2,7 @@ from typing import Dict, List, Optional, Type, Callable
 
 from src.abstract import Serializable
 from src.utils.all_annotations import all_annotations
+from src.utils.signal import Signal
 
 
 class SerializableDataclass(Serializable):
@@ -43,5 +44,5 @@ class SerializableDataclass(Serializable):
 
     def get_fields(self):
         if not hasattr(self, "fields"):
-            return self.__dict__.keys()
+            return [key for key, val in self.__dict__.items() if not isinstance(val, Signal)]
         return self.fields
