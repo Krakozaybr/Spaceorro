@@ -8,10 +8,12 @@ from src.entities.pickupable.resource import PickupableResource
 from src.entities.pilots.abstract import Pilot
 from src.entities.teams import Team
 from src.resources import Resources
+from src.utils.signal import Signal, SignalFieldMixin
 
 
-class BasicPilot(Pilot, ABC):
+class BasicPilot(Pilot, SignalFieldMixin, ABC):
     entity: BasicSpaceship
+    toast = Signal()
 
     def __init__(
         self,

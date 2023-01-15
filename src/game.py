@@ -1,6 +1,7 @@
 from typing import Type
 
 import pygame
+import pygame_gui
 from pymunk import Vec2d
 
 from src.scenes.abstract import Scene
@@ -45,6 +46,8 @@ class Game(Context):
         if e.type == pygame.MOUSEMOTION:
             x, y = e.pos
             controls.set_mouse_pos(Vec2d(x, y))
+        if e.type == pygame_gui.UI_BUTTON_PRESSED:
+            controls.set_button_pressed(e.ui_element)
         self.scene.process_event(e)
 
     def start(self):

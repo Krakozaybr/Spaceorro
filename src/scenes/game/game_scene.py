@@ -9,8 +9,8 @@ from src.entities.get_entity import entity_from_dict
 from src.entities.spaceships.pallarians import PallariansCruiser
 from src.map.impls import map_from_dict
 from src.map.impls.basic import BasicMap
-from src.scenes.abstract import Scene
 from .camera import Camera
+from .ui_overlapping import UIOverlapping
 from ..context import ContextScene, Context
 from ...controls import Controls
 from ...entities.basic_entity.basic_spaceship import BasicSpaceship
@@ -22,6 +22,10 @@ from ...settings import save_game
 
 
 class GameScene(Serializable, ContextScene):
+
+    _pause: bool
+    ui = UIOverlapping
+
     def __init__(
         self,
         context: Context,
@@ -30,36 +34,54 @@ class GameScene(Serializable, ContextScene):
         player_entity: Optional[BasicSpaceship] = None,
         map_impl: Optional[AbstractMap] = None,
     ):
-        super().__init__(context)
+        ContextScene.__init__(self, context)
 
+        # Settings
+        self._pause = False
+
+        # Map and environment
         self.map = map_impl or BasicMap()
         environment = BasicEnvironment(self.map)
         set_environment(environment)
 
+        # Camera
         self.camera = camera or Camera()
 
-        self.player = player or PlayerPilot(
-            entity=player_entity, manager=self.ui_manager
-        )
+        # Player pilot and its spaceship
+        self.player = player or PlayerPilot(entity=player_entity)
         self.player_entity = player_entity or PallariansCruiser.create_default(
             Vec2d(0, 0)
         )
         if player_entity is None or player is not None:
             self.player.set_spaceship(self.player_entity)
-        if player is not None:
-            self.player.set_manager(self.ui_manager)
-
         self.map.add_entity(self.player_entity)
+
+        # UI
+        self.ui = UIOverlapping(target=self.player, manager=self.ui_manager)
+
+    @property
+    def pause(self) -> bool:
+        return self._pause
+
+    @pause.setter
+    def pause(self, val: bool):
+        self._pause = val
+        self.ui.paused = val
 
     def render(self, screen: Surface):
         self.map.render_at(screen, self.camera, self.player_entity.position)
-        self.player.render(screen)
+        self.ui.render(screen)
         super().render(screen)
 
     def update(self, dt):
         super().update(dt)
         self.camera.look_at(self.player_entity)
-        self.map.update_at(self.player_entity.position, dt)
+        if not self.pause:
+            self.map.update_at(self.player_entity.position, dt)
+        self.ui.update(dt)
+
+        if Controls().is_key_just_up(pygame.K_p):
+            self.pause = not self.pause
 
         if Controls().is_key_just_up(pygame.K_o):  # Запомнить
             save_game("game1", self.serialize())

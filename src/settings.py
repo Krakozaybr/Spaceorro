@@ -11,6 +11,7 @@ DATA_DIR = os.path.join(SRC_DIR, "data")
 IMAGES_DIR = os.path.join(DATA_DIR, "images")
 SAVES_DIR = os.path.join(DATA_DIR, "saves")
 SOUNDS_DIR = os.path.join(DATA_DIR, "sounds")
+THEME_PATH = os.path.join(CONFIGS_DIR, 'ui_theme.json')
 
 
 def get_json(path: str):
@@ -96,6 +97,7 @@ HEALTH_BAR_FONT_COLOR = general_config["health_bar_font_color"]
 
 # UI
 RESOURCE_LINE_HEIGHT = general_config["resource_line_height"]
+UPGRADES_BTN_HEIGHT = general_config["upgrades_btn_height"]
 
 # DEBUG
 debug_data = general_config["debug"]

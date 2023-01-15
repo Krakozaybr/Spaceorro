@@ -74,6 +74,10 @@ class Upgrades(SerializableDataclass, StaticInitMixin, SignalFieldMixin, ABC):
     def cost(self) -> Resources:
         return self.config.start_resources + self.config.resources_step * self.level
 
+    @property
+    def prev_cost(self) -> Resources:
+        return self.config.start_resources + self.config.resources_step * (self.level - 1)
+
 
 @dataclass
 class HealthLifeCharacteristicsUpgrades(Upgrades):
@@ -87,17 +91,18 @@ class HealthLifeCharacteristicsUpgrades(Upgrades):
         )
 
     def upgrade_health_coef(self):
-        self.changed.emit()
         self.health_upgrade_level += 1
+        self.changed.emit()
 
     def upgrade_armor_coef(self):
-        self.changed.emit()
         self.armor_upgrade_level += 1
+        self.changed.emit()
 
     def apply_upgrades(
         self, standard: HealthLifeCharacteristics, target: HealthLifeCharacteristics
     ):
-        target.health = standard.health * (
+        target.health = target.health + standard.health * self.config.health_coef_step
+        target.max_health = standard.max_health * (
             1 + self.health_upgrade_level * self.config.health_coef_step
         )
         target.armor = (
@@ -119,20 +124,20 @@ class WeaponModifiersUpgrades(Upgrades):
         )
 
     def upgrade_bullet_damage_coef(self):
-        self.changed.emit()
         self.bullet_damage_upgrade_level += 1
+        self.changed.emit()
 
     def upgrade_bullet_life_time_coef(self):
-        self.changed.emit()
         self.bullet_life_time_upgrade_level += 1
+        self.changed.emit()
 
     def upgrade_bullet_mass_coef(self):
-        self.changed.emit()
         self.bullet_mass_upgrade_level += 1
+        self.changed.emit()
 
     def upgrade_bullet_speed_coef(self):
-        self.changed.emit()
         self.bullet_speed_upgrade_level += 1
+        self.changed.emit()
 
     def apply_upgrades(self, standard: WeaponModifiers, target: WeaponModifiers):
         target.bullet_damage_coef = (
@@ -166,12 +171,12 @@ class VelocityCharacteristicsUpgrades(Upgrades):
         )
 
     def upgrade_rotation_speed(self):
-        self.changed.emit()
         self.rotation_speed_upgrade_level += 1
+        self.changed.emit()
 
     def upgrade_speed(self):
-        self.changed.emit()
         self.speed_upgrade_level += 1
+        self.changed.emit()
 
     def apply_upgrades(
         self, standard: VelocityCharacteristics, target: VelocityCharacteristics
@@ -217,7 +222,9 @@ class SpaceshipUpgradeSystem(Serializable, BasicSpaceshipMixin):
         life_characteristics_upgrades: Optional[
             HealthLifeCharacteristicsUpgrades
         ] = None,
-        velocity_characteristics_upgrades: Optional[VelocityCharacteristicsUpgrades] = None,
+        velocity_characteristics_upgrades: Optional[
+            VelocityCharacteristicsUpgrades
+        ] = None,
         weapon_modifiers_upgrades: Optional[WeaponModifiersUpgrades] = None,
     ):
         super().__init__(spaceship_id=spaceship_id)
@@ -225,6 +232,9 @@ class SpaceshipUpgradeSystem(Serializable, BasicSpaceshipMixin):
         if life_characteristics_upgrades is None:
             life_characteristics_upgrades = HealthLifeCharacteristicsUpgrades(0, 0, 0)
         self.life_characteristics_upgrades = life_characteristics_upgrades
+        self.life_characteristics_upgrades.changed.connect(
+            lambda: self.on_upgrade(self.life_characteristics_upgrades)
+        )
         self.life_characteristics_upgrades.changed.connect(
             lambda: self.life_characteristics_upgrades.apply_upgrades(
                 self.standard_life_characteristics, self.spaceship.life_characteristics
@@ -234,6 +244,9 @@ class SpaceshipUpgradeSystem(Serializable, BasicSpaceshipMixin):
         if velocity_characteristics_upgrades is None:
             velocity_characteristics_upgrades = VelocityCharacteristicsUpgrades(0, 0, 0)
         self.velocity_characteristics_upgrades = velocity_characteristics_upgrades
+        self.velocity_characteristics_upgrades.changed.connect(
+            lambda: self.on_upgrade(self.velocity_characteristics_upgrades)
+        )
         self.velocity_characteristics_upgrades.changed.connect(
             lambda: self.velocity_characteristics_upgrades.apply_upgrades(
                 self.standard_velocity_characteristics,
@@ -245,9 +258,30 @@ class SpaceshipUpgradeSystem(Serializable, BasicSpaceshipMixin):
             weapon_modifiers_upgrades = WeaponModifiersUpgrades(0, 0, 0, 0, 0)
         self.weapon_modifiers_upgrades = weapon_modifiers_upgrades
         self.weapon_modifiers_upgrades.changed.connect(
+            lambda: self.on_upgrade(self.weapon_modifiers_upgrades)
+        )
+        self.weapon_modifiers_upgrades.changed.connect(
             lambda: self.weapon_modifiers_upgrades.apply_upgrades(
                 self.standard_weapon_modifiers, self.spaceship.weapon_modifiers
             )
+        )
+
+    def on_upgrade(self, upgrades: Upgrades):
+        self.spaceship.pilot.resources -= upgrades.prev_cost
+
+    def can_upgrade_life_characteristics(self) -> bool:
+        return self.spaceship.pilot.resources.can_afford(
+            self.life_characteristics_upgrades.cost
+        )
+
+    def can_upgrade_velocity_characteristics(self) -> bool:
+        return self.spaceship.pilot.resources.can_afford(
+            self.velocity_characteristics_upgrades.cost
+        )
+
+    def can_upgrade_weapon_modifiers(self) -> bool:
+        return self.spaceship.pilot.resources.can_afford(
+            self.weapon_modifiers_upgrades.cost
         )
 
     @cached_property
@@ -311,10 +345,20 @@ class MinerUpgradeSystem(SpaceshipUpgradeSystem, SpaceshipMixin[MinerMixin]):
             mining_characteristics = MiningCharacteristicsUpgrades(0)
         self.mining_characteristics = mining_characteristics
         self.mining_characteristics.changed.connect(
+            lambda: self.on_upgrade(self.mining_characteristics)
+        )
+        self.mining_characteristics.changed.connect(
             lambda: self.mining_characteristics.apply_upgrades(
                 self.standard_mining_characteristics,
                 self.spaceship.mining_characteristics,
             )
+        )
+
+    def can_upgrade_mining_characteristics(self) -> bool:
+        return (
+            self.spaceship.pilot.resources.can_afford(self.mining_characteristics.cost)
+            and self.mining_characteristics.level
+            < self.mining_characteristics.config.max_level
         )
 
     @cached_property

@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Dict, Tuple, Iterable, Union, Optional
 
+import pygame
+
 from src.abstract import Serializable
 from src.settings import RESOURCES_IMAGES, RESOURCES_COLORS
 from src.utils.image_manager import ImageManager
@@ -14,7 +16,7 @@ class ResourceType(Enum):
     crystallium = RESOURCES_IMAGES["crystallium"]
     _colors: Dict["ResourceType", Tuple[int, int, int]]
 
-    def get_image(self, w: int = None, h: int = None):
+    def get_image(self, w: int = None, h: int = None) -> pygame.Surface:
         return ImageManager().get_pic(self.value, w, h)
 
     def get_color(self):
@@ -71,10 +73,14 @@ class Resource(Serializable):
             isinstance(other, Resource)
             and self.resource_type == other.resource_type
             and other.quantity == self.quantity
+            or (isinstance(other, float) or isinstance(other, int)) and other == self.quantity
         )
 
     def __hash__(self):
         return hash((self.resource_type, self.quantity))
+
+    def __ge__(self, other):
+        return self > other or other == self
 
     def __gt__(self, other: Union[int, float, "Resource"]):
         if isinstance(other, int) or isinstance(other, float):
@@ -141,6 +147,9 @@ class Resources(Serializable):
             return self.resources.get(item, Resource(0, item))
         raise ValueError
 
+    def __setitem__(self, key: ResourceType, value: Resource):
+        self.resources[key] = value
+
     def __iter__(self) -> Iterable[Tuple[Resource, ResourceType]]:
         for rt in ResourceType:
             yield self[rt], rt
@@ -158,7 +167,7 @@ class Resources(Serializable):
     def _add_to(resources: "Resources", other: Union["Resources", Resource]):
         if isinstance(other, Resources):
             for val, rt in other:
-                resources.resources[rt] += val
+                resources[rt] = resources[rt] + val
         elif isinstance(other, Resource):
             if other.resource_type in resources.resources:
                 resources.resources[other.resource_type] += other.quantity
@@ -186,7 +195,7 @@ class Resources(Serializable):
     def __mul__(self, other: float):
         res = Resources()
         for resource, _ in self:
-            res += res * other
+            res += resource * other
         return res
 
     @classmethod

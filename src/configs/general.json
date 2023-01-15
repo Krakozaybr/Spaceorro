@@ -3,6 +3,7 @@
   "screen_width": 1200,
   "screen_height": 700,
   "resource_line_height": 35,
+  "upgrades_btn_height": 40,
   "show_fps": true,
   "fps_update_time": 0.5,
   "health_bar_h": 14,
