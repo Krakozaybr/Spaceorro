@@ -1,11 +1,11 @@
 from abc import ABC
-from typing import Tuple, Union, Optional
+from typing import Tuple, Union
 
 import pygame.draw
 from pygame import Surface
 from pymunk import Vec2d
 
-from src.entities.abstract.abstract import HealthBar
+from src.entities.gadgets.health_bars.abstract import HealthBar
 from src.entities.modifiers_and_characteristics import (
     HealthLifeCharacteristics,
     AsteroidLifeCharacteristics,

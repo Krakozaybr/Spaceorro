@@ -33,10 +33,6 @@ class BasicPilot(Pilot, SignalFieldMixin, ABC):
         if isinstance(item, PickupableResource):
             self.resources += item.resource
 
-    @abstractmethod
-    def update(self, dt: float):
-        pass
-
     @classmethod
     def get_default_params(cls, data: Dict) -> Dict:
         return {

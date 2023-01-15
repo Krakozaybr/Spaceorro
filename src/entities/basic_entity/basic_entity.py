@@ -110,7 +110,7 @@ class BasicEntity(Entity, ABC):
         }
 
     def collide(self, other: Entity):
-        other.take_damage(self.mass * (other.velocity - self.velocity).length / 100000)
+        other.take_damage(self.mass * (other.velocity - self.velocity).length / 100000, self)
 
     def apply_params_to_bodies(self, data: Dict):
         apply_params_to_dynamic_body_from_dict(self, data["body"])

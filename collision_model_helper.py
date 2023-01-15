@@ -6,18 +6,18 @@ from pygame import Surface
 
 from src.controls import Controls
 from src.game import Game
-from src.scenes.abstract import Scene
-from src.settings import IMAGES_DIR
+from src.scenes.context import ContextScene
+from src.settings import IMAGES_DIR, SIZE, CONFIGS_DIR
 
-
-name = "pallarians cruiser.png"
+name = "traders trader.png"
 path = os.path.join(IMAGES_DIR, name)
 
 
-class HelperScene(Scene):
-    def __init__(self, src: str):
-        super().__init__()
+class HelperScene(ContextScene):
+    def __init__(self, context, src: str):
+        super().__init__(context)
         img = Image.open(src)
+        self.src = src
         self.pixels = img.load()
         self.w, self.h = img.size
         self.colors = [self.pixels[i, j] for i in range(self.w) for j in range(self.h)]
@@ -109,16 +109,27 @@ class HelperScene(Scene):
             self.points.pop()
 
         if controls.is_key_just_down(pygame.K_p):
-            print("{")
-            print(
-                f'  "vertices": {[[x - self.w // 2, y - self.h // 2] for x, y in self.points]},'
-            )
-            print(
-                f'  "blaster_relative_position": {[self.weapon_pos[0] - self.w // 2, self.weapon_pos[1] - self.h // 2]}'
-            )
-            print("}")
+            global name
+            file = os.path.join(os.path.join(CONFIGS_DIR, 'spaceships/general'), name.replace('.png', '.json').replace(' ', '_'))
+            with open(file, 'w') as f:
+                print("{", file=f)
+                print('  "mass": 5000,', file=f)
+                print(
+                    f'  "vertices": {[[x - self.w // 2, y - self.h // 2] for x, y in self.points]},', file=f
+                )
+                print(
+                    f'  "blaster_relative_position": {[self.weapon_pos[0] - self.w // 2, self.weapon_pos[1] - self.h // 2]}', file=f
+                )
+                print("}", file=f)
 
 
-game = Game()
-game.scene = HelperScene(path)
+class SubGame(Game):
+    def __init__(self):
+        super().__init__()
+        pygame.init()
+        self.scene = HelperScene(self, path)
+        self.screen = pygame.display.set_mode(SIZE)
+
+
+game = SubGame()
 game.start()

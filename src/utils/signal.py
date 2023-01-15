@@ -22,6 +22,9 @@ class Signal:
     def remove(self, listener: Callable):
         self.listeners.remove(listener)
 
+    def clear(self):
+        self.listeners.clear()
+
 
 class SignalAnnotationMixin:
     def __init__(self):

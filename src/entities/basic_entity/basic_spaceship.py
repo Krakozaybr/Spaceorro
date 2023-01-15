@@ -105,8 +105,8 @@ class BasicSpaceship(
             self.pilot.pick_up(other)
             other.die()
 
-    def take_damage(self, damage: float) -> None:
-        super().take_damage(damage)
+    def take_damage(self, damage: float, sender: 'Entity') -> None:
+        super().take_damage(damage, sender)
         self.life_characteristics.decrease(damage)
 
     @abstractmethod

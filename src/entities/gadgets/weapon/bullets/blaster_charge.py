@@ -68,10 +68,11 @@ class BlasterCharge(AbstractBullet, Explosive):
 
     def on_explode(self):
         env = get_environment()
+        sender = self if self.spaceship is None else self.spaceship
         for entity in env.get_entities_near(
             self.position, self.characteristics.explosion_radius
         ):
-            entity.take_damage(self.characteristics.damage)
+            entity.take_damage(self.characteristics.damage, sender)
 
     def die(self):
         self.life_characteristics.decrease(self.life_characteristics.life_time)
@@ -80,7 +81,7 @@ class BlasterCharge(AbstractBullet, Explosive):
         if not isinstance(other, Pickupable):
             self.explode()
 
-    def take_damage(self, damage: float):
+    def take_damage(self, damage: float, sender: 'Entity') -> None:
         self.life_characteristics.decrease(self.life_characteristics.life_time)
 
     def create_view(self) -> BlasterChargeView:

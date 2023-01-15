@@ -108,7 +108,7 @@ class AbstractAsteroid(BasicEntity, ABC):
             )
         }
 
-    def take_damage(self, damage: float) -> None:
+    def take_damage(self, damage: float, sender: 'Entity') -> None:
         self.life_characteristics.decrease(damage)
 
     def mine(self, damage: float):

@@ -6,12 +6,9 @@ import pymunk
 from pygame import Surface
 from pymunk import Vec2d
 
-from src.abstract import RenderUpdateObject, Updateable, Serializable
+from src.abstract import RenderUpdateObject
 from src.entities.entity_configs import AbstractEntityConfig
-from src.entities.gadgets.health_bars.abstract import HealthBar
 from src.entities.modifiers_and_characteristics import *
-from src.entities.teams import Team
-from src.resources import Resources
 from src.utils.decorators import storable
 from src.utils.signal import SignalAnnotationMixin, Signal
 from src.utils.store import Store
@@ -118,8 +115,8 @@ class Entity(
         self.in_space = False
 
     @abstractmethod
-    def take_damage(self, damage: float) -> None:
-        self.on_damage.emit(damage)
+    def take_damage(self, damage: float, sender: 'Entity') -> None:
+        self.on_damage.emit(damage, sender)
 
     def __repr__(self):
         return f"{self.__class__.__name__}(id={self.id})"
