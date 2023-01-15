@@ -18,26 +18,29 @@ from ...entities.pilots.player.player import PlayerPilot
 from ...environment.abstract import set_environment
 from ...environment.impl import BasicEnvironment
 from ...map.abstract import AbstractMap
-from ...settings import save_game
+from ...settings import save_game, GAME_SCENE_THEME_PATH
 
 
 class GameScene(Serializable, ContextScene):
 
     _pause: bool
-    ui = UIOverlapping
+    name: str
+    ui: UIOverlapping
 
     def __init__(
         self,
+        name: str,
         context: Context,
         camera: Optional[Camera] = None,
         player: Optional[PlayerPilot] = None,
         player_entity: Optional[BasicSpaceship] = None,
         map_impl: Optional[AbstractMap] = None,
     ):
-        ContextScene.__init__(self, context)
+        ContextScene.__init__(self, context, theme_path=GAME_SCENE_THEME_PATH)
 
         # Settings
         self._pause = False
+        self.name = name
 
         # Map and environment
         self.map = map_impl or BasicMap()
@@ -83,13 +86,13 @@ class GameScene(Serializable, ContextScene):
         if Controls().is_key_just_up(pygame.K_p):
             self.pause = not self.pause
 
-        if Controls().is_key_just_up(pygame.K_o):  # Запомнить
-            save_game("game1", self.serialize())
-            print("saved")
+        if Controls().is_key_just_down(pygame.K_ESCAPE):
+            self.context.launch_game_menu_scene(self)
 
     def to_dict(self) -> Dict:
         self.map.remove_entity(self.player_entity)
         res = {
+            "name": self.name,
             "map": self.map.to_dict(),
             "player": self.player_entity.to_dict(),
             **super().to_dict(),
@@ -102,6 +105,7 @@ class GameScene(Serializable, ContextScene):
         entity = entity_from_dict(data["player"])
         player = entity.pilot
         return GameScene(
+            name=data["name"],
             context=data["context"],
             player_entity=entity,
             player=player,

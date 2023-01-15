@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, Optional
 
 from pygame import Surface
 
@@ -24,6 +24,10 @@ class Context(ABC):
         pass
 
     @abstractmethod
+    def set_scene(self, scene: Scene):
+        pass
+
+    @abstractmethod
     def screenshot(self) -> Surface:
         pass
 
@@ -32,6 +36,6 @@ class ContextScene(Scene, ABC):
 
     context: Context
 
-    def __init__(self, context: Context):
-        super().__init__()
+    def __init__(self, context: Context, theme_path: Optional[str] = None):
+        super().__init__(theme_path)
         self.context = context

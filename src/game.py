@@ -20,7 +20,7 @@ class Game(Context):
         if SAVE_GAME:
             self.launch_game_scene("game1")
         else:
-            self.scene = GameScene(self)
+            self.scene = GameScene("game1", self)
         self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):
@@ -57,14 +57,17 @@ class Game(Context):
             for event in pygame.event.get():
                 self.catch_event(event)
             self.screen.fill((0, 0, 0))
-            self.update()
             self.render()
+            self.update()
             self.clock.tick(FPS)
             pygame.display.flip()
         pygame.quit()
 
     def change_scene(self, sender: Scene, target: Type[Scene], **kwargs):
         self.scene = target(context=self, **kwargs)
+
+    def set_scene(self, scene: Scene):
+        self.scene = scene
 
     def launch_main_menu_scene(self):
         self.scene = MainMenuScene(self)

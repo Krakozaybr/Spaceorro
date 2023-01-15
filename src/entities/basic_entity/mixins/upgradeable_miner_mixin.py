@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Optional
+from typing import Optional, Dict
 
 from pymunk import Vec2d
 
@@ -65,3 +65,10 @@ class UpgradeableMinerMixin(MinerMixin, UpgradeableSpaceshipMixin, ABC):
 
     def create_upgrade_system(self) -> MinerUpgradeSystem:
         return MinerUpgradeSystem(self.id)
+
+    @classmethod
+    def get_default_params(cls, data: Dict) -> Dict:
+        return {
+            **MinerMixin.get_default_params(data),
+            "upgrade_system": MinerUpgradeSystem.from_dict(data["upgrade_system"]),
+        }

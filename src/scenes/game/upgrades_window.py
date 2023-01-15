@@ -21,38 +21,37 @@ class FieldBlock(UIPanel, SignalFieldMixin):
     BTN_SIZE = 80, 30
 
     def __init__(
-            self,
-            relative_rect: pygame.Rect,
-            parent: "UpgradesBlock",
-            name: str,
-            getter: Callable[[], str],
-            upgrade: Callable,
-            anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        self,
+        relative_rect: pygame.Rect,
+        parent: "UpgradesBlock",
+        name: str,
+        getter: Callable[[], str],
+        upgrade: Callable,
+        anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
     ):
         UIPanel.__init__(self, relative_rect, container=parent, anchors=anchors)
         SignalFieldMixin.__init__(self)
         self.active = True
         self.title = UILabel(
-            text=name, relative_rect=pygame.Rect(0, 0, *self.TITLE_SIZE), container=self, anchors={
-                'centery': 'centery'
-            }
+            text=name,
+            relative_rect=pygame.Rect(0, 0, *self.TITLE_SIZE),
+            container=self,
+            anchors={"centery": "centery"},
         )
         self.getter = getter
         self.upgrade = upgrade
         self.current = UILabel(
             text=getter(),
-            relative_rect=pygame.Rect(
-                0, 0, *self.CURRENT_LEVEL_SIZE
-            ),
+            relative_rect=pygame.Rect(0, 0, *self.CURRENT_LEVEL_SIZE),
             container=self,
-            anchors={"left_target": self.title, 'centery': 'centery'},
+            anchors={"left_target": self.title, "centery": "centery"},
         )
         btn_w, btn_h = self.BTN_SIZE
         self.btn = UIButton(
             text="Upgrade",
             relative_rect=pygame.Rect(-btn_w - 2, 0, *self.BTN_SIZE),
             container=self,
-            anchors={"right": 'right', 'centery': 'centery'},
+            anchors={"right": "right", "centery": "centery"},
         )
 
     def update(self, time_delta: float):
@@ -67,11 +66,11 @@ class ResourceView(UIPanel):
     COUNT_SIZE = 50, 20
 
     def __init__(
-            self,
-            parent: "CostBlock",
-            relative_rect: pygame.Rect,
-            resource: Resource,
-            anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        self,
+        parent: "CostBlock",
+        relative_rect: pygame.Rect,
+        resource: Resource,
+        anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
     ):
         super().__init__(relative_rect, anchors=anchors, container=parent)
         img = resource.resource_type.get_image(30, 30)
@@ -93,20 +92,24 @@ class CostBlock(UIPanel):
     RESOURCE_SIZE = 40, 50
 
     def __init__(
-            self,
-            relative_rect: pygame.Rect,
-            parent: "UpgradesBlock",
-            get_cost: Callable,
-            anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        self,
+        relative_rect: pygame.Rect,
+        parent: "UpgradesBlock",
+        get_cost: Callable,
+        anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
     ):
         super().__init__(relative_rect, anchors=anchors, container=parent)
         self.get_cost = get_cost
         resources = get_cost()
-        target = UILabel(text='Cost:', relative_rect=pygame.Rect(0, 0, 40, 60), container=self)
+        target = UILabel(
+            text="Cost:", relative_rect=pygame.Rect(0, 0, 40, 60), container=self
+        )
         self.resources_display = dict()
         for resource, rt in resources:
             if resource.quantity:
-                anchors = {"left_target": target} if target is not None else {'left': 'left'}
+                anchors = (
+                    {"left_target": target} if target is not None else {"left": "left"}
+                )
                 target = self.resources_display[rt] = ResourceView(
                     relative_rect=pygame.Rect(0, 0, *self.RESOURCE_SIZE),
                     resource=resource,
@@ -133,17 +136,17 @@ class UpgradesBlock(UIPanel):
     FIELD_SIZE = 280, 40
 
     def __init__(
-            self,
-            title: str,
-            parent: "UpgradesWindow",
-            column: int,
-            row: int,
-            fields: Sequence[
-                Tuple[str, Callable[[], str], Callable]
-            ],  # [(field name, getter, upgrade)]
-            get_cost: Callable[[], Resources],
-            can_upgrade: Callable[[], bool],
-            anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        self,
+        title: str,
+        parent: "UpgradesWindow",
+        column: int,
+        row: int,
+        fields: Sequence[
+            Tuple[str, Callable[[], str], Callable]
+        ],  # [(field name, getter, upgrade)]
+        get_cost: Callable[[], Resources],
+        can_upgrade: Callable[[], bool],
+        anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
     ):
         super().__init__(
             pygame.Rect(self.W * column, self.H * row, self.W, self.H),
@@ -160,9 +163,7 @@ class UpgradesBlock(UIPanel):
         )
         self.cost_view = CostBlock(
             parent=self,
-            relative_rect=pygame.Rect(
-                self.PADDING, 0, *self.COST_BLOCK_SIZE
-            ),
+            relative_rect=pygame.Rect(self.PADDING, 0, *self.COST_BLOCK_SIZE),
             get_cost=get_cost,
             anchors={"top_target": self.title},
         )
@@ -208,9 +209,9 @@ class UpgradesWindow(UIWindow):
     upgrade_system: SpaceshipUpgradeSystem
 
     def __init__(
-            self,
-            upgrade_system: SpaceshipUpgradeSystem,
-            manager: UIManager,
+        self,
+        upgrade_system: SpaceshipUpgradeSystem,
+        manager: UIManager,
     ):
         self.upgrade_system = upgrade_system
         super().__init__(
@@ -227,14 +228,19 @@ class UpgradesWindow(UIWindow):
                 (
                     "Health",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.life_characteristics.max_health, 2)
+                        round(
+                            self.upgrade_system.spaceship.life_characteristics.max_health,
+                            2,
+                        )
                     ),
                     self.upgrade_system.life_characteristics_upgrades.upgrade_health_coef,
                 ),
                 (
                     "Armor",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.life_characteristics.armor, 2)
+                        round(
+                            self.upgrade_system.spaceship.life_characteristics.armor, 2
+                        )
                     ),
                     self.upgrade_system.life_characteristics_upgrades.upgrade_armor_coef,
                 ),
@@ -251,14 +257,20 @@ class UpgradesWindow(UIWindow):
                 (
                     "Speed",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.velocity_characteristics.max_speed, 2)
+                        round(
+                            self.upgrade_system.spaceship.velocity_characteristics.max_speed,
+                            2,
+                        )
                     ),
                     self.upgrade_system.velocity_characteristics_upgrades.upgrade_speed,
                 ),
                 (
                     "Rotation Speed",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.velocity_characteristics.max_rotation_speed, 2)
+                        round(
+                            self.upgrade_system.spaceship.velocity_characteristics.max_rotation_speed,
+                            2,
+                        )
                     ),
                     self.upgrade_system.velocity_characteristics_upgrades.upgrade_rotation_speed,
                 ),
@@ -275,28 +287,40 @@ class UpgradesWindow(UIWindow):
                 (
                     "Bullet Damage",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.weapon_modifiers.bullet_damage_coef, 2)
+                        round(
+                            self.upgrade_system.spaceship.weapon_modifiers.bullet_damage_coef,
+                            2,
+                        )
                     ),
                     self.upgrade_system.weapon_modifiers_upgrades.upgrade_bullet_damage_coef,
                 ),
                 (
                     "Bullet Life Time",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.weapon_modifiers.bullet_life_time_coef, 2)
+                        round(
+                            self.upgrade_system.spaceship.weapon_modifiers.bullet_life_time_coef,
+                            2,
+                        )
                     ),
                     self.upgrade_system.weapon_modifiers_upgrades.upgrade_bullet_life_time_coef,
                 ),
                 (
                     "Bullet Mass",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.weapon_modifiers.bullet_mass_coef, 2)
+                        round(
+                            self.upgrade_system.spaceship.weapon_modifiers.bullet_mass_coef,
+                            2,
+                        )
                     ),
                     self.upgrade_system.weapon_modifiers_upgrades.upgrade_bullet_mass_coef,
                 ),
                 (
                     "Bullet Speed",
                     lambda: str(
-                        round(self.upgrade_system.spaceship.weapon_modifiers.bullet_speed_coef, 2)
+                        round(
+                            self.upgrade_system.spaceship.weapon_modifiers.bullet_speed_coef,
+                            2,
+                        )
                     ),
                     self.upgrade_system.weapon_modifiers_upgrades.upgrade_bullet_speed_coef,
                 ),

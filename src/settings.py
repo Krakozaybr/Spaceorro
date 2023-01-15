@@ -11,7 +11,9 @@ DATA_DIR = os.path.join(SRC_DIR, "data")
 IMAGES_DIR = os.path.join(DATA_DIR, "images")
 SAVES_DIR = os.path.join(DATA_DIR, "saves")
 SOUNDS_DIR = os.path.join(DATA_DIR, "sounds")
-THEME_PATH = os.path.join(CONFIGS_DIR, 'ui_theme.json')
+THEMES_DIR = os.path.join(CONFIGS_DIR, 'themes')
+GAME_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "game_scene_ui_theme.json")
+GAME_MENU_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "game_menu_scene_ui_theme.json")
 
 
 def get_json(path: str):
@@ -105,7 +107,7 @@ DEBUG = debug_data["active"]
 SHOW_VELOCITY_VECTOR = DEBUG and debug_data["show_velocity_vector"]
 SHOW_CLUSTERS_BORDERS = DEBUG and debug_data["show_clusters_borders"]
 SHOW_PLAYER_COLLISION_POLY = DEBUG and debug_data["show_player_collision_poly"]
-SAVE_GAME = False
+SAVE_GAME = True
 LOG_GENERATING = False
 
 # MAP
