@@ -18,7 +18,7 @@ from ...entities.pilots.player.player import PlayerPilot
 from ...environment.abstract import set_environment
 from ...environment.impl import BasicEnvironment
 from ...map.abstract import AbstractMap
-from ...settings import save_game, GAME_SCENE_THEME_PATH
+from ...settings import GAME_SCENE_THEME_PATH
 
 
 class GameScene(Serializable, ContextScene):
