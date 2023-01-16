@@ -5,6 +5,7 @@ import pygame_gui
 from pymunk import Vec2d
 
 from src.scenes.abstract import Scene
+from pygame import Surface
 from src.scenes.context import Context
 from src.scenes.game_menu_scene import GameMenuScene
 from src.scenes.main_menu_scene import MainMenuScene
@@ -24,13 +25,30 @@ class Game(Context):
         # self.screen = pygame.display.set_mode(SIZE)
         pass
 
-    def render(self):
+    def render(self, screen: Surface):
         self.scene.render(self.screen)
+        self.map.render_at(screen, self.camera, self.player_entity.position)
+        self.ui.render(screen)
+        super().render(screen)
 
     def update(self):
         dt = self.clock.get_time() / 1000
         self.scene.update(dt)
         Controls().update()
+        super().update(dt)
+        # self.camera.look_at(self.player_entity)
+        # if not self.pause:
+        #     self.map.update_at(self.player_entity.position, dt)
+        # self.ui.update(dt)
+        #
+        # if Controls().is_key_just_up(pygame.K_p):
+        #     self.pause = not self.pause
+        #
+        # if Controls().is_key_just_down(pygame.K_ESCAPE):
+        #     self.context.launch_game_menu_scene(self)
+
+    def process_event(self):
+        pass
 
     def catch_event(self, e):
         controls = Controls()
