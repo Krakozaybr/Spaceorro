@@ -11,12 +11,12 @@ from src.entities.modifiers_and_characteristics import (
     LifeCharacteristics,
 )
 from src.utils.body_serialization import *
-from src.utils.signal import Signal
+from src.utils.signal import Signal, SignalFieldMixin
 
 
-class BasicEntity(Entity, ABC):
+class BasicEntity(Entity, SignalFieldMixin, ABC):
 
-    on_death: Signal
+    on_death = Signal()
 
     def __init__(
         self,
@@ -26,12 +26,15 @@ class BasicEntity(Entity, ABC):
         moment: Optional[float] = None,
         entity_id: Optional[int] = None,
     ):
+        SignalFieldMixin.__init__(self)
         # Pymunk
         if mass is None:
             mass = self.create_mass()
         if moment is None:
             moment = self.create_moment()
-        super().__init__(mass, moment, body_type=pymunk.Body.DYNAMIC, _id=entity_id)
+        Entity.__init__(
+            self, mass, moment, body_type=pymunk.Body.DYNAMIC, _id=entity_id
+        )
 
         self.shape = self.create_shape()
         self.shape.collision_type = ENTITY_COLLISION
@@ -88,16 +91,18 @@ class BasicEntity(Entity, ABC):
         self.view.draw(screen, camera.dv + self.position)
 
     def add_to_space(self, space: pymunk.Space) -> None:
+        if not self.in_space:
+            space.add(self, self.shape)
+            space.add(self.control_body)
+            space.add(self.pivot)
         super().add_to_space(space)
-        space.add(self, self.shape)
-        space.add(self.control_body)
-        space.add(self.pivot)
 
     def remove_from_space(self, space: pymunk.Space) -> None:
+        if self.in_space:
+            space.remove(self, self.shape)
+            space.remove(self.control_body)
+            space.remove(self.pivot)
         super().remove_from_space(space)
-        space.remove(self, self.shape)
-        space.remove(self.control_body)
-        space.remove(self.pivot)
 
     @staticmethod
     @abstractmethod
@@ -110,7 +115,9 @@ class BasicEntity(Entity, ABC):
         }
 
     def collide(self, other: Entity):
-        other.take_damage(self.mass * (other.velocity - self.velocity).length / 100000, self)
+        other.take_damage(
+            self.mass * (other.velocity - self.velocity).length / 100000, self
+        )
 
     def apply_params_to_bodies(self, data: Dict):
         apply_params_to_dynamic_body_from_dict(self, data["body"])

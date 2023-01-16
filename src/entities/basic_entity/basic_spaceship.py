@@ -9,7 +9,11 @@ from src.abstract import Serializable
 from src.entities.pilots.abstract import Pilot
 from src.entities.abstract.abstract import SaveStrategy, Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship
-from src.entities.basic_entity.basic_entity import BasicEntity, EntityWithFixedMass
+from src.entities.basic_entity.basic_entity import (
+    BasicEntity,
+    EntityWithFixedMass,
+    PolyBasicEntity,
+)
 from src.entities.basic_entity.explosive import Explosive, ExplosiveView
 from src.entities.basic_entity.health_entity_mixin import HealthEntityMixin
 from src.entities.basic_entity.view import PolyBasicView, HealthBarMixin
@@ -23,6 +27,7 @@ from src.entities.modifiers_and_characteristics import (
 )
 from src.entities.pickupable.abstract import Pickupable
 from src.entities.teams import Team
+from src.environment.abstract import get_environment
 from src.settings import get_entity_start_config
 from src.utils.body_serialization import *
 
@@ -37,7 +42,12 @@ class BasicSpaceshipView(PolyBasicView, HealthBarMixin, ExplosiveView, ABC):
 
 
 class BasicSpaceship(
-    AbstractSpaceship, Explosive, EntityWithFixedMass, HealthEntityMixin, ABC
+    AbstractSpaceship,
+    PolyBasicEntity,
+    Explosive,
+    EntityWithFixedMass,
+    HealthEntityMixin,
+    ABC,
 ):
 
     save_strategy = SaveStrategy.ENTITY
@@ -61,6 +71,9 @@ class BasicSpaceship(
         entity_id: Optional[int] = None,
         pilot: Optional[Pilot] = None,
     ):
+        if pilot is None:
+            pilot = self.create_pilot()
+        self.pilot = pilot
         Explosive.__init__(
             self,
             pos=pos,
@@ -69,6 +82,9 @@ class BasicSpaceship(
             moment=moment,
             entity_id=entity_id,
         )
+        if weapon is None:
+            weapon = self.create_weapon()
+        self.weapon = weapon
 
         # Characteristics
         if weapon_modifiers is None:
@@ -78,15 +94,7 @@ class BasicSpaceship(
         if velocity_characteristics is None:
             velocity_characteristics = self.create_velocity_characteristics()
         self.velocity_characteristics = velocity_characteristics
-
-        # Instruments
         self.engine = self.create_engine()
-        if pilot is None:
-            pilot = self.create_pilot()
-        self.pilot = pilot
-        if weapon is None:
-            weapon = self.create_weapon()
-        self.weapon = weapon
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -105,7 +113,7 @@ class BasicSpaceship(
             self.pilot.pick_up(other)
             other.die()
 
-    def take_damage(self, damage: float, sender: 'Entity') -> None:
+    def take_damage(self, damage: float, sender: "Entity") -> None:
         super().take_damage(damage, sender)
         self.life_characteristics.decrease(damage)
 
@@ -147,6 +155,30 @@ class BasicSpaceship(
         self.pilot.update(dt)
         self.weapon.update(dt)
         self.engine.update(dt)
+
+        # It is hard for pymunk to process collisions of poly shapes
+        # So let`s they won`t appear :)
+        min_prohibited_radius = (
+            self.view.w**2 + self.view.h**2
+        ) ** 0.5 / 2  # no entities must be there
+        addition_area = (
+            min_prohibited_radius * 0.1
+        )  # entities we are going to influence on
+        for entity in get_environment().get_entities_near(
+            self.position, min_prohibited_radius + addition_area
+        ):
+            if isinstance(entity, PolyBasicEntity):
+                vec_to_entity = entity.position - self.position
+                normalized, length = vec_to_entity.normalized_and_length()
+                force = (
+                    max(self.velocity_characteristics.max_speed, entity.velocity.length)
+                    / (
+                        (1 - min(length - min_prohibited_radius, 0) / addition_area)
+                        ** 4
+                    )
+                    * dt
+                )
+                self.control_body.velocity -= vec_to_entity.normalized() * force
 
     @staticmethod
     def get_characteristics(data: Dict) -> Dict:

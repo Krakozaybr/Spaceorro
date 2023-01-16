@@ -36,10 +36,14 @@ class SignalAnnotationMixin:
 class SignalFieldMixin:
 
     _signals = []
+    _are_signals_inited: bool
 
     def __init__(self):
-        for signal_name in self._signals:
-            setattr(self, signal_name, Signal())
+        if not hasattr(self, '_are_signals_inited'):
+            for signal_name in self._signals:
+                setattr(self, signal_name, Signal())
+            self._are_signals_inited = True
+
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__()

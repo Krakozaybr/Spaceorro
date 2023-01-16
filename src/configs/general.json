@@ -1,5 +1,6 @@
 {
   "fps": 60,
+  "spaceship_bot_vision_radius": 1200,
   "screen_width": 1200,
   "screen_height": 700,
   "resource_line_height": 35,

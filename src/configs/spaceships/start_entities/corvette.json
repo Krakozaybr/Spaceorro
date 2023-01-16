@@ -1,10 +1,8 @@
 {
-  "max_speed": 500,
-  "max_rotation_speed": 10,
   "life_characteristics": {
     "health": 400,
     "max_health": 400,
-    "armor": 10
+    "armor": 3
   },
   "weapon_modifiers": {
     "weapon_level": 1,
@@ -16,8 +14,8 @@
   },
   "velocity_characteristics": {
     "rotation_speed": 40,
-    "direct_force": 200,
-    "max_speed": 400,
+    "direct_force": 350,
+    "max_speed": 700,
     "max_rotation_speed": 10,
     "stop_coef": 2,
     "stop_rotation_coef": 4

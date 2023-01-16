@@ -16,13 +16,12 @@ from src.settings import load_game, SAVE_GAME
 
 class Game(Context):
     def __init__(self):
-        # pygame.init()
-        # if SAVE_GAME:
-        #     self.launch_game_scene("game1")
-        # else:
-        #     self.scene = GameScene("game1", self)
-        # self.screen = pygame.display.set_mode(SIZE)
-        pass
+        pygame.init()
+        if SAVE_GAME:
+            self.launch_game_scene("game1")
+        else:
+            self.scene = GameScene("game1", self)
+        self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):
         self.scene.render(self.screen)

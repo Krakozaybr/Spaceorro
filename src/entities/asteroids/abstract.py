@@ -121,9 +121,6 @@ class AbstractAsteroid(BasicEntity, ABC):
             "view_data": self.view_data.to_dict(),
         }
 
-    def collide(self, other: Entity):
-        super().collide(other)
-
     @classmethod
     @abstractmethod
     def get_view_data_from_dict(cls, data: Dict) -> AsteroidViewData:

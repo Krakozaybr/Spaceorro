@@ -7,9 +7,12 @@ import pymunk
 from pygame import Surface
 from pymunk import Vec2d, ShapeFilter
 
+from src.entities.basic_entity.basic_entity import PolyBasicEntity
 from src.entities.get_entity import entity_from_dict
 from src.entities.abstract.abstract import Entity, ENTITY_COLLISION, SaveStrategy
 from src.entities.asteroids.factory import AsteroidFactory
+from src.entities.pickupable.abstract import Pickupable
+from src.entities.spaceships.factory import SpaceshipFactory
 from src.map.abstract import (
     AbstractCluster,
     AbstractMap,
@@ -240,10 +243,15 @@ class BasicMapGenerator(AbstractMapGenerator):
             print(f"generated at {x}, {y}")
         w, h = CLUSTER_SIZE
         entities = set()
-        for _ in range(random.randint(4, 7)):
+        for _ in range(random.randint(1, 5)):
             entity_x = random.randint(w * x, w * (x + 1))
             entity_y = random.randint(h * y, h * (y + 1))
             entities.add(AsteroidFactory.create_entity(Vec2d(entity_x, entity_y)))
+        if random.random() < 0.1:
+            entity_x = random.randint(w * x, w * (x + 1))
+            entity_y = random.randint(h * y, h * (y + 1))
+            e = SpaceshipFactory.create_entity(Vec2d(entity_x, entity_y))
+            entities.add(e)
         return [Cluster(x, y, entities=entities)]
 
 
@@ -255,7 +263,7 @@ class BasicMap(AbstractMap):
         self.clusters = ClustersStore(self.map_generator)
         self.active_clusters = set()
         self.space = pymunk.Space()
-        self.space.collision_slop = 0.01
+        self.space.collision_slop = 0.5
 
         handler = self.space.add_collision_handler(ENTITY_COLLISION, ENTITY_COLLISION)
         handler.begin = self.collision
@@ -263,10 +271,14 @@ class BasicMap(AbstractMap):
     @staticmethod
     def collision(arbiter: pymunk.Arbiter, space: pymunk.Space, data: Dict) -> bool:
         s1, s2 = arbiter.shapes
+        if isinstance(s1.body, Pickupable) and isinstance(s2.body, Pickupable):
+            return False
         if isinstance(s1.body, Entity) and isinstance(s2.body, Entity):
             s1.body.collide(s2.body)
             s2.body.collide(s1.body)
-        return True
+        return not isinstance(s1.body, PolyBasicEntity) and isinstance(
+            s2.body, PolyBasicEntity
+        )
 
     def update_active_clusters(self, clusters: Set[Cluster]) -> None:
         for cluster in self.active_clusters - clusters:

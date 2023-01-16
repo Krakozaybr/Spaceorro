@@ -19,6 +19,7 @@ from ...environment.abstract import set_environment
 from ...environment.impl import BasicEnvironment
 from ...map.abstract import AbstractMap
 from ...settings import GAME_SCENE_THEME_PATH
+from src.entities.get_entity import *
 
 
 class GameScene(Serializable, ContextScene):
@@ -52,8 +53,8 @@ class GameScene(Serializable, ContextScene):
 
         # Player pilot and its spaceship
         self.player = player or PlayerPilot(entity=player_entity)
-        self.player_entity = player_entity or PallariansCruiser.create_default(
-            Vec2d(0, 0)
+        self.player_entity = player_entity or PallariansCruiser(
+            Vec2d(0, 0), pilot=self.player
         )
         if player_entity is None or player is not None:
             self.player.set_spaceship(self.player_entity)

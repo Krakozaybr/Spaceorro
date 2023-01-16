@@ -76,6 +76,7 @@ class NeutralBar(BasicHealthBar):
 
 class EnemyBar(BasicHealthBar):
     color = "red"
+    border_color = "blue"
 
 
 class NoHealthBar(HealthBar):

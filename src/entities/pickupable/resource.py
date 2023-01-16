@@ -61,7 +61,7 @@ class PickupableResource(Pickupable):
     def create_mass(self) -> float:
         return 1
 
-    def take_damage(self, damage: float) -> None:
+    def take_damage(self, damage: float, sender: Entity) -> None:
         pass
 
     @classmethod

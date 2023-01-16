@@ -45,8 +45,8 @@ class DefaultEngine(Engine):
         self.bring_speed_to(dt, vec * min(self.direct_force, length))
 
     def keep_distance(self, dt: float, pos: Vec2d, distance: float):
-        vec = (self.control_body.position - pos).normalized()
-        self.move_to(dt, vec * distance)
+        vec, length = (pos - self.control_body.position).normalized_and_length()
+        self.move_to(dt, pos - vec * distance)
 
     def bring_speed_to(self, dt: float, speed: Vec2d):
         ds = self.direct_force * dt

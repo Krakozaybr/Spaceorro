@@ -1,0 +1,26 @@
+{
+  "life_characteristics": {
+    "health": 3500,
+    "max_health": 3500,
+    "armor": 20
+  },
+  "weapon_modifiers": {
+    "weapon_level": 4,
+    "weapon_reload_coef": 0.7,
+    "bullet_damage_coef": 3,
+    "bullet_life_time_coef": 2,
+    "bullet_mass_coef": 100,
+    "bullet_speed_coef": 0.5
+  },
+  "velocity_characteristics": {
+    "rotation_speed": 20,
+    "direct_force": 100,
+    "max_speed": 200,
+    "max_rotation_speed": 10,
+    "stop_coef": 1,
+    "stop_rotation_coef": 2
+  },
+  "mining_characteristics": {
+    "level": 3
+  }
+}

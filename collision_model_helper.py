@@ -1,21 +1,22 @@
 import os.path
 
 import pygame
+import pygame_gui
 from PIL import Image
 from pygame import Surface
+from pymunk import Vec2d
 
 from src.controls import Controls
-from src.game import Game
 from src.scenes.context import ContextScene
-from src.settings import IMAGES_DIR, SIZE, CONFIGS_DIR
+from src.settings import IMAGES_DIR, SIZE, CONFIGS_DIR, FPS
 
-name = "traders trader.png"
+name = "aquamarins mothership.png"
 path = os.path.join(IMAGES_DIR, name)
 
 
 class HelperScene(ContextScene):
-    def __init__(self, context, src: str):
-        super().__init__(context)
+    def __init__(self, src: str):
+        super().__init__(None)
         img = Image.open(src)
         self.src = src
         self.pixels = img.load()
@@ -110,26 +111,70 @@ class HelperScene(ContextScene):
 
         if controls.is_key_just_down(pygame.K_p):
             global name
-            file = os.path.join(os.path.join(CONFIGS_DIR, 'spaceships/general'), name.replace('.png', '.json').replace(' ', '_'))
-            with open(file, 'w') as f:
+            file = os.path.join(
+                os.path.join(CONFIGS_DIR, "spaceships/general"),
+                name.replace(".png", ".json").replace(" ", "_"),
+            )
+            with open(file, "w") as f:
                 print("{", file=f)
                 print('  "mass": 5000,', file=f)
                 print(
-                    f'  "vertices": {[[x - self.w // 2, y - self.h // 2] for x, y in self.points]},', file=f
+                    f'  "vertices": {[[x - self.w // 2, y - self.h // 2] for x, y in self.points]},',
+                    file=f,
                 )
                 print(
-                    f'  "blaster_relative_position": {[self.weapon_pos[0] - self.w // 2, self.weapon_pos[1] - self.h // 2]}', file=f
+                    f'  "blaster_relative_position": {[self.weapon_pos[0] - self.w // 2, self.weapon_pos[1] - self.h // 2]}',
+                    file=f,
                 )
                 print("}", file=f)
 
 
-class SubGame(Game):
+class Game:
     def __init__(self):
-        super().__init__()
         pygame.init()
-        self.scene = HelperScene(self, path)
+        self.scene = HelperScene(path)
         self.screen = pygame.display.set_mode(SIZE)
 
+    def render(self):
+        self.scene.render(self.screen)
 
-game = SubGame()
+    def update(self):
+        dt = self.clock.get_time() / 1000
+        self.scene.update(dt)
+        Controls().update()
+
+    def catch_event(self, e):
+        controls = Controls()
+        if e.type == pygame.QUIT:
+            self.run = False
+        if e.type == pygame.KEYDOWN:
+            controls.set_key_pressed(e.key, True)
+        if e.type == pygame.KEYUP:
+            controls.set_key_pressed(e.key, False)
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            controls.set_mouse_pressed(e.button, True)
+        if e.type == pygame.MOUSEBUTTONUP:
+            controls.set_mouse_pressed(e.button, False)
+        if e.type == pygame.MOUSEMOTION:
+            x, y = e.pos
+            controls.set_mouse_pos(Vec2d(x, y))
+        if e.type == pygame_gui.UI_BUTTON_PRESSED:
+            controls.set_button_pressed(e.ui_element)
+        self.scene.process_event(e)
+
+    def start(self):
+        self.clock = pygame.time.Clock()
+        self.run = True
+        while self.run:
+            for event in pygame.event.get():
+                self.catch_event(event)
+            self.screen.fill((0, 0, 0))
+            self.render()
+            self.update()
+            self.clock.tick(FPS)
+            pygame.display.flip()
+        pygame.quit()
+
+
+game = Game()
 game.start()
