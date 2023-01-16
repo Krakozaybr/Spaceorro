@@ -18,7 +18,6 @@ class HelperScene(ContextScene):
     def __init__(self, src: str):
         super().__init__(None)
         img = Image.open(src)
-        self.src = src
         self.pixels = img.load()
         self.w, self.h = img.size
         self.colors = [self.pixels[i, j] for i in range(self.w) for j in range(self.h)]

@@ -77,7 +77,7 @@ class Game(Context):
         data["context"] = self
         self.scene = GameScene.from_dict(data)
 
-    def launch_game_menu_scene(self, game_scene: Scene):
+    def launch_game_menu_scene(self, game_scene: GameScene):
         self.scene = GameMenuScene(self, game_scene)
 
     def screenshot(self) -> pygame.Surface:
