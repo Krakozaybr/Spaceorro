@@ -7,6 +7,7 @@ from pymunk import Vec2d
 from src.controls import Controls
 from src.scenes.abstract import Scene
 from src.scenes.context import Context
+from src.scenes.end_scene import EndgameScene
 from src.scenes.game.game_scene import GameScene
 from src.scenes.game_menu_scene import GameMenuScene
 from src.scenes.main_menu_scene import MainMenuScene
@@ -88,3 +89,6 @@ class Game(Context):
 
     def exit(self):
         self.run = False
+
+    def launch_game_end_scene(self, game_scene: GameScene):
+        self.scene = EndgameScene(self, game_scene)

@@ -51,7 +51,7 @@ class GameScene(Serializable, ContextScene):
 
         # Player pilot and its spaceship
         self.player = player or PlayerPilot(entity=player_entity)
-        self.player_entity = player_entity or PallariansCruiser(
+        self.player_entity = player_entity or AliensDrone(
             Vec2d(0, 0), pilot=self.player
         )
         if player_entity is None or player is not None:
@@ -87,6 +87,9 @@ class GameScene(Serializable, ContextScene):
 
         if Controls().is_key_just_down(pygame.K_ESCAPE):
             self.context.launch_game_menu_scene(self)
+
+        if not self.player.entity.is_active:
+            self.context.launch_game_end_scene(self)
 
     def to_dict(self) -> Dict:
         self.map.remove_entity(self.player_entity)

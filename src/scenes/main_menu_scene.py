@@ -176,7 +176,7 @@ class MainMenuScene(ContextScene):
         for save in get_saves():
             save_name = save["name"]
             score = save["score"]
-            list_name = f"{save_name}. Score: {score}"
+            list_name = f"{save_name}. Score: {round(float(score), 2)}"
             self.saves[list_name] = save_name
         self.saves_list.set_item_list([i for i in self.saves])
 

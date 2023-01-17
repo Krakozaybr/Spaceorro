@@ -17,6 +17,7 @@ GAME_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "game_scene_ui_theme.json")
 GAME_MENU_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "game_menu_scene_ui_theme.json")
 MENU_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "menu_scene_ui_theme.json")
 PREVIEW_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "preview_scene_ui_theme.json")
+END_GAME_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "end_game_scene_ui_theme.json")
 
 
 def get_json(path: str):

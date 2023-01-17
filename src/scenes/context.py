@@ -32,6 +32,10 @@ class Context(ABC):
         pass
 
     @abstractmethod
+    def launch_game_end_scene(self, game_scene: Scene):
+        pass
+
+    @abstractmethod
     def exit(self):
         pass
 
