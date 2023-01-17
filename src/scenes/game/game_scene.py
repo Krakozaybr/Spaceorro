@@ -1,12 +1,11 @@
-from typing import Dict, Optional
+from typing import Optional
 
 import pygame
 from pygame import Surface
 from pymunk import Vec2d
 
 from src.abstract import Serializable
-from src.entities.get_entity import entity_from_dict
-from src.entities.spaceships.pallarians import PallariansCruiser
+from src.entities.get_entity import *
 from src.map.impls import map_from_dict
 from src.map.impls.basic import BasicMap
 from .camera import Camera
@@ -19,7 +18,6 @@ from ...environment.abstract import set_environment
 from ...environment.impl import BasicEnvironment
 from ...map.abstract import AbstractMap
 from ...settings import GAME_SCENE_THEME_PATH
-from src.entities.get_entity import *
 
 
 class GameScene(Serializable, ContextScene):

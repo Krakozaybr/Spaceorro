@@ -10,11 +10,14 @@ class SerializableDataclass(Serializable):
     fields: Optional[List[str]]
     special_fields_serializing: Optional[Dict[str, Callable]]
     special_fields_deserializing: Optional[Dict[str, Callable]]
+    banned_fields = ["_are_signals_inited"]
 
     def to_dict(self) -> Dict:
         res = dict()
         sfs = getattr(self, "special_fields_serializing", dict())
         for field_name in self.get_fields():
+            if field_name in self.banned_fields:
+                continue
             val = getattr(self, field_name)
             if isinstance(val, Serializable):
                 res[field_name] = val.to_dict()
@@ -31,6 +34,8 @@ class SerializableDataclass(Serializable):
         for field_name, field_cls in all_annotations(cls).items():
             if field_name in SerializableDataclass.__annotations__:
                 continue
+            if field_name in cls.banned_fields:
+                continue
             if hasattr(cls, "fields") and field_name not in cls.fields:
                 continue
             if isinstance(field_cls, type(Serializable)):
@@ -44,5 +49,7 @@ class SerializableDataclass(Serializable):
 
     def get_fields(self):
         if not hasattr(self, "fields"):
-            return [key for key, val in self.__dict__.items() if not isinstance(val, Signal)]
+            return [
+                key for key, val in self.__dict__.items() if not isinstance(val, Signal)
+            ]
         return self.fields

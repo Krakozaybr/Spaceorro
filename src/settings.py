@@ -14,6 +14,8 @@ SOUNDS_DIR = os.path.join(DATA_DIR, "sounds")
 THEMES_DIR = os.path.join(CONFIGS_DIR, "themes")
 GAME_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "game_scene_ui_theme.json")
 GAME_MENU_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "game_menu_scene_ui_theme.json")
+MENU_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "menu_scene_ui_theme.json")
+PREVIEW_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "preview_scene_ui_theme.json")
 
 
 def get_json(path: str):
@@ -69,6 +71,10 @@ def get_spaceship_upgrade_config(name: str) -> Dict:
 def save_game(name: str, data: str) -> None:
     with open(os.path.join(SAVES_DIR, f"{name}.json"), mode="w", encoding="utf-8") as w:
         w.write(data)
+
+
+def game_exists(name: str) -> bool:
+    return os.path.exists(os.path.join(SAVES_DIR, f"{name}.json"))
 
 
 def load_game(name: str) -> Dict:

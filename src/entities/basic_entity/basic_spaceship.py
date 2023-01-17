@@ -30,6 +30,7 @@ from src.entities.teams import Team
 from src.environment.abstract import get_environment
 from src.settings import get_entity_start_config
 from src.utils.body_serialization import *
+from src.utils.sound_manager import SoundManager
 
 
 class BasicSpaceshipView(PolyBasicView, HealthBarMixin, ExplosiveView, ABC):
@@ -96,6 +97,7 @@ class BasicSpaceship(
         self.velocity_characteristics = velocity_characteristics
         self.engine = self.create_engine()
 
+
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -135,7 +137,8 @@ class BasicSpaceship(
 
     def shoot(self):
         if self.is_alive:
-            self.weapon.shoot(Vec2d(0, -1).rotated(self.angle))
+            return self.weapon.shoot(Vec2d(0, -1).rotated(self.angle))
+        return False
 
     def create_life_characteristics(self) -> HealthLifeCharacteristics:
         return HealthLifeCharacteristics.from_dict(

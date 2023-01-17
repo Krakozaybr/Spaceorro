@@ -5,6 +5,6 @@ That is a game about space
 - Shoot on space
 - Mine on right mouse button
 ## Requirements
-* Python >= 3.6
+* Python >= 3.8
 * Pygame 2.1.2
 * Pymunk 6.4.0

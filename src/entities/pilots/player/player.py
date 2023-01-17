@@ -17,6 +17,7 @@ from src.entities.teams import Team
 from src.environment.abstract import get_environment
 from src.resources import Resources
 from src.settings import W, H
+from src.utils.sound_manager import SoundManager
 
 
 class PlayerPilot(BasicPilot):
@@ -32,8 +33,22 @@ class PlayerPilot(BasicPilot):
         super().__init__(entity=entity, _id=_id, resources=resources, team=Team.player)
 
     def set_spaceship(self, spaceship: UpgradeableSpaceshipMixin):
+        if self.entity is not None:
+            try:
+                self.entity.on_damage.remove(SoundManager().play_bullet_sound)
+            except ValueError:
+                # case of deserializing
+                pass
         self.entity = spaceship
+        self.entity.on_damage.connect(self.on_damage_sound)
+        self.entity.on_death.connect(self.on_death_sound)
         spaceship.pilot = self
+
+    def on_damage_sound(self, *args):
+        SoundManager().play_bullet_sound()
+
+    def on_death_sound(self, *args):
+        SoundManager().play_death_sound()
 
     def update(self, dt: float):
         controls = Controls()
@@ -60,8 +75,9 @@ class PlayerPilot(BasicPilot):
                 self.entity.drill.set_target(None)
 
         if controls.is_key_pressed(FIRE):
-            self.entity.shoot()
             self.toast.emit("Shoot")
+            if self.entity.shoot():
+                SoundManager().play_shoot_sound()
         if controls.is_key_just_up(pygame.K_u) and isinstance(
             self.entity, UpgradeableMinerMixin
         ):

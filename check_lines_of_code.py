@@ -7,6 +7,8 @@ without_spaces = 0
 without_spaces_and_imports = 0
 py_files = 0
 not_init_py_files = 0
+classes = 0
+defs = 0
 
 banned_dirs = ["data", "venv"]
 
@@ -24,6 +26,10 @@ while ways:
             comment_now = False
             for line in r.readlines():
                 l = line.strip()
+                if l.startswith('class'):
+                    classes += 1
+                if l.startswith('def'):
+                    defs += 1
                 if not comment_now and l.startswith('"""'):
                     comment_now = True
                 elif comment_now and l.endswith('"""'):
@@ -45,6 +51,8 @@ while ways:
 
 print(f"Всего .py файлов: {py_files}")
 print(f"Из них не __init__.py файлов: {not_init_py_files}")
+print(f'Всего классов: {classes}')
+print(f'Всего методов и функций: {defs}')
 print()
 print(f'Непустые строки кода: {without_spaces}')
 print(f"Непустые строки кода (без импортов): {without_spaces_and_imports}")

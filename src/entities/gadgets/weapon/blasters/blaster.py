@@ -12,6 +12,7 @@ from src.entities.gadgets.weapon.bullets.abstract import (
 from src.entities.gadgets.weapon.weapon_modifiers_mixin import WeaponModifiersMixin
 from src.settings import get_blaster_characteristics
 from src.utils.serializable_dataclass import SerializableDataclass
+from src.utils.sound_manager import SoundManager
 
 
 @dataclass

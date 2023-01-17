@@ -20,6 +20,7 @@ from src.environment.abstract import get_environment
 from src.resources import Resource
 from src.settings import get_asteroid_config, DUST_PARTICLE_IMAGE, load_image
 from src.utils.serializable_dataclass import SerializableDataclass
+from src.utils.sound_manager import SoundManager
 
 
 @dataclass

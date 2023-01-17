@@ -4,23 +4,23 @@ import pygame
 import pygame_gui
 from pymunk import Vec2d
 
+from src.controls import Controls
 from src.scenes.abstract import Scene
 from src.scenes.context import Context
+from src.scenes.game.game_scene import GameScene
 from src.scenes.game_menu_scene import GameMenuScene
 from src.scenes.main_menu_scene import MainMenuScene
-from src.settings import FPS, SIZE
-from src.controls import Controls
-from src.scenes.game.game_scene import GameScene
-from src.settings import load_game, SAVE_GAME
+from src.scenes.preview_scene import PreviewScene
+from src.settings import FPS, SIZE, game_exists
+from src.settings import load_game
 
 
 class Game(Context):
     def __init__(self):
+        pygame.mixer.pre_init()
+        pygame.mixer.init(channels=32)
         pygame.init()
-        if SAVE_GAME:
-            self.launch_game_scene("game1")
-        else:
-            self.scene = GameScene("game1", self)
+        self.scene = PreviewScene(self)
         self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):
@@ -73,9 +73,12 @@ class Game(Context):
         self.scene = MainMenuScene(self)
 
     def launch_game_scene(self, save_name: str):
-        data = load_game(save_name)
-        data["context"] = self
-        self.scene = GameScene.from_dict(data)
+        if game_exists(save_name):
+            data = load_game(save_name)
+            data["context"] = self
+            self.scene = GameScene.from_dict(data)
+        else:
+            self.scene = GameScene(save_name, self)
 
     def launch_game_menu_scene(self, game_scene: GameScene):
         self.scene = GameMenuScene(self, game_scene)
