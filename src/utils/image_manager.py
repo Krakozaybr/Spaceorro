@@ -42,6 +42,8 @@ class ImageManager:
     TRADERS_MOTHERSHIP = "traders mothership.png"
     TRADERS_TRADER = "traders trader.png"
 
+    CONTROLS = 'controls.png'
+
     def __init__(self):
         self.pics = dict()
         self.gifs = dict()

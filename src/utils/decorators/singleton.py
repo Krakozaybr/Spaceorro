@@ -4,7 +4,7 @@ from typing import Type
 def singleton(cls):
     instances = {}
 
-    def getinstance():
+    def getinstance() -> cls:
         if cls not in instances:
             instances[cls] = cls()
         return instances[cls]
@@ -24,7 +24,7 @@ def generic_singleton(cls):
         def __getitem__(self, item: Type):
             return lambda: get_instance(item)
 
-        def __call__(self):
+        def __call__(self) -> cls:
             return get_instance(object)
 
     return Singleton()

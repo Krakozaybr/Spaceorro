@@ -10,11 +10,13 @@ from pygame_gui.elements import (
     UISelectionList,
     UITextEntryLine,
     UIWindow,
+    UIImage,
 )
 
 from src.settings import W, H, delete_game
 from .context import ContextScene, Context
 from ..settings import MENU_SCENE_THEME_PATH, get_saves
+from ..utils.image_manager import ImageManager
 from ..utils.signal import SignalFieldMixin, Signal
 
 
@@ -236,3 +238,20 @@ class MainMenuScene(ContextScene):
                     manager=self.ui_manager,
                     window_title="Delete operation",
                 )
+        if self.game_controls_btn.check_pressed():
+            image: pygame.Surface
+            image = ImageManager().get_pic(ImageManager().CONTROLS)
+            window = UIWindow(
+                rect=pygame.Rect(0, 0, image.get_width() + 30, image.get_height() + 30),
+                manager=self.ui_manager,
+                window_display_title="Controls",
+            )
+            window.set_position(
+                ((W - image.get_width()) // 2, (H - image.get_height()) // 2)
+            )
+            UIImage(
+                relative_rect=image.get_rect(),
+                image_surface=image,
+                manager=self.ui_manager,
+                container=window,
+            )

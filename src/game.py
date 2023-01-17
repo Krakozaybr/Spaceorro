@@ -21,7 +21,7 @@ class Game(Context):
         pygame.mixer.pre_init()
         pygame.mixer.init(channels=32)
         pygame.init()
-        self.scene = MainMenuScene(self)
+        self.scene = PreviewScene(self)
         self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):
