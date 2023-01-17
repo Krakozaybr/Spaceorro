@@ -1,8 +1,9 @@
 import pygame
+import pygame_gui
 from pygame import Surface
 from pygame_gui import UIManager
 from pygame_gui.core import ObjectID
-from pygame_gui.windows import UIMessageWindow
+from pygame_gui.windows import UIMessageWindow, UIConfirmationDialog
 from pygame_gui.elements import (
     UITextBox,
     UIButton,
@@ -168,6 +169,7 @@ class MainMenuScene(ContextScene):
             anchors={"top_target": self.games_title, "left_target": self.title},
         )
         self.update_saves()
+        self.deletion_dialog = None
 
     def update_saves(self):
         self.saves = dict()
@@ -178,14 +180,17 @@ class MainMenuScene(ContextScene):
             self.saves[list_name] = save_name
         self.saves_list.set_item_list([i for i in self.saves])
 
-    MESSAGE_WINDOW_SIZE = 250, 100
+    DIALOG_WINDOW_SIZE = 250, 100
+
+    def get_rect_for_dialog(self):
+        MW, MH = self.DIALOG_WINDOW_SIZE
+        return pygame.Rect((W - MW) // 2, (H - MH) // 2, MW, MH)
 
     def process_naming(self, dialog: GetSaveNameDialog):
         name = dialog.get_text()
         if name in self.saves.values():
-            MW, MH = self.MESSAGE_WINDOW_SIZE
             UIMessageWindow(
-                rect=pygame.Rect((W - MW) // 2, (H - MH) // 2, MW, MH),
+                rect=self.get_rect_for_dialog(),
                 html_message="Game with such name exists",
                 manager=self.ui_manager,
             )
@@ -196,9 +201,22 @@ class MainMenuScene(ContextScene):
         super().render(screen)
 
     def load_game(self):
-        selected = self.saves_list.get_single_selection()
+        selected = self.get_selected()
         if selected is not None:
             self.context.launch_game_scene(self.saves[selected])
+
+    def process_event(self, e):
+        super().process_event(e)
+        if e.type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+            self.delete_save()
+
+    def delete_save(self):
+        selected = self.get_selected()
+        delete_game(self.saves[selected])
+        self.update_saves()
+
+    def get_selected(self):
+        return self.saves_list.get_single_selection()
 
     def update(self, dt):
         super().update(dt)
@@ -210,7 +228,11 @@ class MainMenuScene(ContextScene):
         if self.exit_game_btn.check_pressed():
             self.context.exit()
         if self.delete_game_btn.check_pressed():
-            selected = self.saves_list.get_single_selection()
+            selected = self.get_selected()
             if selected is not None:
-                delete_game(self.saves[selected])
-                self.update_saves()
+                self.deletion_dialog = UIConfirmationDialog(
+                    rect=self.get_rect_for_dialog(),
+                    action_long_desc="Are you sure you want delete save?",
+                    manager=self.ui_manager,
+                    window_title="Delete operation",
+                )

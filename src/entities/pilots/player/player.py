@@ -10,6 +10,8 @@ from src.entities.basic_entity.mixins.upgradeable_miner_mixin import (
 from src.entities.basic_entity.mixins.upgradeable_spaceship_mixin import (
     UpgradeableSpaceshipMixin,
 )
+from src.entities.pickupable.abstract import Pickupable
+from src.entities.pickupable.resource import PickupableResource
 from src.entities.pilots.basic_pilot import BasicPilot
 from src.entities.pilots.player.controls_config import *
 from src.entities.spaceships.miner.miner_mixin import MinerMixin
@@ -103,6 +105,11 @@ class PlayerPilot(BasicPilot):
         self.entity.engine.rotate_to(dt, (angle + math.pi / 2) % (math.pi * 2))
 
         self.entity.engine.stop(dt * 0.4, not (up or down), not (left or right), False)
+
+    def pick_up(self, item: Pickupable):
+        super().pick_up(item)
+        if isinstance(item, PickupableResource):
+            self.score += item.resource.quantity
 
     @classmethod
     def from_dict(cls, data: Dict):
