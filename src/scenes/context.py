@@ -31,6 +31,10 @@ class Context(ABC):
     def screenshot(self) -> Surface:
         pass
 
+    @abstractmethod
+    def exit(self):
+        pass
+
 
 class ContextScene(Scene, ABC):
 

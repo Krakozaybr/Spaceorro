@@ -2,8 +2,9 @@ from typing import Dict
 
 from src.entities.pilots.abstract import Pilot
 from src.entities.pilots.player.player import PlayerPilot
+from src.entities.pilots.simple_bot import SimpleBot
 
-pilots = {PlayerPilot}
+pilots = {PlayerPilot, SimpleBot}
 class_names = {i.__name__: i for i in pilots}
 
 

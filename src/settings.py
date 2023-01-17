@@ -1,3 +1,4 @@
+import csv
 import os
 import json
 from typing import Dict, List
@@ -68,9 +69,37 @@ def get_spaceship_upgrade_config(name: str) -> Dict:
     return get_json(os.path.join(CONFIGS_DIR, f"spaceships/upgrades/{name}.json"))
 
 
-def save_game(name: str, data: str) -> None:
+def get_saves():
+    result = []
+    with open(os.path.join(SAVES_DIR, "saves.csv"), encoding="utf-8") as r:
+        reader = csv.DictReader(r, delimiter=";")
+        for d in reader:
+            result.append(d)
+    return result
+
+
+def delete_game(name: str):
+    os.remove(os.path.join(SAVES_DIR, f"{name}.json"))
+    prev_data = [i for i in get_saves() if i["name"] != name]
+    with open(
+        os.path.join(SAVES_DIR, "saves.csv"), newline="", mode="w", encoding="utf-8"
+    ) as w:
+        writer = csv.DictWriter(w, fieldnames=["name", "score"], delimiter=";")
+        writer.writeheader()
+        writer.writerows(prev_data)
+
+
+def save_game(name: str, data: str, score: float) -> None:
     with open(os.path.join(SAVES_DIR, f"{name}.json"), mode="w", encoding="utf-8") as w:
         w.write(data)
+    prev_data = [i for i in get_saves() if i["name"] != name]
+    with open(
+        os.path.join(SAVES_DIR, "saves.csv"), newline="", mode="w", encoding="utf-8"
+    ) as w:
+        writer = csv.DictWriter(w, fieldnames=["name", "score"], delimiter=";")
+        writer.writeheader()
+        writer.writerows(prev_data)
+        writer.writerow({"name": name, "score": score})
 
 
 def game_exists(name: str) -> bool:

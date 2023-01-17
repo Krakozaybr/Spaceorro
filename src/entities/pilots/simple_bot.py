@@ -1,6 +1,6 @@
 import math
 import random
-from typing import Dict
+from typing import Dict, Optional
 
 from pymunk import Vec2d
 
@@ -11,13 +11,19 @@ from src.entities.pilots.basic_pilot import BasicPilot
 from src.entities.spaceships.miner.miner_mixin import MinerMixin
 from src.entities.teams import Team
 from src.environment.abstract import get_environment
-from src.resources import Resource, ResourceType
+from src.resources import Resource, ResourceType, Resources
 from src.settings import SPACESHIP_BOT_VISION_RADIUS
 
 
 class SimpleBot(BasicPilot):
-    def __init__(self, entity: BasicSpaceship, team: Team):
-        super().__init__(entity, team)
+    def __init__(
+        self,
+        entity: BasicSpaceship,
+        team: Team,
+        _id: Optional[int] = None,
+        resources: Optional[Resources] = None,
+    ):
+        super().__init__(entity, team, _id=_id, resources=resources)
 
         # If bot does not see anything near
         self.is_searching = False
@@ -26,7 +32,10 @@ class SimpleBot(BasicPilot):
 
     def diy(self):
         for rt in ResourceType:
-            self.resources += Resource(quantity=self.entity.life_characteristics.max_health / 30, resource_type=rt)
+            self.resources += Resource(
+                quantity=self.entity.life_characteristics.max_health / 30,
+                resource_type=rt,
+            )
         if not self.launched_resources:
             self.launched_resources = True
             env = get_environment()
@@ -35,7 +44,7 @@ class SimpleBot(BasicPilot):
                 if resource.quantity > 0:
                     registrator.add_entity(
                         PickupableResource(self.entity.position, resource)
-                )
+                    )
 
     def update(self, dt: float):
         self.entity.on_death.connect(self.diy)
@@ -69,20 +78,21 @@ class SimpleBot(BasicPilot):
                 )
             ):
                 closest_asteroid = entity
-            elif (
-                isinstance(entity, PickupableResource)
-                and (
-                        closest_pickupable_resource is None
-                        or self.entity.position.get_distance(closest_pickupable_resource.position)
-                        > self.entity.position.get_distance(entity.position)
+            elif isinstance(entity, PickupableResource) and (
+                closest_pickupable_resource is None
+                or self.entity.position.get_distance(
+                    closest_pickupable_resource.position
                 )
+                > self.entity.position.get_distance(entity.position)
             ):
                 closest_pickupable_resource = entity
 
         if closest_target is not None:
             pi2 = math.pi * 2
             self.entity.engine.keep_distance(dt, closest_target.position, 300)
-            angle = ((closest_target.position - self.entity.position).angle + math.pi * 0.5) % pi2
+            angle = (
+                (closest_target.position - self.entity.position).angle + math.pi * 0.5
+            ) % pi2
             self.entity.engine.rotate_to(dt, angle)
             if abs(angle - (self.entity.angle % pi2)) < math.pi / 8:
                 self.entity.shoot()

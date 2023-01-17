@@ -39,6 +39,7 @@ class BasicPilot(Pilot, SignalFieldMixin, ABC):
             "entity": Entity.store[data["spaceship_id"]],
             "_id": data["id"],
             "resources": Resources.from_dict(data["resources"]),
+            "team": Team(data["team"]),
         }
 
     def to_dict(self) -> Dict:
@@ -47,4 +48,5 @@ class BasicPilot(Pilot, SignalFieldMixin, ABC):
             "spaceship_id": self.entity.id,
             "id": self.id,
             "resources": self.resources.to_dict(),
+            "team": self.team.value,
         }

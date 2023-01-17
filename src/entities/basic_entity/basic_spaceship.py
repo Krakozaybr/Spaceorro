@@ -97,7 +97,6 @@ class BasicSpaceship(
         self.velocity_characteristics = velocity_characteristics
         self.engine = self.create_engine()
 
-
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -109,6 +108,9 @@ class BasicSpaceship(
     def team(self) -> Team:
         return self.pilot.team
 
+    def rebuild_view(self):
+        self.view = self.create_view()
+
     def collide(self, other: Entity):
         super().collide(other)
         if isinstance(other, Pickupable):
@@ -118,6 +120,10 @@ class BasicSpaceship(
     def take_damage(self, damage: float, sender: "Entity") -> None:
         super().take_damage(damage, sender)
         self.life_characteristics.decrease(damage)
+
+    @abstractmethod
+    def create_view(self) -> ExplosiveView:
+        pass
 
     @abstractmethod
     def create_weapon(self) -> AbstractStateWeapon:

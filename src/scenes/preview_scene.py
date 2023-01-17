@@ -25,7 +25,7 @@ class PreviewScene(ContextScene):
     def update(self, dt):
         super().update(dt)
         if self.animation_passed:
-            self.context.launch_game_scene("game1")
+            self.context.launch_main_menu_scene()
 
     def process_event(self, e):
         super().process_event(e)

@@ -30,10 +30,9 @@ class GameMenuScene(ContextScene):
         self.menu_text = UILabel(
             text="Menu",
             relative_rect=pygame.Rect(0, 0, 100, 100),
-            anchors={"centerx": "centerx", 'target_bottom': self.panel},
+            anchors={"centerx": "centerx", "target_bottom": self.panel},
             manager=self.ui_manager,
         )
-
         self.continue_btn = UIButton(
             text="Continue",
             relative_rect=btn_rect.copy(),
@@ -66,10 +65,16 @@ class GameMenuScene(ContextScene):
 
     def update(self, dt):
         super().update(dt)
-        if Controls().is_key_just_down(pygame.K_ESCAPE) or self.continue_btn.check_pressed():
+        if (
+            Controls().is_key_just_down(pygame.K_ESCAPE)
+            or self.continue_btn.check_pressed()
+        ):
             self.context.set_scene(self.game_scene)
         if self.save_btn.check_pressed():
-            save_game(self.game_scene.name, self.game_scene.serialize())
+            save_game(
+                self.game_scene.name,
+                self.game_scene.serialize(),
+                self.game_scene.player.score,
+            )
         if self.exit_btn.check_pressed():
-            # TODO
-            ...
+            self.context.launch_main_menu_scene()

@@ -29,8 +29,10 @@ class PlayerPilot(BasicPilot):
         entity: Optional[UpgradeableSpaceshipMixin] = None,
         _id: Optional[int] = None,
         resources: Optional[Resources] = None,
+        score: float = 0,
     ):
         super().__init__(entity=entity, _id=_id, resources=resources, team=Team.player)
+        self.score = score
 
     def set_spaceship(self, spaceship: UpgradeableSpaceshipMixin):
         if self.entity is not None:
@@ -43,6 +45,7 @@ class PlayerPilot(BasicPilot):
         self.entity.on_damage.connect(self.on_damage_sound)
         self.entity.on_death.connect(self.on_death_sound)
         spaceship.pilot = self
+        spaceship.rebuild_view()
 
     def on_damage_sound(self, *args):
         SoundManager().play_bullet_sound()
@@ -103,4 +106,9 @@ class PlayerPilot(BasicPilot):
 
     @classmethod
     def from_dict(cls, data: Dict):
-        return cls(**super().get_default_params(data))
+        defaults = super().get_default_params(data)
+        defaults.pop("team")
+        return cls(**defaults, score=data["score"])
+
+    def to_dict(self) -> Dict:
+        return {**super().to_dict(), "score": self.score}

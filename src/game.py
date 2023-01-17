@@ -20,7 +20,7 @@ class Game(Context):
         pygame.mixer.pre_init()
         pygame.mixer.init(channels=32)
         pygame.init()
-        self.scene = PreviewScene(self)
+        self.scene = MainMenuScene(self)
         self.screen = pygame.display.set_mode(SIZE)
 
     def render(self):
@@ -85,3 +85,6 @@ class Game(Context):
 
     def screenshot(self) -> pygame.Surface:
         return self.screen.copy()
+
+    def exit(self):
+        self.run = False

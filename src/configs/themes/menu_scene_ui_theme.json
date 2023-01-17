@@ -61,13 +61,48 @@
             "text_vert_alignment": "bottom"
         }
     },
-    "button": {
+    "@menu_button": {
         "font": {
             "name": "Fira Code",
             "size": 30
         }
     },
     "label": {
-        "prototype": "text_box"
+        "font": {
+            "name": "Fira Code",
+            "size": 10
+        }
+    },
+    "selection_list":
+     {
+         "colours":
+         {
+             "dark_bg":"#21282D",
+             "normal_border": "#999999"
+         },
+
+         "misc":
+         {
+             "border_width": "1",
+             "shadow_width": "15",
+             "list_item_height": "40"
+         }
+     },
+     "selection_list.@selection_list_item":
+     {
+         "misc":
+         {
+            "border_width": "2"
+         },
+         "font": {
+            "name": "Fira Code",
+            "size": 30
+         }
+     },
+    "@dialog_btn": {
+        "font": {
+            "name": "Fira Code",
+            "size": 18
+        }
     }
 }
