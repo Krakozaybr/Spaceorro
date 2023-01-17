@@ -23,6 +23,7 @@ class Game(Context):
         pygame.init()
         self.scene = PreviewScene(self)
         self.screen = pygame.display.set_mode(SIZE)
+        pygame.display.set_caption("Spaceorro")
 
     def render(self):
         self.scene.render(self.screen)
