@@ -28,8 +28,11 @@ class FieldBlock(UIPanel, SignalFieldMixin):
         getter: Callable[[], str],
         upgrade: Callable,
         anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        manager: Optional[UIManager] = None,
     ):
-        UIPanel.__init__(self, relative_rect, container=parent, anchors=anchors)
+        UIPanel.__init__(
+            self, relative_rect, container=parent, anchors=anchors, manager=manager
+        )
         SignalFieldMixin.__init__(self)
         self.active = True
         self.title = UILabel(
@@ -37,6 +40,7 @@ class FieldBlock(UIPanel, SignalFieldMixin):
             relative_rect=pygame.Rect(0, 0, *self.TITLE_SIZE),
             container=self,
             anchors={"centery": "centery"},
+            manager=manager,
         )
         self.getter = getter
         self.upgrade = upgrade
@@ -45,6 +49,7 @@ class FieldBlock(UIPanel, SignalFieldMixin):
             relative_rect=pygame.Rect(0, 0, *self.CURRENT_LEVEL_SIZE),
             container=self,
             anchors={"left_target": self.title, "centery": "centery"},
+            manager=manager,
         )
         btn_w, btn_h = self.BTN_SIZE
         self.btn = UIButton(
@@ -52,6 +57,7 @@ class FieldBlock(UIPanel, SignalFieldMixin):
             relative_rect=pygame.Rect(-btn_w - 2, 0, *self.BTN_SIZE),
             container=self,
             anchors={"right": "right", "centery": "centery"},
+            manager=manager,
         )
 
     def update(self, time_delta: float):
@@ -71,17 +77,24 @@ class ResourceView(UIPanel):
         relative_rect: pygame.Rect,
         resource: Resource,
         anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        manager: Optional[UIManager] = None,
     ):
-        super().__init__(relative_rect, anchors=anchors, container=parent)
+        super().__init__(
+            relative_rect, anchors=anchors, container=parent, manager=manager
+        )
         img = resource.resource_type.get_image(30, 30)
         self.img = UIImage(
-            relative_rect=img.get_rect(), image_surface=img, container=self
+            relative_rect=img.get_rect(),
+            image_surface=img,
+            container=self,
+            manager=manager,
         )
         self.count = UILabel(
             text=str(resource.quantity),
             relative_rect=pygame.Rect(0, 0, *self.COUNT_SIZE),
             anchors={"left": "left", "right": "right", "top_target": self.img},
             container=self,
+            manager=manager,
         )
 
     def update_resource(self, resource: Resource):
@@ -97,12 +110,18 @@ class CostBlock(UIPanel):
         parent: "UpgradesBlock",
         get_cost: Callable,
         anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        manager: Optional[UIManager] = None,
     ):
-        super().__init__(relative_rect, anchors=anchors, container=parent)
+        super().__init__(
+            relative_rect, anchors=anchors, container=parent, manager=manager
+        )
         self.get_cost = get_cost
         resources = get_cost()
         target = UILabel(
-            text="Cost:", relative_rect=pygame.Rect(0, 0, 40, 60), container=self
+            text="Cost:",
+            relative_rect=pygame.Rect(0, 0, 40, 60),
+            container=self,
+            manager=manager,
         )
         self.resources_display = dict()
         for resource, rt in resources:
@@ -115,6 +134,7 @@ class CostBlock(UIPanel):
                     resource=resource,
                     anchors=anchors,
                     parent=self,
+                    manager=manager,
                 )
 
     def update_resources(self):
@@ -147,11 +167,13 @@ class UpgradesBlock(UIPanel):
         get_cost: Callable[[], Resources],
         can_upgrade: Callable[[], bool],
         anchors: Optional[Dict[str, Union[str, UIElement]]] = None,
+        manager: Optional[UIManager] = None,
     ):
         super().__init__(
             pygame.Rect(self.W * column, self.H * row, self.W, self.H),
             container=parent,
             anchors=anchors,
+            manager=manager,
         )
         self.can_upgrade = can_upgrade
         self.title = UITextBox(
@@ -160,18 +182,21 @@ class UpgradesBlock(UIPanel):
                 self.PADDING, self.PADDING, self.W - self.PADDING * 2, self.TITLE_HEIGHT
             ),
             container=self,
+            manager=manager,
         )
         self.cost_view = CostBlock(
             parent=self,
             relative_rect=pygame.Rect(self.PADDING, 0, *self.COST_BLOCK_SIZE),
             get_cost=get_cost,
             anchors={"top_target": self.title},
+            manager=manager,
         )
         self.can_upgrade_text = UITextBox(
             "",
             pygame.Rect(self.PADDING, 0, *self.CAN_UPGRADE_SIZE),
             anchors={"top_target": self.cost_view},
             container=self,
+            manager=manager,
         )
         prev = self.can_upgrade_text
         self.fields = []
@@ -183,6 +208,7 @@ class UpgradesBlock(UIPanel):
                 getter=getter,
                 upgrade=upgrade,
                 anchors={"top_target": prev},
+                manager=manager,
             )
             field.upgrade_signal.connect(self.update_cost)
             self.fields.append(field)
@@ -247,6 +273,7 @@ class UpgradesWindow(UIWindow):
             ],
             lambda: self.upgrade_system.life_characteristics_upgrades.cost,
             can_upgrade=self.upgrade_system.can_upgrade_life_characteristics,
+            manager=manager,
         )
         self.velocity_block = UpgradesBlock(
             "Velocity Upgrades",
@@ -277,6 +304,7 @@ class UpgradesWindow(UIWindow):
             ],
             lambda: self.upgrade_system.velocity_characteristics_upgrades.cost,
             self.upgrade_system.can_upgrade_velocity_characteristics,
+            manager=manager,
         )
         self.weapon_block = UpgradesBlock(
             "Weapon Upgrades",
@@ -327,6 +355,7 @@ class UpgradesWindow(UIWindow):
             ],
             lambda: self.upgrade_system.weapon_modifiers_upgrades.cost,
             self.upgrade_system.can_upgrade_weapon_modifiers,
+            manager=manager,
         )
         if isinstance(self.upgrade_system, MinerUpgradeSystem):
             self.mining_block = UpgradesBlock(
@@ -345,4 +374,5 @@ class UpgradesWindow(UIWindow):
                 ],
                 lambda: self.upgrade_system.mining_characteristics.cost,
                 self.upgrade_system.can_upgrade_mining_characteristics,
+                manager=manager,
             )

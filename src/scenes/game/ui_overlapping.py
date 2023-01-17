@@ -76,6 +76,7 @@ class UIOverlapping(Updateable):
                 manager=manager,
                 tool_tip_text="Upgrades for your spaceship",
             )
+        self.cur_window = None
 
     def update_target(self, target: BasicPilot):
         self.target.toast.remove(self.make_toast)
@@ -132,7 +133,9 @@ class UIOverlapping(Updateable):
 
         # Upgrades
         if hasattr(self, "upgrades_button") and self.upgrades_button.check_pressed():
-            UpgradesWindow(
+            if self.cur_window is not None:
+                self.cur_window.on_close_window_button_pressed()
+            self.cur_window = UpgradesWindow(
                 manager=self.manager, upgrade_system=self.target.entity.upgrade_system
             )
 
