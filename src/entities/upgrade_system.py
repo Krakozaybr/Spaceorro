@@ -76,7 +76,9 @@ class Upgrades(SerializableDataclass, StaticInitMixin, SignalFieldMixin, ABC):
 
     @property
     def prev_cost(self) -> Resources:
-        return self.config.start_resources + self.config.resources_step * (self.level - 1)
+        return self.config.start_resources + self.config.resources_step * (
+            self.level - 1
+        )
 
 
 @dataclass
@@ -101,7 +103,9 @@ class HealthLifeCharacteristicsUpgrades(Upgrades):
     def apply_upgrades(
         self, standard: HealthLifeCharacteristics, target: HealthLifeCharacteristics
     ):
-        target.health = target.health + standard.health * self.config.health_coef_step
+        target.health = standard.max_health * (
+            1 + self.health_upgrade_level * self.config.health_coef_step
+        )
         target.max_health = standard.max_health * (
             1 + self.health_upgrade_level * self.config.health_coef_step
         )
