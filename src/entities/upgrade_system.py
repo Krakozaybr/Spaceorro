@@ -205,13 +205,10 @@ class MiningCharacteristicsUpgrades(Upgrades):
     def upgrade_level(self):
         self.changed.emit()
 
-    def can_upgrade(self) -> bool:
-        return self.level < self.config.max_level
-
     def apply_upgrades(
         self, standard: MiningCharacteristics, target: MiningCharacteristics
     ):
-        target.level = self.level
+        target.level = standard.level + self.level
 
 
 # Upgrade System
@@ -362,6 +359,7 @@ class MinerUpgradeSystem(SpaceshipUpgradeSystem, SpaceshipMixin[MinerMixin]):
         return (
             self.spaceship.pilot.resources.can_afford(self.mining_characteristics.cost)
             and self.mining_characteristics.level
+            + self.standard_mining_characteristics.level
             < self.mining_characteristics.config.max_level
         )
 

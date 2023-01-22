@@ -62,7 +62,11 @@ class FieldBlock(UIPanel, SignalFieldMixin):
 
     def update(self, time_delta: float):
         super().update(time_delta)
-        if self.active and self.btn.check_pressed():
+        if self.active:
+            self.btn.enable()
+        else:
+            self.btn.disable()
+        if self.btn.check_pressed():
             self.upgrade()
             self.current.set_text(self.getter())
             self.upgrade_signal.emit()
@@ -191,14 +195,7 @@ class UpgradesBlock(UIPanel):
             anchors={"top_target": self.title},
             manager=manager,
         )
-        self.can_upgrade_text = UITextBox(
-            "",
-            pygame.Rect(self.PADDING, 0, *self.CAN_UPGRADE_SIZE),
-            anchors={"top_target": self.cost_view},
-            container=self,
-            manager=manager,
-        )
-        prev = self.can_upgrade_text
+        prev = self.cost_view
         self.fields = []
         for i, (name, getter, upgrade) in enumerate(fields):
             field = FieldBlock(
@@ -220,11 +217,9 @@ class UpgradesBlock(UIPanel):
     def update(self, time_delta: float):
         super().update(time_delta)
         if self.can_upgrade():
-            self.can_upgrade_text.set_text("Can upgrade")
             for field in self.fields:
                 field.active = True
         else:
-            self.can_upgrade_text.set_text("Cannot upgrade")
             for field in self.fields:
                 field.active = False
 

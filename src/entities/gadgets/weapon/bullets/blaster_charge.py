@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import Dict, Optional
 
 import pymunk
@@ -17,7 +16,6 @@ from src.entities.modifiers_and_characteristics import (
 from src.entities.pickupable.abstract import Pickupable
 from src.entities.teams import Team
 from src.environment.abstract import get_environment
-from src.utils.sound_manager import SoundManager
 
 CONFIG_NAME = "blaster_charge.json"
 

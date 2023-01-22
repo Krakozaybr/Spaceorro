@@ -15,6 +15,7 @@ from pygame_gui.elements import (
 
 from src.settings import W, H, delete_game
 from .context import ContextScene, Context
+from ..controls import Controls
 from ..settings import MENU_SCENE_THEME_PATH, get_saves
 from ..utils.image_manager import ImageManager
 from ..utils.signal import SignalFieldMixin, Signal
@@ -23,7 +24,7 @@ from ..utils.signal import SignalFieldMixin, Signal
 class GetSaveNameDialog(UIWindow, SignalFieldMixin):
 
     WIDTH, HEIGHT = 300, 140
-    SIZE = ((H - HEIGHT) // 2, (W - WIDTH) // 2, WIDTH, HEIGHT)
+    SIZE = ((W - WIDTH) // 2, (H - HEIGHT) // 2, WIDTH, HEIGHT)
     INPUT_SIZE = 267, 40
     BUTTON_SIZE = 90, 30
     BUTTON_TOP_MARGIN = 10
@@ -62,6 +63,7 @@ class GetSaveNameDialog(UIWindow, SignalFieldMixin):
             object_id=ObjectID(object_id="#dialog_cancel_btn", class_id="@dialog_btn"),
             anchors={"left_target": self.accept_btn, "top_target": self.input},
         )
+
         self.accept.connect(self.on_close_window_button_pressed)
         self.cancel.connect(self.on_close_window_button_pressed)
 
@@ -209,8 +211,18 @@ class MainMenuScene(ContextScene):
 
     def process_event(self, e):
         super().process_event(e)
+        if (
+            e.type == pygame_gui.UI_WINDOW_CLOSE
+            and e.ui_element == self.deletion_dialog
+        ):
+            self.deletion_dialog = None
         if e.type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
             self.delete_save()
+        if (
+            e.type == pygame_gui.UI_SELECTION_LIST_DOUBLE_CLICKED_SELECTION
+            and e.ui_element == self.saves_list
+        ):
+            self.load_game()
 
     def delete_save(self):
         selected = self.get_selected()
@@ -229,7 +241,11 @@ class MainMenuScene(ContextScene):
             self.load_game()
         if self.exit_game_btn.check_pressed():
             self.context.exit()
-        if self.delete_game_btn.check_pressed():
+        if (
+            self.delete_game_btn.check_pressed()
+            or Controls().is_key_just_down(pygame.K_DELETE)
+            and self.deletion_dialog is None
+        ):
             selected = self.get_selected()
             if selected is not None:
                 self.deletion_dialog = UIConfirmationDialog(
