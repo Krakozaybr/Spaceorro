@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import Dict, Optional
 
 import pymunk
@@ -39,11 +40,11 @@ class BlasterCharge(AbstractBullet, Explosive):
         team: Optional[Team] = Team.neutral,
     ):
         self.level = level
-        BasicSpaceshipMixin.__init__(self, spaceship_id)
-        self.team = team
-
         if weapon_modifiers is not None:
             self._modifiers = weapon_modifiers
+
+        BasicSpaceshipMixin.__init__(self, spaceship_id)
+        self.team = team
 
         Explosive.__init__(
             self,
@@ -93,10 +94,16 @@ class BlasterCharge(AbstractBullet, Explosive):
 
     @staticmethod
     def get_characteristics(data: Dict) -> Dict:
+        modifiers = dict()
+        if "weapon_modifiers" in data:
+            modifiers["weapon_modifiers"] = WeaponModifiers.from_dict(
+                data["weapon_modifiers"]
+            )
         return {
             "life_characteristics": TemporaryObjectLifeCharacteristics.from_dict(
                 data["life_characteristics"]
             ),
+            **modifiers,
         }
 
     def to_dict(self) -> Dict:
@@ -104,8 +111,8 @@ class BlasterCharge(AbstractBullet, Explosive):
             "level": self.level,
             "spaceship_id": self.spaceship_id,
         }
-        if not self.spaceship_exists:
-            data["weapon_modifiers"] = self.modifiers
+        if not self.spaceship_exists or not self.spaceship.is_alive:
+            data["weapon_modifiers"] = self.modifiers.to_dict()
         return {**super().characteristics_to_dict(), **super().to_dict(), **data}
 
     @classmethod
