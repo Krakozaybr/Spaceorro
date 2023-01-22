@@ -17,7 +17,7 @@ from src.entities.pilots.player.controls_config import *
 from src.entities.spaceships.miner.miner_mixin import MinerMixin
 from src.entities.teams import Team
 from src.environment.abstract import get_environment
-from src.resources import Resources, ResourceType, Resource
+from src.resources import Resources
 from src.settings import W, H
 from src.utils.sound_manager import SoundManager
 
