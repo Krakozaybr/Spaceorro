@@ -29,11 +29,13 @@ class PlayerPilot(BasicPilot):
     def __init__(
         self,
         entity: Optional[UpgradeableSpaceshipMixin] = None,
-        _id: Optional[int] = None,
+        _obj_id: Optional[int] = None,
         resources: Optional[Resources] = None,
         score: float = 0,
     ):
-        super().__init__(entity=entity, _id=_id, resources=resources, team=Team.player)
+        super().__init__(
+            entity=entity, _obj_id=_obj_id, resources=resources, team=Team.player
+        )
         self.score = score
 
     def set_spaceship(self, spaceship: UpgradeableSpaceshipMixin):

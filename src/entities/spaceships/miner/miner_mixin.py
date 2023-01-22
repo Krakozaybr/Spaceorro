@@ -47,7 +47,7 @@ class MinerMixin(AbstractMiner, ABC):
         if mining_characteristics is None:
             mining_characteristics = self.create_mining_characteristics()
         self.mining_characteristics = mining_characteristics
-        self.drill = Drill(self.id)
+        self.drill = Drill(self.obj_id)
 
     def create_mining_characteristics(self) -> MiningCharacteristics:
         return MiningCharacteristics.from_dict(

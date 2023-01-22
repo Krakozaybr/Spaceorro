@@ -28,10 +28,7 @@
         "font": {
             "name": "Fira Code",
             "size": 10,
-            "regular_resource": {
-                "resource": "FiraCode-Regular.ttf",
-                "package": "data.fonts"
-            }
+            "regular_path": "src/data/fonts/FiraCode-Regular.ttf"
         }
     },
     "button": {

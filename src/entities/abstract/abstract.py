@@ -24,29 +24,29 @@ class SaveStrategy(Enum):
 
 class StoreMixin(ABC):
     store: Store
-    _id: int
+    _obj_id: int
 
-    def __init__(self, _id: Optional[int] = None):
+    def __init__(self, _obj_id: Optional[int] = None):
         assert hasattr(self, "store")
-        if _id is not None:
-            self.id = _id
+        if _obj_id is not None:
+            self.obj_id = _obj_id
         else:
-            self._id = self.store.put_and_get_id(self)
+            self._obj_id = self.store.put_and_get_id(self)
 
     @classmethod
     def create_store(cls):
         return Store[cls]()
 
     @property
-    def id(self) -> int:
-        return self._id
+    def obj_id(self) -> int:
+        return self._obj_id
 
-    @id.setter
-    def id(self, val: int):
-        if hasattr(self, "_id"):
-            del self.store[self._id]
+    @obj_id.setter
+    def obj_id(self, val: int):
+        if hasattr(self, "_obj_id"):
+            del self.store[self._obj_id]
         self.store[val] = self
-        self._id = val
+        self._obj_id = val
 
 
 class IsActiveMixin(StoreMixin, SignalAnnotationMixin, ABC):
@@ -63,10 +63,10 @@ class IsActiveMixin(StoreMixin, SignalAnnotationMixin, ABC):
     def is_active(self, val: bool) -> None:
         self._is_active = val
         if not self.is_active:
-            del self.store[self.id]
+            del self.store[self.obj_id]
             self.on_inactive.emit()
         else:
-            self.store[self.id] = self
+            self.store[self.obj_id] = self
             self.on_active.emit()
 
 
@@ -78,7 +78,12 @@ class EntityView(pygame.sprite.Sprite, ABC):
 
 @storable
 class Entity(
-    Serializable, RenderUpdateObject, IsActiveMixin, pymunk.Body, SignalAnnotationMixin, ABC
+    Serializable,
+    RenderUpdateObject,
+    IsActiveMixin,
+    pymunk.Body,
+    SignalAnnotationMixin,
+    ABC,
 ):
 
     view: EntityView
@@ -94,11 +99,11 @@ class Entity(
     on_damage: Signal
 
     def __init__(
-        self, mass: float, moment: float, body_type: int, _id: Optional[int] = None
+        self, mass: float, moment: float, body_type: int, _obj_id: Optional[int] = None
     ):
         SignalAnnotationMixin.__init__(self)
         pymunk.Body.__init__(self, mass, moment, body_type)
-        IsActiveMixin.__init__(self, _id=_id)
+        IsActiveMixin.__init__(self, _obj_id=_obj_id)
         self.__is_active = False
 
     def __init_subclass__(cls, **kwargs):
@@ -115,11 +120,11 @@ class Entity(
         self.in_space = False
 
     @abstractmethod
-    def take_damage(self, damage: float, sender: 'Entity') -> None:
+    def take_damage(self, damage: float, sender: "Entity") -> None:
         self.on_damage.emit(damage, sender)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(id={self.id})"
+        return f"{self.__class__.__name__}(obj_id={self.obj_id})"
 
     @abstractmethod
     def collide(self, other):

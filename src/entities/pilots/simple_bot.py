@@ -20,10 +20,10 @@ class SimpleBot(BasicPilot):
         self,
         entity: BasicSpaceship,
         team: Team,
-        _id: Optional[int] = None,
+        _obj_id: Optional[int] = None,
         resources: Optional[Resources] = None,
     ):
-        super().__init__(entity, team, _id=_id, resources=resources)
+        super().__init__(entity, team, _obj_id=_obj_id, resources=resources)
 
         # If bot does not see anything near
         self.is_searching = False

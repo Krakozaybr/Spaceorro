@@ -31,10 +31,7 @@
         "font": {
             "name": "Fira Code",
             "size": 40,
-            "regular_resource": {
-                "resource": "FiraCode-Regular.ttf",
-                "package": "data.fonts"
-            }
+            "regular_path": "src/data/fonts/FiraCode-Regular.ttf"
         }
     },
     "#score": {

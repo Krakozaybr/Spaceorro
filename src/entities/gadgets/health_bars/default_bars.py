@@ -10,7 +10,12 @@ from src.entities.modifiers_and_characteristics import (
     HealthLifeCharacteristics,
     AsteroidLifeCharacteristics,
 )
-from src.settings import HEALTH_BAR_H, HEALTH_BAR_FONT_SIZE, HEALTH_BAR_FONT_COLOR
+from src.settings import (
+    HEALTH_BAR_H,
+    HEALTH_BAR_FONT_SIZE,
+    HEALTH_BAR_FONT_COLOR,
+    STANDARD_FONT_PATH,
+)
 
 
 class DefaultHealthBar(HealthBar, ABC):
@@ -20,7 +25,7 @@ class DefaultHealthBar(HealthBar, ABC):
         self.pos = pos
         self.w = w
         self.h = HEALTH_BAR_H
-        self.font = pygame.font.Font(None, HEALTH_BAR_FONT_SIZE)
+        self.font = pygame.font.Font(STANDARD_FONT_PATH, HEALTH_BAR_FONT_SIZE)
 
     def draw_health_line(
         self,

@@ -22,7 +22,7 @@ class Pilot(Updateable, StoreMixin, Serializable, ABC):
     def is_active(self) -> bool:
         res = self.entity.is_active
         if not res:
-            del self.store[self.id]
+            del self.store[self.obj_id]
         else:
-            self.store[self.id] = self
+            self.store[self.obj_id] = self
         return res

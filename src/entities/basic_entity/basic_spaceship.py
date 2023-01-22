@@ -5,8 +5,6 @@ from typing import Optional, TypeVar, Generic
 from pygame.sprite import AbstractGroup
 from pymunk import Vec2d
 
-from src.abstract import Serializable
-from src.entities.pilots.abstract import Pilot
 from src.entities.abstract.abstract import SaveStrategy, Entity
 from src.entities.abstract.guided_entity import AbstractSpaceship
 from src.entities.basic_entity.basic_entity import (
@@ -26,11 +24,10 @@ from src.entities.modifiers_and_characteristics import (
     HealthLifeCharacteristics,
 )
 from src.entities.pickupable.abstract import Pickupable
-from src.entities.teams import Team
+from src.entities.pilots.abstract import Pilot
 from src.environment.abstract import get_environment
 from src.settings import get_entity_start_config
 from src.utils.body_serialization import *
-from src.utils.sound_manager import SoundManager
 
 
 class BasicSpaceshipView(PolyBasicView, HealthBarMixin, ExplosiveView, ABC):
@@ -103,10 +100,6 @@ class BasicSpaceship(
         if not inspect.isabstract(cls):
             cls.start_config = get_entity_start_config(cls.start_config_name)
             cls.config = SpaceshipEntityConfig.load(cls.config_name)
-
-    @property
-    def team(self) -> Team:
-        return self.pilot.team
 
     def rebuild_view(self):
         self.view = self.create_view()

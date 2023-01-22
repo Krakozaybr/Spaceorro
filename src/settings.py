@@ -18,6 +18,7 @@ GAME_MENU_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "game_menu_scene_ui_theme.
 MENU_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "menu_scene_ui_theme.json")
 PREVIEW_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "preview_scene_ui_theme.json")
 END_GAME_SCENE_THEME_PATH = os.path.join(THEMES_DIR, "end_game_scene_ui_theme.json")
+STANDARD_FONT_PATH = os.path.join(DATA_DIR, "fonts/FiraCode-Regular.ttf")
 
 
 def get_json(path: str):

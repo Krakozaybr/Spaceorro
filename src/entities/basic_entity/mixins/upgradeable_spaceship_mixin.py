@@ -47,7 +47,7 @@ class UpgradeableSpaceshipMixin(BasicSpaceship, ABC):
         self.upgrade_system = upgrade_system
 
     def create_upgrade_system(self) -> SpaceshipUpgradeSystem:
-        return SpaceshipUpgradeSystem(self.id)
+        return SpaceshipUpgradeSystem(self.obj_id)
 
     def to_dict(self) -> Dict:
         return {**super().to_dict(), "upgrade_system": self.upgrade_system.to_dict()}

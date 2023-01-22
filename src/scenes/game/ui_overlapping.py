@@ -11,7 +11,12 @@ from src.entities.basic_entity.mixins.upgradeable_spaceship_mixin import (
 from src.entities.pilots.basic_pilot import BasicPilot
 from src.resources import ResourceType
 from src.scenes.game.upgrades_window import UpgradesWindow
-from src.settings import RESOURCE_LINE_HEIGHT, SHOW_FPS, UPGRADES_BTN_HEIGHT
+from src.settings import (
+    RESOURCE_LINE_HEIGHT,
+    SHOW_FPS,
+    UPGRADES_BTN_HEIGHT,
+    STANDARD_FONT_PATH,
+)
 from src.settings import W, H, FPS_UPDATE_TIME
 from src.utils.timer import Timer
 
@@ -44,9 +49,9 @@ class UIOverlapping(Updateable):
 
         self.fps_timer = Timer(FPS_UPDATE_TIME, self.update_fps)
         self.current_fps = 0
-        self.fps_font = pygame.font.Font(None, 24)
+        self.fps_font = pygame.font.Font(STANDARD_FONT_PATH, 24)
 
-        self.paused_font = pygame.font.Font(None, 36)
+        self.paused_font = pygame.font.Font(STANDARD_FONT_PATH, 36)
         self.paused = False
 
         self.lines = {

@@ -33,7 +33,7 @@ class BasicEntity(Entity, SignalFieldMixin, ABC):
         if moment is None:
             moment = self.create_moment()
         Entity.__init__(
-            self, mass, moment, body_type=pymunk.Body.DYNAMIC, _id=entity_id
+            self, mass, moment, body_type=pymunk.Body.DYNAMIC, _obj_id=entity_id
         )
 
         self.shape = self.create_shape()
@@ -128,7 +128,7 @@ class BasicEntity(Entity, SignalFieldMixin, ABC):
     def to_dict(self) -> Dict:
         characteristics = self.characteristics_to_dict()
         body_data = {
-            "id": self.id,
+            "obj_id": self.obj_id,
             "body": dynamic_body_to_dict(self),
             "control_body": kinematic_body_to_dict(self.control_body),
         }
@@ -137,7 +137,7 @@ class BasicEntity(Entity, SignalFieldMixin, ABC):
     @classmethod
     def get_default_params(cls, data: Dict) -> Dict:
         return {
-            "entity_id": data["id"],
+            "entity_id": data["obj_id"],
             "pos": data["body"]["position"],
             "mass": data["body"]["mass"],
             "moment": data["body"]["moment"],
@@ -145,12 +145,12 @@ class BasicEntity(Entity, SignalFieldMixin, ABC):
         }
 
     def __eq__(self, other) -> bool:
-        if isinstance(other, self.__class__) and self.id == other.id:
+        if isinstance(other, self.__class__) and self.obj_id == other.obj_id:
             return True
         return False
 
     def __hash__(self) -> int:
-        return hash(self.id)
+        return hash(self.obj_id)
 
 
 class PolyBasicEntity(BasicEntity, ABC):

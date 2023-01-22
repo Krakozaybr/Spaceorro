@@ -103,6 +103,6 @@ class Blaster(AbstractStateWeapon, WeaponModifiersMixin):
     @staticmethod
     def create_simple_blaster(master: BasicSpaceship):
         return Blaster(
-            master_id=master.id,
+            master_id=master.obj_id,
             config_name="simple_blaster.json",
         )

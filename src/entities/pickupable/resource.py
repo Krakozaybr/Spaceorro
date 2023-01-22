@@ -68,7 +68,7 @@ class PickupableResource(Pickupable):
     def from_dict(cls, data: Dict):
         res = PickupableResource(
             pos=data["body"]["position"],
-            entity_id=data["id"],
+            entity_id=data["obj_id"],
             resource=Resource.from_dict(data["resource"]),
             **cls.get_characteristics(data)
         )

@@ -11,8 +11,10 @@ from src.entities.gadgets.weapon.bullets.abstract import AbstractBullet
 from src.entities.gadgets.weapon.bullets.view import BlasterChargeView
 from src.entities.modifiers_and_characteristics import (
     TemporaryObjectLifeCharacteristics,
+    WeaponModifiers,
 )
 from src.entities.pickupable.abstract import Pickupable
+from src.entities.teams import Team
 from src.environment.abstract import get_environment
 from src.utils.sound_manager import SoundManager
 
@@ -29,19 +31,20 @@ class BlasterCharge(AbstractBullet, Explosive):
         self,
         level: int,
         spaceship_id: int,
+        pos: Vec2d,
         direction: Optional[Vec2d] = Vec2d.zero(),
         angle: Optional[float] = 0.0,
-        pos: Optional[Vec2d] = None,
-        dpos: Optional[Vec2d] = None,
         life_characteristics: Optional[TemporaryObjectLifeCharacteristics] = None,
+        weapon_modifiers: Optional[WeaponModifiers] = None,
+        team: Optional[Team] = Team.neutral,
     ):
         self.level = level
         BasicSpaceshipMixin.__init__(self, spaceship_id)
-        self.team = self.spaceship.team
-        if pos is None:
-            pos = (
-                self.spaceship.position + dpos + dpos.normalized() * self.config.radius
-            )
+        self.team = team
+
+        if weapon_modifiers is not None:
+            self._modifiers = weapon_modifiers
+
         Explosive.__init__(
             self,
             pos=pos,
@@ -82,7 +85,7 @@ class BlasterCharge(AbstractBullet, Explosive):
         if not isinstance(other, Pickupable):
             self.explode()
 
-    def take_damage(self, damage: float, sender: 'Entity') -> None:
+    def take_damage(self, damage: float, sender: "Entity") -> None:
         self.life_characteristics.decrease(self.life_characteristics.life_time)
 
     def create_view(self) -> BlasterChargeView:
@@ -97,12 +100,13 @@ class BlasterCharge(AbstractBullet, Explosive):
         }
 
     def to_dict(self) -> Dict:
-        return {
+        data = {
             "level": self.level,
             "spaceship_id": self.spaceship_id,
-            **self.characteristics_to_dict(),
-            **super().to_dict(),
         }
+        if not self.spaceship_exists:
+            data["weapon_modifiers"] = self.modifiers
+        return {**super().characteristics_to_dict(), **super().to_dict(), **data}
 
     @classmethod
     def from_dict(cls, data: Dict):
@@ -123,10 +127,16 @@ class BlasterCharge(AbstractBullet, Explosive):
             if level > master.weapon_modifiers.weapon_level:
                 break
             bullet_level = level
+        pos = (
+            master.position
+            + dpos
+            + dpos.normalized() * cls.configs[bullet_level].radius
+        )
         return cls(
-            spaceship_id=master.id,
-            dpos=dpos,
+            spaceship_id=master.obj_id,
+            pos=pos,
             angle=master.angle,
             level=bullet_level,
             direction=direction,
+            team=master.team,
         )

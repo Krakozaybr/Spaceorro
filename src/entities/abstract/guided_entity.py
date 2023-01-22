@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from src.entities.abstract.abstract import Entity
 from src.entities.pilots.abstract import Pilot
@@ -8,6 +8,7 @@ from src.entities.modifiers_and_characteristics import (
     WeaponModifiers,
     VelocityCharacteristics,
 )
+from src.entities.teams import Team
 
 
 class AbstractSpaceship(Entity, ABC):
@@ -16,3 +17,7 @@ class AbstractSpaceship(Entity, ABC):
     weapon_modifiers: WeaponModifiers
     velocity_characteristics: VelocityCharacteristics
     engine: Engine
+
+    @property
+    def team(self) -> Team:
+        return self.pilot.team

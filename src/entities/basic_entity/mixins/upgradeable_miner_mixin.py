@@ -64,7 +64,7 @@ class UpgradeableMinerMixin(MinerMixin, UpgradeableSpaceshipMixin, ABC):
         )
 
     def create_upgrade_system(self) -> MinerUpgradeSystem:
-        return MinerUpgradeSystem(self.id)
+        return MinerUpgradeSystem(self.obj_id)
 
     @classmethod
     def get_default_params(cls, data: Dict) -> Dict:

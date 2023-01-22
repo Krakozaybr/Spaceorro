@@ -19,10 +19,10 @@ class BasicPilot(Pilot, SignalFieldMixin, ABC):
         self,
         entity: BasicSpaceship,
         team: Team,
-        _id: Optional[int] = None,
+        _obj_id: Optional[int] = None,
         resources: Optional[Resources] = None,
     ):
-        super().__init__(_id)
+        super().__init__(_obj_id)
         self.entity = entity
         self.team = team
         if resources is None:
@@ -37,7 +37,7 @@ class BasicPilot(Pilot, SignalFieldMixin, ABC):
     def get_default_params(cls, data: Dict) -> Dict:
         return {
             "entity": Entity.store[data["spaceship_id"]],
-            "_id": data["id"],
+            "_obj_id": data["obj_id"],
             "resources": Resources.from_dict(data["resources"]),
             "team": Team(data["team"]),
         }
@@ -45,8 +45,8 @@ class BasicPilot(Pilot, SignalFieldMixin, ABC):
     def to_dict(self) -> Dict:
         return {
             **super().to_dict(),
-            "spaceship_id": self.entity.id,
-            "id": self.id,
+            "spaceship_id": self.entity.obj_id,
+            "obj_id": self.obj_id,
             "resources": self.resources.to_dict(),
             "team": self.team.value,
         }
